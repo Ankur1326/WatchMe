@@ -1,6 +1,9 @@
 import mongoose, { Schema } from "mongoose"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
+// import dotenv from "dotenv"
+// dotenv.config();
+
 
 const userSchema = new Schema(
     {
@@ -82,7 +85,7 @@ userSchema.methods.generateRefreshToken = function () {
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
-            expiresIn: process.env.REFERESH_TOKEN_EXPIRY
+            expiresIn: process.env.REFRESH_TOKEN_EXPIRY
         }
     )
 }

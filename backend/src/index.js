@@ -1,12 +1,9 @@
 import connectDB from "./db.js";
 import { app } from "./app.js";
+import dotenv from "dotenv";
 
-import dotenv from "dotenv"
-
-dotenv.config({
-    path: "./env"
-})
-console.log(process.env.PORT)
+dotenv.config();
+// console.log(process.env.PORT);
 
 const startApp = async () => {
     try {
@@ -20,3 +17,12 @@ const startApp = async () => {
 } 
 
 startApp()
+
+
+// for example...
+import bcrypt from "bcrypt"
+const saltRounds = 10
+const password = "Admin@123"
+bcrypt.hash(password, saltRounds).then(hash => {
+    console.log("hash : ", hash);
+}).catch(error => console.log("Error : ", error))
