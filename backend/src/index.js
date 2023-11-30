@@ -1,28 +1,51 @@
-import connectDB from "./db.js";
-import { app } from "./app.js";
-import dotenv from "dotenv";
+// require('dotenv').config({path: './env'})
+import dotenv from "dotenv"
+import connectDB from "./db/index.js";
+import { app } from './app.js'
+dotenv.config({
+    path: './.env'
+})
 
-dotenv.config();
-// console.log(process.env.PORT);
 
-const startApp = async () => {
-    try {
-        await connectDB()
+
+connectDB()
+    .then(() => {
         app.listen(process.env.PORT || 8000, () => {
-            console.log(`Server is running at port : ${process.env.PORT} `);
+            console.log(`⚙️ Server is running at port : ${process.env.PORT}`);
         })
+    })
+    .catch((err) => {
+        console.log("MONGO db connection failed !!! ", err);
+    })
+
+
+
+
+
+
+
+
+
+
+/*
+import express from "express"
+const app = express()
+( async () => {
+    try {
+        await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`)
+        app.on("errror", (error) => {
+            console.log("ERRR: ", error);
+            throw error
+        })
+
+        app.listen(process.env.PORT, () => {
+            console.log(`App is listening on port ${process.env.PORT}`);
+        })
+
     } catch (error) {
-        console.log("Mongo db connection failed : ", error);
+        console.error("ERROR: ", error)
+        throw err
     }
-} 
+})()
 
-startApp()
-
-
-// for example...
-import bcrypt from "bcrypt"
-const saltRounds = 10
-const password = "Admin@123"
-bcrypt.hash(password, saltRounds).then(hash => {
-    console.log("hash : ", hash);
-}).catch(error => console.log("Error : ", error))
+*/
