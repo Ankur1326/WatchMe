@@ -18,6 +18,9 @@ const registerUser = asyncHandler(async (req, res) => {
   const { fullName, email, username, password } = req.body;
   //console.log("email: ", email);
 
+  console.log(req.body);
+  console.log(req.files);
+
   if (
     [fullName, email, username, password].some((field) => field?.trim() === "")
   ) {
@@ -53,7 +56,10 @@ const registerUser = asyncHandler(async (req, res) => {
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
   if (!avatar) {
-    throw new ApiError(400, "Avatar file is required");
+    throw new ApiError(
+      400,
+      "Avatar file is required, not uploaded on cloudinary"
+    );
   }
 
   const user = await User.create({
@@ -65,6 +71,7 @@ const registerUser = asyncHandler(async (req, res) => {
     username: username.toLowerCase(),
   });
 
+  // check user is created or not and remove passsword and refreshToken field
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
