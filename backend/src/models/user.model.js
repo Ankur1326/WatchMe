@@ -51,7 +51,7 @@ const userSchema = new Schema(
         timestamps: true
     }
 )
-
+ 
 userSchema.pre("save", async function (next) {
     if(!this.isModified("password")) return next();
 
@@ -77,6 +77,7 @@ userSchema.methods.generateAccessToken = function(){
         }
     )
 }
+
 userSchema.methods.generateRefreshToken = function(){
     return jwt.sign(
         {
