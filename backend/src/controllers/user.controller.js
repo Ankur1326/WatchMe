@@ -116,33 +116,13 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const { username, email, password } = req.body;
 
-  console.log("Request body: ", req.body);
-  console.log("Provided credentials: ", username, email, password);
-
   if (!username && !email) {
     throw new ApiError(400, "username or email is required");
   }
 
-  // find by username or email
-  // const user = await User.findOne({
-  //   $or: [{ username }, { email }],
-  // });
-
   const user = await User.findOne({
-    $or: [
-      { username: username ? { $regex: new RegExp(username, 'i') } : null },
-      { email: email ? { $regex: new RegExp(email, 'i') } : null },
-    ],
+    $or: [{ username }, { email }],
   });
-
-  console.log("user.password : ", user.password);
-
-
-  if (password === user.password) {
-    console.log("Password match!");
-  } else {
-    console.log("Password mismatch!");
-  }
 
   if (!user) {
     throw new ApiError(404, "user does not exist");
@@ -150,9 +130,6 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const isPasswordValid = await user.isPasswordCorrect(password.trim());
 
-  console.log("user ", user.password);
-  console.log("isPasswordValid : ", isPasswordValid);
-  
   if (!isPasswordValid) {
     throw new ApiError(401, "Invalid user credentials (Incorrect password)");
   }
