@@ -23,7 +23,7 @@ const generateRefreshAndAccessToken = async (user_id) => {
   }
 };
 
-const registerUser = asyncHandler(async (req, res) => {
+const registerUser = asyncHandler(async (req, res) => { 
   // get user details from frontend
   // validation - not empty
   // check if user already exists: username, email
