@@ -23,7 +23,7 @@ const generateRefreshAndAccessToken = async (user_id) => {
   }
 };
 
-const registerUser = asyncHandler(async (req, res) => { 
+const registerUser = asyncHandler(async (req, res) => {
   // get user details from frontend
   // validation - not empty
   // check if user already exists: username, email
@@ -37,9 +37,9 @@ const registerUser = asyncHandler(async (req, res) => {
   const { fullName, email, username, password } = req.body;
   //console.log("email: ", email);
 
-  console.log(req.body);
-  console.log(req.files);
-
+  // console.log(req.body);
+  // console.log("req.files: ", req.files);
+  // console.log("req.body : ", req.body);
   if (
     [fullName, email, username, password].some((field) => field?.trim() === "")
   ) {
@@ -76,6 +76,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const avatar = await uploadOnCloudinary(avatarLocalPath);
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
+  console.log("avatar cloudinary path : ", avatar);
   if (!avatar) {
     throw new ApiError(400, "Avatar file could not be uploaded to Cloudinary");
   }
@@ -98,9 +99,12 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Something went wrong while registering the user");
   }
 
+  console.log("createdUser : ", createdUser);
+
   return res
     .status(201)
     .json(new ApiResponse(200, createdUser, "User registered Successfully"));
+
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -196,7 +200,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incommingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
-
+    
   if (!incommingRefreshToken) {
     throw new ApiError(401, "Unauthorized request");
   }
@@ -260,15 +264,12 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Password changed successfully!"));
 });
 
-const getCurrentUser = asyncHandler(async(req, res) => {
+const getCurrentUser = asyncHandler(async (req, res) => {
   return res
-  .status(200)
-  .json(new ApiResponse(
-      200,
-      req.user,
-      "User fetched successfully"
-  ))
-})
+    .status(200)
+    .json(new ApiResponse(200, req.user, "User fetched successfully"));
+});
+
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
   const { fullName, email } = req.body;
@@ -452,31 +453,33 @@ const getWatchHistory = asyncHandler(async () => {
                       fullName: 1,
                       username: 1,
                       avatar: 1,
-
-                    }
-                  }
-                ]
-              }
+                    },
+                  },
+                ],
+              },
             },
             {
               $addFields: {
                 owner: {
-                  $first: "$owner"
-                }
-              }
-            }
-          ]
+                  $first: "$owner",
+                },
+              },
+            },
+          ],
         },
       },
     ],
   ]);
 
   return res
-  .status(200)
-  .json(
-    new ApiResponse(200, user[0].watchHistory, "Watch history fetched successfully")
-  )
-  
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        user[0].watchHistory,
+        "Watch history fetched successfully"
+      )
+    );
 });
 
 export {
@@ -490,5 +493,5 @@ export {
   updateUserAvatar,
   updateUserCoverImage,
   getUserChannelProfile,
-  getWatchHistory
+  getWatchHistory,
 };
