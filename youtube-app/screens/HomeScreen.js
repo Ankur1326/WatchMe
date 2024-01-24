@@ -8,10 +8,9 @@ import {
   StatusBar,
   Pressable,
 } from "react-native";
-import React, { useContext, useEffect,useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
-import styles from "../styles/styles";
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import axios from "axios";
 import { UserType } from '../UserContext';
