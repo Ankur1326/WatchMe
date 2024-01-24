@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "ad73b897-7433-4f1e-91e5-6e728dbf6ff5"
+      }
+    },
+    "android": {
+      "package": "youtube.backend"
+    }
+  }
+}

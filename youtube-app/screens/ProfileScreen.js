@@ -7,7 +7,8 @@ import customStyles from "../styles/styles"
 
 const ProfileScreen = () => {
     const [user, setUser] = useContext(UserType);
-    const [selectedSection, setSelectedSection] = useState(null)
+    const [selectedSection, setSelectedSection] = useState("Videos")
+
 
     const sections = [
         {
@@ -64,7 +65,7 @@ const ProfileScreen = () => {
 
 
 
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', width: "100%", paddingVertical: 13, borderBottomWidth: 2, borderBottomColor: "#666", }} >
                         {
                             sections.map((item, index) => (
@@ -75,11 +76,20 @@ const ProfileScreen = () => {
                                         paddingVertical: 8,
                                         paddingHorizontal: 25,
                                         backgroundColor: selectedSection === item.name ? "#ffffff" : "transparent",
-                                    }}><Text style={{ fontSize: 17, fontWeight: "bold", color: "white" }}>{item.name}</Text></Pressable>
+                                        borderBottomWidth: selectedSection === item.name ? 2.5 : 0,
+                                        borderBottomColor: selectedSection === item.name ? "#AE7AFF" : "white",
+                                    }}><Text style={{
+                                        fontSize: 17,
+                                        fontWeight: "bold",
+                                        color: "white",
+                                        color: selectedSection === item.name ? "#AE7AFF" : "white"
+                                    }}>{item.name}</Text></Pressable>
                             ))
                         }
                     </View>
-                </ScrollView>
+                </ScrollView> */}
+
+                
                 <View>
                     <Text>Videos not present</Text>
                 </View>
