@@ -15,8 +15,6 @@ export default customStyles = StyleSheet.create({
         paddingVertical: 15,
         width: "90%",
         borderRadius: 3,
-
-        
     },
     inputText: {
         borderWidth: 0.4,
