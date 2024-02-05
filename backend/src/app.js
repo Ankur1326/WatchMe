@@ -19,7 +19,7 @@ app.use(cookieParser());
 //routes import
 import userRouter from "./routes/user.routes.js";
 
-//routes declaration
+//routes declaration for users
 app.use("/api/v1/users", userRouter);
 
 // http://localhost:6100/api/v1/users/register
