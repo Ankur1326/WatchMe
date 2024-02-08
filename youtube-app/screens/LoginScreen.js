@@ -8,6 +8,7 @@ import customStyles from "../styles/styles";
 import axios from "axios";
 
 import jwt_decode from "jwt-decode"
+import { base_url } from "../helper/helper.js";
 
 
 const LoginScreen = () => {
@@ -54,7 +55,7 @@ const LoginScreen = () => {
                 Alert.alert("All fields are requied")
             }
 
-            const response = await axios.post("http://192.168.43.207:6100/api/v1/users/login", formData)
+            const response = await axios.post(`${base_url}/users/login`, formData)
             // console.log(response);
 
             if (response.data.statusCode == 200) {

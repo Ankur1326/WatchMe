@@ -12,6 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import axios from "axios";
 import { UserType } from '../UserContext';
 import { useNavigation } from "@react-navigation/native";
+import { base_url } from "../helper/helper.js";
 
 const HomeScreen = () => {
   const navigation = useNavigation()
@@ -55,7 +56,7 @@ const HomeScreen = () => {
       try {
 
         const accessToken = await AsyncStorage.getItem("accessToken")
-        const response = await axios.get("http://192.168.43.207:6100/api/v1/users/current-user", {
+        const response = await axios.get(`${base_url}/users/current-user`, {
           headers: {
             Authorization: `${accessToken}`,
           }

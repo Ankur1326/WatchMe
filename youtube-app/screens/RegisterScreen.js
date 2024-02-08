@@ -1,4 +1,4 @@
-import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View, } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -6,7 +6,7 @@ import customStyles from "../styles/styles";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 
-import * as FileSystem from "expo-file-system";
+import { base_url } from "../helper/helper";
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -32,7 +32,7 @@ const RegisterScreen = () => {
     if (formData.username !== "" && formData.fullName !== "" && formData.email !== "" && formData.password !== "" && formData.avater !== null) {
       try {
         setShowLoader(true);
-        const response = await axios.post("http://192.168.43.207:6100/api/v1/users/register", formData, {
+        const response = await axios.post(`${base_url}/users/register`, formData, {
           headers: { "Content-Type": "multipart/form-data" }
         }
         );
