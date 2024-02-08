@@ -171,8 +171,8 @@ const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: {
-        refreshToken: undefined,
+      $unset: {
+        refreshToken: 1, // this removes the field from document
       },
     },
     {
@@ -196,7 +196,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incommingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
-    
+
   if (!incommingRefreshToken) {
     throw new ApiError(401, "Unauthorized request");
   }
@@ -260,6 +260,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Password changed successfully!"));
 });
 
+
 const getCurrentUser = asyncHandler(async (req, res) => {
   return res
     .status(200)
@@ -292,6 +293,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     );
 });
 
+
 const updateUserAvatar = asyncHandler(async (req, res) => {
   const avatarLocalPath = req.file?.path;
 
@@ -319,6 +321,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, user, "avatar image updated successfully"));
 });
+
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
   const coverImageLocalPath = req.file?.path;
@@ -351,6 +354,8 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "Cover image updated successfully"));
 });
 
+
+// endpoint to get user channel profile
 const getUserChannelProfile = asyncHandler(async (req, res) => {
   const { username } = req.params; // from URL
 
@@ -382,10 +387,10 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     },
     {
       $addFields: {
-        subscribersCount: {
+        subscribersCount: { // mere channel ko kitne logo ne subscribed kiye hai  
           $size: "$subscribers",
         },
-        channelSubscribedToCount: {
+        channelSubscribedToCount: { // mne kitne channels ko subscribed kiyea hai
           $size: "$subscribedTo",
         },
         isSubscribed: {
@@ -422,7 +427,9 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     );
 });
 
-const getWatchHistory = asyncHandler(async () => {
+
+// endpoint to get WatchHistory 
+const getWatchHistory = asyncHandler(async (req, res) => {
   const user = await User.aggregate([
     [
       {
