@@ -17,6 +17,7 @@ const LoginScreen = () => {
     const [showLoader, setShowLoader] = useState(false);
 
 
+
     const navigation = useNavigation();
     const currentTime = Math.floor(Date.now() / 1000);
     // console.log(currentTime);
@@ -34,7 +35,7 @@ const LoginScreen = () => {
 
                     // set userId in context 
                     console.log("decodedAccessToken : ", decodedAccessToken._id);
-                    navigation.replace("Main")
+                    navigation.replace("Drawer")
                 }
             } catch (error) {
                 console.log("error : ", error);
@@ -60,9 +61,9 @@ const LoginScreen = () => {
                 Alert.alert("Logged In", response.data.message)
 
                 await AsyncStorage.setItem("accessToken", response.data.data.accessToken)
-                await AsyncStorage.setItem("refreshToken", response.data.data.refreshToken)
+                // await AsyncStorage.setItem("refreshToken", response.data.data.refreshToken)
 
-                navigation.navigate("Main")
+                navigation.navigate("Drawer")
             }
 
         } catch (error) {

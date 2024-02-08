@@ -52,7 +52,7 @@ const Sidebar = ({ navigation }) => {
         <SimpleLineIcons name="logout" size={22} color="white" />
         <Text style={{ color: "white", fontSize: 15 }} >LogOut</Text>
       </TouchableOpacity>
-
+ 
     </View>
   )
 }

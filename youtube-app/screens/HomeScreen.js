@@ -1,10 +1,7 @@
 import {
-  StyleSheet,
-  Text,
   View,
   Image,
   ScrollView,
-  TouchableOpacity,
   StatusBar,
   Pressable,
 } from "react-native";
@@ -14,10 +11,10 @@ import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import axios from "axios";
 import { UserType } from '../UserContext';
-
-
+import { useNavigation } from "@react-navigation/native";
 
 const HomeScreen = () => {
+  const navigation = useNavigation()
   const category = [
     {
       id: "0",
@@ -81,21 +78,20 @@ const HomeScreen = () => {
     <SafeAreaView style={{ backgroundColor: "#333", color: "white" }}>
       <StatusBar barStyle="light-content" />
       <ScrollView style={{}}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            paddingHorizontal: 15,
-            paddingVertical: 7
-          }}
-        >
+
+        {/* Header */}
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 15, paddingVertical: 0 }}>
           <Image
-            style={{ width: 50, height: 50 }}
+            style={{ width: 40, height: 40 }}
             // source={require("../assets/6372187-middle.png")}
             source={require("../assets/logo.jpg")}
           />
-          <Feather name="search" size={24} color="white" />
+          <View style={{ flexDirection: "row", gap: 10, alignItems: "center", marginRight: 5 }} >
+            <Feather name="search" size={24} color="white" />
+            <Pressable onPress={() => navigation.openDrawer()} >
+              <Feather name="menu" size={34} color="white" />
+            </Pressable>
+          </View>
         </View>
 
         {/* Category */}
@@ -108,7 +104,7 @@ const HomeScreen = () => {
                 paddingHorizontal: 15,
                 paddingVertical: 7,
                 margin: 7,
-                borderRadius: 5,
+                borderRadius: 0,
               }}
             >
               <Text style={{ color: "white" }}>{item.name}</Text>
