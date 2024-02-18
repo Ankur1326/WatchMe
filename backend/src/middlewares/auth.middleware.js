@@ -8,22 +8,23 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
     // using for web browser 
     const token = req.cookies?.accessToken || req.header("Authorization");
 
-    console.log("accessToken :", req.header(("Authorization")));
+    // console.log("accessToken :", req.header(("Authorization"))); 
+    console.log("token : ", token);
 
     if (!token) {
       throw new ApiError(404, "Unauthorized request");
     }
 
-    console.log("token : ", token);
-
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-    console.log("decodedToken : ", decodedToken);
+    // console.log("decodedToken : ", decodedToken);
 
     const user = await User.findById(decodedToken?._id).select(
       "-password -refreshToken"
     );
 
+    // console.log("user : ", user);
+    
     if (!user) {
       throw new ApiError(404, "Invalid Access Token");
     }
