@@ -6,7 +6,7 @@ import customStyles from "../styles/styles";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 
-import { base_url } from "../helper/helper";
+import { base_url } from "../helper/helper.js";
 
 const RegisterScreen = () => {
   const navigation = useNavigation();

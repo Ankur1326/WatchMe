@@ -13,13 +13,17 @@ import SubscribedTabcomponent from '../components/dynamicSectionsComponents/Subs
 import Live from '../components/dynamicSectionsComponents/Live';
 import axios from "axios"
 import { base_url } from '../helper/helper.js';
+import { FontAwesome6 } from '@expo/vector-icons';
+import VideoUpload from '../Modal/VideoUpload.js';
+
 
 const Tab = createMaterialTopTabNavigator();
 const ProfileScreen = ({ navigation }) => {
     const [user, setUser] = useContext(UserType);
     const [selectedSection, setSelectedSection] = useState("Videos")
-
     const [userchannelProfile, setUserChannelProfile] = useState({})
+    const [isModalVisible, setModalVisible] = useState(false);
+
 
     const sections = [
         {
@@ -44,7 +48,7 @@ const ProfileScreen = ({ navigation }) => {
         },
     ]
 
-    const handleSecions = (sectionName) => {
+    const handleSections = (sectionName) => {
         setSelectedSection(sectionName)
         console.log("selectedSection : ", selectedSection);
     }
@@ -60,77 +64,80 @@ const ProfileScreen = ({ navigation }) => {
         handleGetUserProfile()
     }, [])
 
-
+    // close upoad video modal 
+    const closeModal = () => {
+        setModalVisible(false)
+    }
 
     return (
         <SafeAreaView style={{ backgroundColor: "#000", flex: 1, position: 'relative' }}>
-            {/* <ScrollView showsVerticalScrollIndicator={false} style={{ backgroundColor: "#444" }} > */}
+            {/* <ScrollView showsVerticalScrollIndicator={false} > */}
 
-            {/* Header */}
-            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 15, paddingVertical: 0 }}>
-                <Image
-                    style={{ width: 40, height: 40 }}
-                    // source={require("../assets/6372187-middle.png")}
-                    source={require("../assets/logo.jpg")}
-                />
-                <View style={{ flexDirection: "row", gap: 10, alignItems: "center", marginRight: 5 }} >
-                    <Feather name="search" size={24} color="white" />
-                    <Pressable onPress={() => navigation.openDrawer()} >
-                        <Feather name="menu" size={34} color="white" />
-                    </Pressable>
-                </View>
-            </View>
-
-
-            <View style={{}}>
-
-                {/* coverImage */}
-                <View>
-                    <Image source={{ uri: userchannelProfile.coverImage }} style={{ width: "100%", height: 85, resizeMode: "cover" }} />
+                {/* Header */}
+                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 15, paddingVertical: 0 }}>
+                    <Image
+                        style={{ width: 40, height: 40 }}
+                        // source={require("../assets/6372187-middle.png")}
+                        source={require("../assets/logo.jpg")}
+                    />
+                    <View style={{ flexDirection: "row", gap: 10, alignItems: "center", marginRight: 5 }} >
+                        <Feather name="search" size={24} color="white" />
+                        <Pressable onPress={() => navigation.openDrawer()} >
+                            <Feather name="menu" size={34} color="white" />
+                        </Pressable>
+                    </View>
                 </View>
 
-                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, gap: 5, paddingBottom: 12 }} >
-                    <Image source={{ uri: userchannelProfile.avatar }} style={{ width: 110, height: 110, resizeMode: "cover", borderRadius: 55, borderWidth: 2, borderColor: "white", position: 'absolute', top: -30, left: 10 }} />
-                    <View style={{ paddingLeft: 110, paddingVertical: 10 }}>
-                        <Text style={{ color: "white", fontSize: 17 }} >{userchannelProfile.fullName}</Text>
-                        <Text style={{ color: "#999", fontSize: 13 }} >@{userchannelProfile.username}</Text>
+
+                <View style={{}}>
+
+                    {/* coverImage */}
+                    <View>
+                        <Image source={{ uri: userchannelProfile.coverImage }} style={{ width: "100%", height: 85, resizeMode: "cover" }} />
                     </View>
 
-                    {/* Edit btn  */}
-                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: "#AE7AFF", paddingHorizontal: 16, paddingVertical: 10, }}>
-                        <Feather name="edit-2" size={21} color="black" style={{ fontWeight: "bold" }} />
-                        <Text style={{ fontSize: 17, fontWeight: "bold" }} >Edit</Text>
-                    </TouchableOpacity>
-                    <Text style={{ color: "#999", fontSize: 13, position: 'absolute', bottom: 0, right: 50 }} >{userchannelProfile.subscribersCount} subscribers . {userchannelProfile.channelSubscribedToCount} Subscribed</Text>
+                    <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, gap: 5, paddingBottom: 12 }} >
+                        <Image source={{ uri: userchannelProfile.avatar }} style={{ width: 110, height: 110, resizeMode: "cover", borderRadius: 55, borderWidth: 2, borderColor: "white", position: 'absolute', top: -30, left: 10 }} />
+                        <View style={{ paddingLeft: 110, paddingVertical: 10 }}>
+                            <Text style={{ color: "white", fontSize: 17 }} >{userchannelProfile.fullName}</Text>
+                            <Text style={{ color: "#999", fontSize: 13 }} >@{userchannelProfile.username}</Text>
+                        </View>
+
+                        {/* Edit btn  */}
+                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: "#AE7AFF", paddingHorizontal: 16, paddingVertical: 10, }}>
+                            <Feather name="edit-2" size={21} color="black" style={{ fontWeight: "bold" }} />
+                            <Text style={{ fontSize: 17, fontWeight: "bold" }} >Edit</Text>
+                        </TouchableOpacity>
+                        <Text style={{ color: "#999", fontSize: 13, position: 'absolute', bottom: 0, right: 50 }} >{userchannelProfile.subscribersCount} subscribers . {userchannelProfile.channelSubscribedToCount} Subscribed</Text>
+                    </View>
+
+                </View>
+                <View style={{ flex: 1, position: 'relative' }}>
+                    <Tab.Navigator
+                        tabBarOptions={{
+                            labelStyle: {
+                                // fontSize: 10.5,
+                                fontWeight: 'bold',
+                                color: "white"
+                            },
+                            style: {
+                                backgroundColor: ({ focused }) => focused ? "yellow" : "black",
+                                // position: "absolute"
+                            },
+                            indicatorStyle: {
+                                backgroundColor: '#AE7AFF', // Set the indicator color
+                                height: 2.5,
+                            },
+                        }}
+                    >
+                        {sections.map((section) => (
+                            <Tab.Screen key={section.id} name={section.name} component={section.component} options={{
+                            }} />
+                        ))}
+                    </Tab.Navigator>
                 </View>
 
-            </View>
-            <View style={{ flex: 1, }}>
-
-                <Tab.Navigator
-                    tabBarOptions={{
-                        labelStyle: {
-                            // fontSize: 10.5,
-                            fontWeight: 'bold',
-                            color: "white"
-                        },
-                        style: {
-                            backgroundColor: ({ focused }) => focused ? "yellow" : "black",
-                            // position: "absolute"
-                        },
-                        indicatorStyle: {
-                            backgroundColor: '#AE7AFF', // Set the indicator color
-                            height: 2.5,
-                        },
-                    }}
-                >
-                    {sections.map((section) => (
-                        <Tab.Screen key={section.id} name={section.name} component={section.component} options={{
-                        }} />
-                    ))}
-                </Tab.Navigator>
-            </View>
-
+                <VideoUpload isVisible={isModalVisible} onClose={closeModal} />
 
             {/* </ScrollView> */}
 

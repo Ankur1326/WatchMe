@@ -17,8 +17,6 @@ const LoginScreen = () => {
     const [password, setPassword] = useState("Ankur@123123");
     const [showLoader, setShowLoader] = useState(false);
 
-
-
     const navigation = useNavigation();
     const currentTime = Math.floor(Date.now() / 1000);
     // console.log(currentTime);

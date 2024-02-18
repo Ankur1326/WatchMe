@@ -56,6 +56,7 @@ const HomeScreen = () => {
       try {
 
         const accessToken = await AsyncStorage.getItem("accessToken")
+        console.log(accessToken);
         const response = await axios.get(`${base_url}/users/current-user`, {
           headers: {
             Authorization: `${accessToken}`,
