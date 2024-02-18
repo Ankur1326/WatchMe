@@ -486,6 +486,20 @@ const getWatchHistory = asyncHandler(async (req, res) => {
     );
 });
 
+
+const getUserChannel = asyncHandler(async (req, res) => {
+  const { userId } = req.params
+  console.log("userId : ", userId);
+
+  const user = await User.findById(userId)
+  if (!user) {
+    throw new ApiError(404, "user does not exist");
+  }
+
+  res.status(200).json(new ApiResponse(200, user, "user successfully fetched"))
+
+});
+
 export {
   registerUser,
   loginUser,
@@ -498,4 +512,5 @@ export {
   updateUserCoverImage,
   getUserChannelProfile,
   getWatchHistory,
+  getUserChannel,
 };
