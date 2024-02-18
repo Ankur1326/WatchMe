@@ -7,12 +7,27 @@ import { Ionicons } from '@expo/vector-icons';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { useNavigation } from "@react-navigation/native";
+import axios from "axios"
+import { base_url } from '../helper/helper';
 
 const Sidebar = ({ navigation }) => {
 
   const logoutHandleer = async () => {
     try {
+      // Retrieve the token from AsyncStorage
+      const accessToken = await AsyncStorage.getItem("accessToken")
+
+      // Include the token in the Authorization header
+      await axios.post(`${base_url}/users/logout`, {}, {
+        headers: {
+          Authorization: `${accessToken}`,
+        }
+      })
+      
+      // Remove the token from AsyncStorage
       await AsyncStorage.removeItem("accessToken")
+
+      // Navigate to the Login screen
       navigation.replace("Login")
     } catch (error) {
       console.log("error while logout user : ", error);
@@ -21,6 +36,7 @@ const Sidebar = ({ navigation }) => {
 
   return (
     <View style={{ backgroundColor: "#222", flex: 1 }} >
+      {/* header  */}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 9, borderBottomWidth: 1.5, borderBottomColor: "white" }} >
         {/* Logo  */}
         <Image style={{ width: 40, height: 40 }} source={require("../assets/logo.jpg")} />
@@ -52,7 +68,7 @@ const Sidebar = ({ navigation }) => {
         <SimpleLineIcons name="logout" size={22} color="white" />
         <Text style={{ color: "white", fontSize: 15 }} >LogOut</Text>
       </TouchableOpacity>
- 
+
     </View>
   )
 }
