@@ -7,6 +7,8 @@ import ChannelScreen from "../screens/ChannelScreen";
 import { FontAwesome5 } from "@expo/vector-icons";
 import ProfileScreen from "../screens/ProfileScreen";
 import { UserType } from "../UserContext";
+import VideoUpload from "../Modal/VideoUpload";
+import { FontAwesome6 } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
 const BottomTabNavigation = () => {
