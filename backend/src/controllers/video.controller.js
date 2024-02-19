@@ -60,6 +60,72 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
     // console.log("videos : ", videos);
 
+
+    res.status(200).json({ videos })
+
+})
+
+// get all publish video 
+const getAllPublishVideo = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
+
+    const videos = await Video.aggregate([
+        {
+            $match: {
+                isPublished: true,
+                ...(query && {
+                    $or: [
+                        { title: { $regex: new RegExp(query, 'i') } },
+                        { description: { $regex: new RegExp(query, 'i') } },
+                    ],
+                }),
+                // ...(userId && { owner: userId }),
+            }
+        },
+        { $sample: { size: parseInt(limit) } }, // get rendom videos
+        {
+            $skip: (page - 1) * limit, //&query=o&sortBy=title&sortType=asc
+        },
+        {
+            $limit: parseInt(limit)
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "userDetals"
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                videoFile: 1,
+                thumbnail: 1,
+                title: 1,
+                description: 1,
+                duration: 1,
+                views: 1,
+                isPublished: 1,
+                owner: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                __v: 1,
+                userDetals: {
+                    _id: 1,
+                    username: 1,
+                    avatar: 1,
+                    // Add other user fields as needed
+                }
+            }
+        }
+
+    ])
+
+    console.log("videos ", videos);
+    console.log("videos.length ", videos.length);
+
+
     res.status(200).json({ videos })
 
 })
@@ -125,18 +191,18 @@ const getVideoById = asyncHandler(async (req, res) => {
     try {
         const { videoId } = req.params
         console.log("Hiiiiii");
-        console.log("videoId", videoId );
+        console.log("videoId", videoId);
         //TODO: get video by id
         if (!videoId) {
             throw new ApiError(409, "Please provide videoId")
         }
 
         const video = await Video.findById(videoId)
-    
+
         if (!video) {
             throw new ApiError(404, "This Video is not present")
         }
-    
+
         return res.status(200).json(new ApiResponse(200, video, "Video successfully fetched"))
     } catch (error) {
         console.log("error while getting video : ", error);
@@ -213,12 +279,11 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
     const { videoId } = req.params
-    console.log("Hiiiiiiiiiiiiiiii");
     // get video based on videoId
     const video = await Video.findById(videoId)
 
-     // check video found or not 
-     if (!video) {
+    // check video found or not 
+    if (!video) {
         throw new ApiError(404, "video not found")
         // throw new ApiError(404, "video not found")
     }
@@ -239,5 +304,6 @@ export {
     getVideoById,
     updateVideo,
     deleteVideo,
-    togglePublishStatus
+    togglePublishStatus,
+    getAllPublishVideo
 }
