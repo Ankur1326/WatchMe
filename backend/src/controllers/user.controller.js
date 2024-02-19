@@ -4,7 +4,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const generateRefreshAndAccessToken = async (user_id) => {
   try {
@@ -367,59 +367,73 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
   const channel = await User.aggregate([
     {
       $match: {
-        username: username?.toLowerCase(),
-      },
+        username: username?.toLowerCase()
+      }
     },
     {
       $lookup: {
-        from: "subsriptions",
+        from: "subscriptions",
         localField: "_id",
         foreignField: "channel",
-        as: "subscribers",
-      },
+        as: "subscribers"
+      }
     },
     {
       $lookup: {
-        from: "subsriptions",
+        from: "subscriptions",
         localField: "_id",
         foreignField: "subscriber",
-        as: "subscribedTo",
-      },
+        as: "subscribedTo"
+      }
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "_id",
+        foreignField: "owner",
+        as: "videos"
+      }
     },
     {
       $addFields: {
-        subscribersCount: { // mere channel ko kitne logo ne subscribed kiye hai  
-          $size: "$subscribers",
+        subscriberCount: {
+          $size: "$subscribers"
         },
-        channelSubscribedToCount: { // mne kitne channels ko subscribed kiyea hai
-          $size: "$subscribedTo",
+        channelSubscribedToCount: {
+          $size: "$subscribedTo"
         },
         isSubscribed: {
           $cond: {
             if: { $in: [req.user?._id, "$subscribers.subscriber"] },
             then: true,
-            else: false,
-          },
+            else: false
+          }
         },
-      },
+        videoCount: {
+          $size: "$videos"
+        }
+      }
     },
     {
       $project: {
-        fullName: 1,
         username: 1,
-        subscribersCount: 1,
-        channelSubscribedToCount: 1,
-        isSubscribed: 1,
+        fullName: 1,
+        email: 1,
         avatar: 1,
         coverImage: 1,
-        email: 1,
-      },
-    },
+        subscriberCount: 1,
+        channelSubscribedToCount: 1,
+        isSubscribed: 1,
+        videoCount: 1
+      }
+    }
   ]);
 
   if (!channel?.length) {
     throw new ApiError(404, "channel does not exists");
   }
+
+  console.log("channel :: ", channel);
 
   return res
     .status(200)
@@ -486,18 +500,73 @@ const getWatchHistory = asyncHandler(async (req, res) => {
     );
 });
 
-
+// This endpoint for another user which is coming form
 const getUserChannel = asyncHandler(async (req, res) => {
   const { userId } = req.params
   console.log("userId : ", userId);
+  console.log("user : ", req.user);
 
   const user = await User.findById(userId)
-  if (!user) {
-    throw new ApiError(404, "user does not exist");
+
+  try {
+    const channel = await User.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(userId)
+        }
+      },
+      {
+        $lookup: {
+          from: "subscriptions",
+          localField: "_id",
+          foreignField: "channel",
+          as: "subscribers"
+        }
+      },
+      {
+        $lookup: {
+          from: "videos",
+          localField: "_id",
+          foreignField: "owner",
+          as: "videos"
+        }
+      },
+      {
+        $addFields: {
+          subscribersCount: {
+            $size: "$subscribers"
+          },
+          isSubscribed: {
+            $cond: {
+              if: { $in: [new mongoose.Types.ObjectId(userId), "$subscribers.subscriber"] },
+              then: true,
+              else: false,
+            }
+          },
+          videosCount: {
+            $size: "$videos"
+          }
+        }
+      },
+      {
+        $project: {
+          username: 1,
+          avatar: 1,
+          coverImage: 1,
+          subscribers: 1,
+          subscribersCount: 1,
+          isSubscribed: 1,
+          videosCount: 1
+        }
+      }
+    ])
+    console.log("channel : ", channel);
+
+    res.status(200).json(new ApiResponse(200, channel, "channel successfully fetched"))
+    
+  } catch (error) {
+    console.log("error while getting user channel : ", error);
   }
-
-  res.status(200).json(new ApiResponse(200, user, "user successfully fetched"))
-
 });
 
 export {
