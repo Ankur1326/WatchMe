@@ -163,7 +163,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
         throw new ApiError(400, "thumbnail could not be upload on cloudinary")
     }
 
-    console.log("videoFile : ", videoFile);
+    //console.log("videoFile : ", videoFile);
 
     // create new video document 
     const video = await Video.create({
@@ -305,5 +305,6 @@ export {
     updateVideo,
     deleteVideo,
     togglePublishStatus,
-    getAllPublishVideo
+    getAllPublishVideo,
+    togglePublishStatus,
 }
