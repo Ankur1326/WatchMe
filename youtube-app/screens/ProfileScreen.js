@@ -108,7 +108,7 @@ const ProfileScreen = ({ navigation }) => {
                             <Feather name="edit-2" size={21} color="black" style={{ fontWeight: "bold" }} />
                             <Text style={{ fontSize: 17, fontWeight: "bold" }} >Edit</Text>
                         </TouchableOpacity>
-                        <Text style={{ color: "#999", fontSize: 13, position: 'absolute', bottom: 0, right: 50 }} >{userchannelProfile.subscribersCount} subscribers . {userchannelProfile.channelSubscribedToCount} Subscribed</Text>
+                        <Text style={{ color: "#999", fontSize: 13, position: 'absolute', bottom: -2, right: 70 }} >{userchannelProfile.subscriberCount} subscribers . {userchannelProfile.channelSubscribedToCount} Subscribed</Text>
                     </View>
 
                 </View>

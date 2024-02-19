@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Button, TouchableOpacity, Pressable, Image, ScrollView, } from 'react-native'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Video } from 'expo-av';
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -7,11 +7,13 @@ import { formatDistanceToNow } from 'date-fns';
 import { AntDesign } from '@expo/vector-icons';
 import axios from "axios"
 import { base_url } from '../helper/helper';
+import { SimpleLineIcons } from '@expo/vector-icons';
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 const VideoDetailScreen = ({ route }) => {
     const navigation = useNavigation()
-    const [channel, setChannel] = useState({})
-
+    const [channel, setChannel] = useState([])
+    console.log(" channel :: ", channel);
 
     const { data } = route.params
     // console.log(data);
@@ -34,10 +36,34 @@ const VideoDetailScreen = ({ route }) => {
         const userId = data.owner
         try {
             const response = await axios.get(`${base_url}/users/get-user-channel/${userId}`)
-            console.log("response :: ", response.data.data);
-            setChannel(response.data.data)
+            // console.log("response :: ", response.data.data[0]);
+            setChannel(response.data.data[0])
+
         } catch (error) {
             console.log("Error while getting user channel : ", error);
+        }
+    }
+
+    useEffect(() => {
+        getChannel()
+    }, [])
+    
+
+    // handle subscribe toggle 
+    const subscribeToggle = async () => {
+        const accessToken = await AsyncStorage.getItem("accessToken")
+        try {
+            await axios.post(`${base_url}/subscriptions/c/${channel?._id}`, {},
+                {
+                    headers: {
+                        Authorization: `${accessToken}`,
+                    }
+                }
+            )
+            getChannel()
+            // console.log("response : ", response);
+        } catch (error) {
+            console.log("Error while toggle subscribe : ", error);
         }
     }
 
@@ -91,7 +117,7 @@ const VideoDetailScreen = ({ route }) => {
                             </Text>
                         </View>
 
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8, }}>
                             {/* Like and dislike  */}
                             <View style={{ borderWidth: 0.6, borderColor: "white", flexDirection: 'row', alignItems: 'center', width: 160, borderRadius: 7 }}>
                                 <Pressable style={{ flexDirection: 'row', gap: 5, paddingVertical: 7, paddingHorizontal: 15 }}>
@@ -111,16 +137,40 @@ const VideoDetailScreen = ({ route }) => {
                             </TouchableOpacity>
                         </View>
 
-                        {/* channel  */}
-                        <Pressable>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 25 }}>
+                            {/* channel  */}
+                            <Pressable style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }} >
                                 <View>
-                                    <Image source={{uri: channel?.avatar}} style={{width: 50, height: 50, borderRadius: 25}} />
+                                    <Image source={{ uri: channel?.avatar }} style={{ width: 50, height: 50, borderRadius: 25 }} />
                                 </View>
                                 <View>
-                                    <Text style={{ color: "white", }}>{channel?.username}</Text>
-                                    <Text style={{ color: "white", }}>{channel?.username}</Text>
+                                    <Text style={{ color: "white", fontSize: 18 }}>{channel?.username}</Text>
+                                    <Text style={{ color: "#9e9e9e", }}>{channel?.subscribersCount} Subscribers</Text>
                                 </View>
-                        </Pressable>
+                            </Pressable>
+                            {/* subscribe btn */}
+                            <TouchableOpacity onPress={() => subscribeToggle()} style={{ backgroundColor: "#AE7AFF", paddingHorizontal: 12, paddingVertical: 8 }}>
+                                {
+                                    channel.isSubscribed == true ? (
+                                        <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
+                                            <SimpleLineIcons name="user-following" size={18} color="black" />
+                                            <Text style={{ color: "black", fontSize: 18, fontWeight: 600 }}>Subscribed</Text>
+                                        </View>
+                                    ) : (
+                                        <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }} >
+                                            <SimpleLineIcons name="user-follow" size={18} color="black" />
+                                            <Text style={{ color: "black", fontSize: 18, fontWeight: 600 }}>Subscribe</Text>
+                                        </View>
+                                    )
+                                }
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* description */}
+                        <View style={{ marginTop: 15, borderTopWidth: 0.6, borderTopColor: "gray", paddingVertical: 10 }} >
+                            <Text style={{ color: "white", fontSize: 18, textAlign: 'center' }}>🚀{data?.description}</Text>
+
+                        </View>
                     </View>
                 </View>
 
