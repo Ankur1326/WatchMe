@@ -9,6 +9,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios"
 import { base_url } from '../helper/helper';
+import ToggleDarkModeTheme from '../components/ToggleDarkModeTheme';
 
 const Sidebar = ({ navigation }) => {
 
@@ -63,6 +64,8 @@ const Sidebar = ({ navigation }) => {
           <Text style={{ color: "white", fontSize: 15 }} >Setting</Text>
         </Pressable>
       </View>
+
+      {/* <ToggleDarkModeTheme /> */}
 
       <TouchableOpacity onPress={() => logoutHandleer()} style={{ backgroundColor: "#444", marginHorizontal: 16, paddingVertical: 8, paddingHorizontal: 10, flexDirection: "row", alignItems: 'center', gap: 13, position: 'absolute', bottom: 20, width: "90%" }} >
         <SimpleLineIcons name="logout" size={22} color="white" />
