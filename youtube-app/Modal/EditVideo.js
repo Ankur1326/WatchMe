@@ -140,7 +140,7 @@ const EditVideo = ({ isVisible, videoId, onClose, getAllVideos }) => {
                         {/* description  */}
                         <View style={{ marginTop: 15, alignSelf: 'center', width: "93%", marginBottom: 20 }} >
                             <Text style={{ color: "white", }} > Description*</Text>
-                            <TextInput value={description} onChangeText={(text) => setDescription(text)} style={{ borderWidth: 1, borderColor: "white", marginTop: 4, paddingVertical: 4, paddingHorizontal: 8, color: "white", height: 200 }} />
+                            <TextInput multiline value={description} onChangeText={(text) => setDescription(text)} style={{ borderWidth: 1, borderColor: "white", marginTop: 4, paddingVertical: 8, paddingHorizontal: 8, color: "white", height: 200, textAlignVertical: 'top' }} />
                         </View>
 
                         {/* Cancel and Update */}
