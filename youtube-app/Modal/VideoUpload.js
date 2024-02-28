@@ -126,7 +126,7 @@ const VideoUpload = ({ isVisible, onClose, getAllVideos }) => {
 
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                       <Text style={{ color: "white", fontSize: 18, fontWeight: 600 }} >Size: </Text>
-                      <Text style={{ color: "white" }} >{selectedVideo?.size}</Text>
+                      <Text style={{ color: "white" }} >{(selectedVideo?.size / 1024 / 1024).toString().length > 4 ? `${(selectedVideo?.size / 1024 / 1024).toString().substring(0, 4)}MB` : `${selectedVideo?.size / 1024 / 1024}MB`}</Text>
                     </View>
 
                   </View>
@@ -171,7 +171,7 @@ const VideoUpload = ({ isVisible, onClose, getAllVideos }) => {
             {/* description  */}
             <View style={{ marginTop: 15, alignSelf: 'center', width: "90%", marginBottom: 20 }} >
               <Text style={{ color: "white", }} > Description*</Text>
-              <TextInput onChangeText={text => setDescription(text)} style={{ borderWidth: 1, borderColor: "white", marginTop: 4, paddingVertical: 4, paddingHorizontal: 8, color: "white", height: 200 }} />
+              <TextInput multiline onChangeText={text => setDescription(text)} style={{ borderWidth: 1, borderColor: "white", marginTop: 4, paddingVertical: 8, paddingHorizontal: 8, color: "white", height: 200, textAlignVertical: 'top' }} />
             </View>
           </ScrollView>
 
