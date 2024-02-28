@@ -9,6 +9,8 @@ import { base_url } from "../helper/helper.js";
 import { formatDistanceToNow } from 'date-fns';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
+import SkeletonLoader from "../components/SkeletonLoader.js";
+import HeaderComponentt from "../components/HeaderComponent.js";
 
 const HomeScreen = () => {
 
@@ -19,9 +21,7 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(false);
   const flatListRef = useRef(null)
   const [refreshing, setRefreshing] = useState(false)
-
-  // console.log(ref);
-
+  const [isVisibleskeletion, setIsVisibleskeletion] = useState(true)
 
   const category = [
     {
@@ -54,8 +54,6 @@ const HomeScreen = () => {
     },
   ];
 
-  // console.log("user ::", user);
-
   // fetch current user 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -81,9 +79,8 @@ const HomeScreen = () => {
     fetchCurrentUser();
   }, [])
 
-
   const getAllPublishVideos = async () => {
-    console.log("Hii");
+    console.log("call getAllPublishVideos");
 
     try {
       const accessToken = await AsyncStorage.getItem("accessToken")
@@ -99,7 +96,7 @@ const HomeScreen = () => {
       // setVideos(response.data.videos)
       setVideos(prevVideos => [...prevVideos, ...response.data.videos])
     } catch (error) {
-      console.log("Error while get all Publish videos");
+      console.log("Error while get all Publish videos", error);
     } finally {
       setRefreshing(false);
       setLoading(false)
@@ -139,17 +136,14 @@ const HomeScreen = () => {
     <SafeAreaView style={{ backgroundColor: "#000", color: "white", flex: 1 }}>
       <StatusBar barStyle="light-content" />
       {/* header  */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 9, borderBottomWidth: 1.5, borderBottomColor: "white" }} >
-        {/* Logo  */}
-        <Image style={{ width: 40, height: 40 }} source={require("../assets/logo.jpg")} />
-        <View style={{ flexDirection: "row", gap: 10, alignItems: "center", marginRight: 5 }} >
-          <Feather name="search" size={24} color="white" />
-          <Pressable onPress={() => navigation.openDrawer()} >
-            <Feather name="menu" size={34} color="white" />
-          </Pressable>
-        </View>
-      </View>
+      <HeaderComponentt />
+
       <Button title="getPublicVideos" onPress={() => getAllPublishVideos()} />
+
+      {/* skeleton loader */}
+      {
+        <SkeletonLoader isVisibleskeletion={isVisibleskeletion} />
+      }
 
       <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} style={{}}>
         {

@@ -1,24 +1,22 @@
 import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from "@expo/vector-icons";
 import { UserType } from '../UserContext';
-import customStyles from "../styles/styles"
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import VideoTabComponent from '../components/dynamicSectionsComponents/VideoTabComponent';
 import PlaylistTabComponent from '../components/dynamicSectionsComponents/PlaylistTabComponent';
 import TweetsTabComponent from '../components/dynamicSectionsComponents/TweetsTabComponent';
 import SubscribedTabcomponent from '../components/dynamicSectionsComponents/SubscribedTabcomponent';
-import Live from '../components/dynamicSectionsComponents/Live';
 import axios from "axios"
 import { base_url } from '../helper/helper.js';
-import { FontAwesome6 } from '@expo/vector-icons';
 import VideoUpload from '../Modal/VideoUpload.js';
-
+import HeaderComponent from '../components/HeaderComponent.js';
 
 const Tab = createMaterialTopTabNavigator();
 const ProfileScreen = ({ navigation }) => {
+    const scrollRef = useRef(null)
     const [user, setUser] = useContext(UserType);
     const [selectedSection, setSelectedSection] = useState("Videos")
     const [userchannelProfile, setUserChannelProfile] = useState({})
@@ -61,6 +59,8 @@ const ProfileScreen = ({ navigation }) => {
     }
 
     useEffect(() => {
+        // Scroll to the top of the ScrollView
+        // scrollRef.current?.scrollTo({ y: 0, animated: true });
         handleGetUserProfile()
     }, [])
 
@@ -71,23 +71,10 @@ const ProfileScreen = ({ navigation }) => {
 
     return (
         <SafeAreaView style={{ backgroundColor: "#000", flex: 1, position: 'relative' }}>
-            {/* <ScrollView showsVerticalScrollIndicator={false} > */}
+            <ScrollView ref={scrollRef} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} >
 
                 {/* Header */}
-                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 15, paddingVertical: 0 }}>
-                    <Image
-                        style={{ width: 40, height: 40 }}
-                        // source={require("../assets/6372187-middle.png")}
-                        source={require("../assets/logo.jpg")}
-                    />
-                    <View style={{ flexDirection: "row", gap: 10, alignItems: "center", marginRight: 5 }} >
-                        <Feather name="search" size={24} color="white" />
-                        <Pressable onPress={() => navigation.openDrawer()} >
-                            <Feather name="menu" size={34} color="white" />
-                        </Pressable>
-                    </View>
-                </View>
-
+                <HeaderComponent /> 
 
                 <View style={{}}>
 
@@ -139,7 +126,7 @@ const ProfileScreen = ({ navigation }) => {
 
                 <VideoUpload isVisible={isModalVisible} onClose={closeModal} />
 
-            {/* </ScrollView> */}
+            </ScrollView>
 
         </SafeAreaView>
     )
