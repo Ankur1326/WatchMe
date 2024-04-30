@@ -21,6 +21,7 @@ import userRouter from "./routes/user.routes.js";
 import videoRouter from "./routes/video.routes.js"
 import subscriptionRouter from "./routes/subscription.routes.js"
 import commentRouter from "./routes/comment.routes.js"
+import playlistRouter from "./routes/playlist.routes.js"
 
 //routes declaration for users
 
