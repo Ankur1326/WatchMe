@@ -122,8 +122,8 @@ const getAllPublishVideo = asyncHandler(async (req, res) => {
 
     ])
 
-    console.log("videos ", videos);
-    console.log("videos.length ", videos.length);
+    // console.log("videos ", videos);
+    // console.log("videos.length ", videos.length);
 
 
     res.status(200).json({ videos })
@@ -190,8 +190,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
 const getVideoById = asyncHandler(async (req, res) => {
     try {
         const { videoId } = req.params
-        console.log("Hiiiiii");
-        console.log("videoId", videoId);
+        // console.log("Hiiiiii");
+        // console.log("videoId", videoId);
         //TODO: get video by id
         if (!videoId) {
             throw new ApiError(409, "Please provide videoId")
@@ -244,12 +244,12 @@ const updateVideo = asyncHandler(async (req, res) => {
 
 const deleteVideo = asyncHandler(async (req, res) => {
     try {
-        console.log("Hiiiii");
+        // console.log("Hiiiii");
         const { videoId } = req.params
         //TODO: delete video
-        console.log("videoId : ", videoId);
+        // console.log("videoId : ", videoId);
         const video = await Video.findById(videoId)
-        console.log("video : ", video);
+        // console.log("video : ", video);
 
         // check video found or not 
         if (!video) {
@@ -306,5 +306,4 @@ export {
     deleteVideo,
     togglePublishStatus,
     getAllPublishVideo,
-    togglePublishStatus,
 }

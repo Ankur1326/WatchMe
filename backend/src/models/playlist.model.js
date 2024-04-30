@@ -5,9 +5,13 @@ const playlistSchame = new Schema({
         type: String,
         required: true,
     },
-    description: {
-        type: String,
-        required: true,
+    // description: {
+    //     type: String,
+    //     required: true,
+    // },
+    isPublish: {
+        type: Boolean,
+        required: false,
     },
     videos: [
         {
