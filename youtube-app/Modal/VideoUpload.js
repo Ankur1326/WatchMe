@@ -117,14 +117,14 @@ const VideoUpload = ({ isVisible, onClose, getAllVideos }) => {
             <View style={{ width: "90%", borderWidth: 1, borderStyle: 'dashed', borderColor: "white", alignSelf: 'center', marginTop: 20, alignItems: 'center', height: 240, justifyContent: 'space-between', gap: 10, paddingVertical: 20, paddingHorizontal: 15 }}>
               {
                 selectedVideo !== null ? (
-                  <View style={{ flexDirection: 'column', alignItems: 'flex-start', marginHorizontal: 20, borderWidth: 0.5, borderColor: "gray", paddingHorizontal: 15, paddingVertical: 10 }} >
+                  <View style={{ flexDirection: 'column', gap: 15, alignItems: 'flex-start', marginHorizontal: 20,  borderColor: "gray", paddingHorizontal: 15, paddingVertical: 10 }} >
 
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' , gap: 10}}>
                       <Text style={{ color: "white", fontSize: 18, fontWeight: 600 }} >Name: </Text>
                       <Text style={{ color: "white" }} >{selectedVideo?.name}</Text>
                     </View>
 
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                       <Text style={{ color: "white", fontSize: 18, fontWeight: 600 }} >Size: </Text>
                       <Text style={{ color: "white" }} >{(selectedVideo?.size / 1024 / 1024).toString().length > 4 ? `${(selectedVideo?.size / 1024 / 1024).toString().substring(0, 4)}MB` : `${selectedVideo?.size / 1024 / 1024}MB`}</Text>
                     </View>
