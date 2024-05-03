@@ -18,7 +18,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const VideoTabComponent = () => {
     const navigation = useNavigation()
-    
+
     const [user, setUser] = useContext(UserType);
     const [videos, setVideos] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);
@@ -185,13 +185,14 @@ const VideoTabComponent = () => {
             </TouchableOpacity>
 
             <ScrollView style={{ flex: 1, backgroundColor: "#121212", }}>
+                {/* video content  */}
                 <View style={{ flex: 1, paddingHorizontal: 10, paddingVertical: 10 }} >
                     {
                         videos.length > 0 ? (
                             <View style={{ flexDirection: 'column', gap: 15, position: 'relative' }}>
                                 {
                                     videos.map((item, index) => (
-                                        <Pressable onPress={() => navigation.navigate("VideoDetail", {data: item})} key={index} style={{ borderBottomWidth: 0.4, borderBottomColor: "gray", paddingBottom: 15 }} >
+                                        <Pressable onPress={() => navigation.navigate("VideoDetail", { data: item })} key={index} style={{ borderBottomWidth: 0.4, borderBottomColor: "gray", paddingBottom: 15 }} >
                                             {/* < */}
                                             <View style={{ flexDirection: 'row', gap: 15, position: 'relative', alignItems: 'flex-start' }}>
                                                 {/* thumbnail */}
@@ -202,8 +203,9 @@ const VideoTabComponent = () => {
 
                                                 {/* title and date */}
                                                 <View>
-                                                    <Text style={{ color: "white", fontSize: 16, fontWeight: 600 }} >
-                                                        {item?.title}
+                                                    <Text style={{ color: "white", fontSize: 15, fontWeight: 600 }} >
+
+                                                        {item?.title.length > 15 ? `${item?.title.slice(0, 15)}...` : item.title}
                                                     </Text>
                                                     {/* <Text>10k Views</Text> */}
                                                     <Text style={{ color: "#dbdbdb", fontSize: 13, }} >
@@ -246,7 +248,7 @@ const VideoTabComponent = () => {
                                                             <Entypo name="cross" size={34} color="white" />
                                                         </TouchableOpacity>
 
-                                                        <TouchableOpacity onPress={() => togglePublishStatus()} style={{ backgroundColor: "", width: "100%", borderBottomWidth: 0.5, borderColor: "gray", paddingVertical: 15, flexDirection: 'row', gap: 20, paddingHorizontal: 20, alignItems: 'center' }}>
+                                                        <TouchableOpacity onPress={() => togglePublishStatus()} style={{ width: "100%", borderBottomWidth: 0.5, borderColor: "gray", paddingVertical: 15, flexDirection: 'row', gap: 20, paddingHorizontal: 20, alignItems: 'center' }}>
                                                             {
                                                                 publishStatus == true ? (
                                                                     <View style={{ flexDirection: 'row', gap: 15 }}>
