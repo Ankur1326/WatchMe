@@ -11,8 +11,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import SkeletonLoader from "../components/SkeletonLoader.js";
 import HeaderComponentt from "../components/HeaderComponent.js";
+import { useTheme } from 'expo-theme-switcher';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import BottomSlideModalToHomePage from "../Modal/BottomSlideModalToHomePage.js";
 
 const HomeScreen = () => {
+  const { currentTheme } = useTheme()
 
   const navigation = useNavigation()
   const [videos, setVideos] = useState([])
@@ -22,6 +26,8 @@ const HomeScreen = () => {
   const flatListRef = useRef(null)
   const [refreshing, setRefreshing] = useState(false)
   const [isVisibleskeletion, setIsVisibleskeletion] = useState(true)
+  const [optionsVisible, setOptionsVisible] = useState(null);
+  const [isVideoModalVisible, setIsVideoModalVisible] = useState(false)
 
   const category = [
     {
@@ -80,7 +86,7 @@ const HomeScreen = () => {
   }, [])
 
   const getAllPublishVideos = async () => {
-    console.log("call getAllPublishVideos");
+    // console.log("call getAllPublishVideos");
 
     try {
       const accessToken = await AsyncStorage.getItem("accessToken")
@@ -132,13 +138,20 @@ const HomeScreen = () => {
     }, 500);
   }
 
+  const [videoId, setVideoId] = useState("")
+  const videoModalVisible = (videoId) => {
+    setIsVideoModalVisible(!isVideoModalVisible)
+    setVideoId(videoId) // setVideoId for sending in bottomSlide.modal
+    console.log(" videoId : ", videoId);
+  }
+
   return (
-    <SafeAreaView style={{ backgroundColor: "#000", color: "white", flex: 1 }}>
+    <SafeAreaView style={{ backgroundColor: currentTheme?.primaryBackgroundColor, flex: 1 }}>
       <StatusBar barStyle="light-content" />
       {/* header  */}
       <HeaderComponentt />
 
-      <Button title="getPublicVideos" onPress={() => getAllPublishVideos()} />
+      {/* <Button title="getPublicVideos" onPress={() => getAllPublishVideos()} /> */}
 
       {/* skeleton loader */}
       {
@@ -148,35 +161,35 @@ const HomeScreen = () => {
       <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} style={{}}>
         {
           videos.length > 0 ? (
-            <View style={{ flexDirection: 'column', gap: 15, position: 'relative' }}>
+            <View style={{ flexDirection: 'column', gap: 25, position: 'relative' }}>
               {
                 <FlatList
                   data={videos}
                   key={(item) => item._id.toString()}
                   renderItem={({ item }) => (
-                    <Pressable onPress={() => navigation.navigate("VideoDetail", { data: item })} style={{ borderBottomWidth: 0.4, borderBottomColor: "gray", paddingBottom: 15 }} >
-                      <View style={{ flexDirection: 'column', gap: 15, position: 'relative', alignItems: 'flex-start' }}>
+                    <Pressable onPress={() => navigation.navigate("VideoDetail", { data: item })} style={{ borderBottomWidth: 1, borderBottomColor: currentTheme?.primaryBorderColor, paddingBottom: 26, }} >
+                      <View style={{ flexDirection: 'column', gap: 10, position: 'relative', alignItems: 'flex-start' }}>
                         {/* thumbnail */}
                         <Image source={{ uri: item?.thumbnail }} style={{ width: "100%", height: 210 }} />
 
                         {/* video duration */}
-                        <Text style={{ color: "white", fontSize: 16, fontWeight: 600, position: 'absolute', bottom: 70, right: 10, backgroundColor: "#000000c3", fontWeight: 700, paddingHorizontal: 7, paddingVertical: 1, borderRadius: 5 }} >{(item?.duration / 60).toString().substring(0, 4)}</Text>
+                        <Text style={{ color: "white", fontSize: 16, fontWeight: 600, position: 'absolute', bottom: 60, right: 10, backgroundColor: "#000000c3", fontWeight: 700, paddingHorizontal: 7, paddingVertical: 1, borderRadius: 5 }} >{(item?.duration / 60).toString().substring(0, 4)}</Text>
 
                         {/* title and date */}
                         <View>
                           <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginLeft: 5 }}>
                             {/* channel avatar image */}
-                            <Image source={{ uri: item.userDetals[0].avatar }} style={{ width: 50, height: 50, borderRadius: 25 }} />
+                            <Image source={{ uri: item.userDetals[0]?.avatar }} style={{ width: 42, height: 42, borderRadius: 25 }} />
                             <View>
                               {/* titile */}
-                              <Text style={{ color: "white", fontSize: 20, fontWeight: 600 }} >
+                              <Text style={{ color: currentTheme?.primaryTextColor, fontSize: 18, fontWeight: 600 }} >
                                 {item?.title}
                               </Text>
                               {/* views and time ago */}
                               <View style={{ flexDirection: "row", alignItems: "center", }}>
-                                <Text style={{ color: "#dbdbdb", fontSize: 13, }}>{item.userDetals[0]?.username} • </Text>
-                                <Text style={{ color: "#dbdbdb", fontSize: 13, }}>{item.views} Views • </Text>
-                                <Text style={{ color: "#dbdbdb", fontSize: 13, }} >
+                                <Text style={{ color: currentTheme?.secondaryTextColor, fontSize: 13, }}>{item.userDetals[0]?.username} • </Text>
+                                <Text style={{ color: currentTheme?.secondaryTextColor, fontSize: 13, }}>{item.views} Views • </Text>
+                                <Text style={{ color: currentTheme?.secondaryTextColor, fontSize: 13, }} >
                                   {
                                     formatDistanceToNow(new Date(item.createdAt), {
                                       addSuffix: true,
@@ -186,9 +199,19 @@ const HomeScreen = () => {
                               </View>
 
                             </View>
+
+                            {/* dots */}
+                            <Pressable onPress={() => videoModalVisible(item._id)} style={[
+                              { borderColor: "white", paddingHorizontal: 7, paddingVertical: 7, borderRadius: 0, borderBottomWidth: 0, right: -30 },
+                              item._id == optionsVisible && { backgroundColor: "#333", }
+                            ]}>
+                              <MaterialCommunityIcons name="dots-vertical" size={24} color="white" />
+                            </Pressable>
+
                           </View>
 
                         </View>
+
                       </View>
 
                     </Pressable>
@@ -206,17 +229,18 @@ const HomeScreen = () => {
           ) : (
             // Empty video page
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 30, gap: 15, paddingHorizontal: 20, marginTop: "50%" }} >
-              <View style={{ backgroundColor: "#E4D3FF", paddingVertical: 15, paddingHorizontal: 15, borderRadius: 50, }} >
+              <View style={{ backgroundColor: currentTheme?.primaryBackgroundColor, paddingVertical: 15, paddingHorizontal: 15, borderRadius: 50, }} >
                 <Ionicons name="play-outline" size={28} color="#AE7AFF" />
               </View>
 
-              <Text style={{ fontSize: 20, color: "white", fontWeight: 600 }} >No videos available</Text>
-              <Text style={{ fontSize: 16, color: "white", textAlign: 'center' }} >There are no videos here available. Please try to search some thing else.</Text>
+              <Text style={{ fontSize: 20, color: currentTheme?.primaryTextColor, fontWeight: 600 }} >No videos available</Text>
+              <Text style={{ fontSize: 16, color: currentTheme?.primaryTextColor, textAlign: 'center' }} >There are no videos here available. Please try to search some thing else.</Text>
 
             </View>
           )
         }
       </ScrollView>
+      <BottomSlideModalToHomePage isVideoModalVisible={isVideoModalVisible} setIsVideoModalVisible={setIsVideoModalVisible} videoId={videoId}  />
     </SafeAreaView>
   );
 };

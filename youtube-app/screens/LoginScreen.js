@@ -14,7 +14,7 @@ import { base_url } from "../helper/helper.js";
 const LoginScreen = () => {
     const [username, setUsername] = useState("ankurswami");
     const [email, setEmail] = useState("swamiankur@gmail.com");
-    const [password, setPassword] = useState("Ankur@123123");
+    const [password, setPassword] = useState("ankurswami");
     const [showLoader, setShowLoader] = useState(false);
 
     const navigation = useNavigation();
@@ -24,6 +24,7 @@ const LoginScreen = () => {
     useEffect(() => {
         // check Login status 
         const checkLoginStatus = async () => {
+            // await AsyncStorage.removeItem("accessToken") // if need to logged out direcrtly
             try {
                 setShowLoader(true)
                 const accessToken = await AsyncStorage.getItem("accessToken")
@@ -37,7 +38,7 @@ const LoginScreen = () => {
                     navigation.replace("Drawer")
                 }
             } catch (error) {
-                console.log("error : ", error);
+                console.log("error : ", error.message);
             } finally {
                 setShowLoader(false)
             }
@@ -85,8 +86,6 @@ const LoginScreen = () => {
             setShowLoader(false)
         }
     }
-
-
 
     return (
         <SafeAreaView style={{ flex: 1, alignItems: "center", backgroundColor: "#121212", gap: 30, }}>

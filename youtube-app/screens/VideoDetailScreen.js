@@ -9,12 +9,14 @@ import axios from "axios"
 import { base_url } from '../helper/helper';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import CommentComponent from '../components/CommentComponent';
+import HeaderComponent from '../components/HeaderComponent';
 
 const VideoDetailScreen = ({ route }) => {
     const navigation = useNavigation()
     const [channel, setChannel] = useState([])
-    console.log(" channel :: ", channel);
-
+    // console.log(" channel :: ", channel);
+    
     const { data } = route.params
     // console.log(data);
 
@@ -68,28 +70,17 @@ const VideoDetailScreen = ({ route }) => {
     }
 
     return (
-        <View style={{ borderWidth: 1, flex: 1, backgroundColor: "#222" }}>
+        <View style={{ borderWidth: 1, flex: 1, backgroundColor: "#111" }}>
+
             {/* header  */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 9, borderBottomWidth: 1.5, borderBottomColor: "white" }}>
-                <Image
-                    style={{ width: 40, height: 40 }}
-                    // source={require("../assets/6372187-middle.png")}
-                    source={require("../assets/logo.jpg")}
-                />
-                <View style={{ flexDirection: "row", gap: 10, alignItems: "center", marginRight: 5 }} >
-                    <Feather name="search" size={24} color="white" />
-                    <Pressable onPress={() => navigation.openDrawer()} >
-                        <Feather name="menu" size={34} color="white" />
-                    </Pressable>
-                </View>
-            </View>
+            <HeaderComponent />
 
             <ScrollView style={{ paddingHorizontal: 10, paddingVertical: 12 }}>
-
+                {/* video  */}
                 <Video
                     ref={videoRef}
                     source={{ uri: data.videoFile }}
-                    style={{ height: 200, borderWidth: 1, borderWidth: 0.5, borderColor: "gray" }}
+                    style={{ height: 200, borderWidth: 1, borderWidth: 0.5, borderColor: "gray", }}
                     useNativeControls
                     resizeMode="contain"
                     onPlaybackStatusUpdate={(status) => {
@@ -101,6 +92,7 @@ const VideoDetailScreen = ({ route }) => {
                     }}
                 />
 
+                {/* video info  */}
                 <View style={{ marginTop: 10 }}>
                     <View style={{ borderWidth: 0.6, borderColor: "white", padding: 10, borderRadius: 10 }}>
                         <Text style={{ color: "white", fontSize: 22, fontWeight: 600 }}>{data.title}</Text>
@@ -151,7 +143,7 @@ const VideoDetailScreen = ({ route }) => {
                             {/* subscribe btn */}
                             <TouchableOpacity onPress={() => subscribeToggle()} style={{ backgroundColor: "#AE7AFF", paddingHorizontal: 12, paddingVertical: 8 }}>
                                 {
-                                    channel.isSubscribed == true ? (
+                                    channel?.isSubscribed == true ? (
                                         <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
                                             <SimpleLineIcons name="user-following" size={18} color="black" />
                                             <Text style={{ color: "black", fontSize: 18, fontWeight: 600 }}>Subscribed</Text>
@@ -169,10 +161,12 @@ const VideoDetailScreen = ({ route }) => {
                         {/* description */}
                         <View style={{ marginTop: 15, borderTopWidth: 0.6, borderTopColor: "gray", paddingVertical: 10 }} >
                             <Text style={{ color: "white", fontSize: 18, textAlign: 'center' }}>🚀{data?.description}</Text>
-
                         </View>
                     </View>
                 </View>
+
+                {/* comment component */}
+                <CommentComponent videoId={data?._id} />
 
             </ScrollView>
         </View>
