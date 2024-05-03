@@ -6,9 +6,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const createPlaylist = asyncHandler(async (req, res) => {
     const { name, isPublish, videoId } = req.body
+    const userId = req.user._id
     console.log("**playlist controlleer called**"); 
-    //TODO: create playlist
-    console.log(name, isPublish);
+    console.log(name, isPublish, videoId, userId);
+    
     try {
         // check playlist is already exist or not 
         const existedPlaylist = await Playlist.findOne({ name })
@@ -21,7 +22,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
             name,
             isPublish,
             videos: [videoId],
-            owner: req.user._id
+            owner: userId
         })
 
         if (!newPlaylist) {
