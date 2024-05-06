@@ -19,4 +19,4 @@ router.route("/:playlistId/:videoId")
     .post(verifyJWT, addVideoToPlaylist)
     .delete(verifyJWT, removeVideoFromPlaylist)
 
-export default router;    
+export default router;
