@@ -43,7 +43,8 @@
     "react-native-skeleton-placeholder": "^5.2.4",
     "react-native-tab-view": "^3.5.2",
     "react-native-video": "^5.2.1",
-    "react-native-web": "~0.19.6"
+    "react-native-web": "~0.19.6",
+    "expo-blur": "~12.9.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
