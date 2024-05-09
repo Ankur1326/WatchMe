@@ -54,17 +54,43 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
                 from: 'videos', // Assuming the name of your videos collection is 'videos'
                 localField: 'videos',
                 foreignField: '_id',
-                as: 'firstVideo'
-            }
+                as: 'videos',
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "userDetails",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        username: 1,
+                                        avatar: 1,
+                                    }
+                                },
+                            ],
+                        }
+                    },
+                ],
+            },
         },
-        // Unwind the firstVideo array
+        {
+            $lookup: {
+                from: 'users', // Assuming the name of your videos collection is 'videos'
+                localField: 'owner',
+                foreignField: '_id',
+                as: 'channel'
+            },
+        },
         {
             $project: {
                 _id: 1,
                 name: 1,
                 playlistThumbnail: { $arrayElemAt: ['$firstVideo.thumbnail', 0] }, // Add the thumbnail of the first video
                 videosLength: { $size: '$videos' }, // Add the length of the 'videos' array
-                videos: '$videos'
+                videos: 1,
+                channel: 1,
             }
         }
     ])
@@ -157,13 +183,41 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
 
 const deletePlaylist = asyncHandler(async (req, res) => {
     const { playlistId } = req.params
-    // TODO: delete playlist
+    try {
+
+        if (playlistId) {
+            await Playlist.findByIdAndDelete(playlistId)
+        }
+
+        return res.status(201).json(new ApiResponse("Playlist successfully delete"))
+
+    } catch (error) {
+        throw new ApiError(500, "internal server error while deleting playlist")
+    }
 })
 
 const updatePlaylist = asyncHandler(async (req, res) => {
     const { playlistId } = req.params
-    const { name, description } = req.body
-    //TODO: update playlist
+    const { name } = req.body
+
+    try {
+        if (name === "" || playlistId === "") {
+            throw new ApiError(400, "name and playlistId both are required")
+        }
+
+        const playlist = await Playlist.findById(playlistId)
+        if (!playlist) {
+            throw new ApiError(404, "This Playlist is not found")
+        }
+
+        playlist.name = name
+        await playlist.save()
+
+        return res.status(201).json(new ApiResponse(200, playlist, "Playlist successfully updated"))
+
+    } catch (error) {
+        throw new ApiError(500, "Internal server error while updating playlist")
+    }
 })
 
 
