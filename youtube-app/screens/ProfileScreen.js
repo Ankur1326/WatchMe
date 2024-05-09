@@ -1,9 +1,10 @@
-import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from "@expo/vector-icons";
 import { UserType } from '../UserContext';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { ScrollView } from "react-native-gesture-handler";
 
 import VideoTabComponent from '../components/dynamicSectionsComponents/VideoTabComponent';
 import PlaylistTabComponent from '../components/dynamicSectionsComponents/PlaylistTabComponent';
@@ -21,7 +22,6 @@ const ProfileScreen = ({ navigation }) => {
     const [selectedSection, setSelectedSection] = useState("Videos")
     const [userchannelProfile, setUserChannelProfile] = useState({})
     const [isModalVisible, setModalVisible] = useState(false);
-
 
     const sections = [
         {
