@@ -9,7 +9,7 @@ const HeaderComponent = () => {
     const navigation = useNavigation()
 
     return (
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 9, borderBottomWidth: 1.5, borderBottomColor: currentTheme.primaryBorderColor }} >
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 9, borderBottomWidth: 1.5, borderBottomColor: currentTheme.primaryBorderColor, backgroundColor: currentTheme.primaryBackgroundColor }} >
             {/* Logo  */}
             <Image style={{ width: 40, height: 40 }} source={require("../assets/logo.jpg")} />
             <View style={{ flexDirection: "row", gap: 10, alignItems: "center", marginRight: 5 }} >
