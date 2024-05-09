@@ -17,16 +17,16 @@ const Sidebar = ({ navigation }) => {
     try {
       // Retrieve the token from AsyncStorage
       const accessToken = await AsyncStorage.getItem("accessToken")
-      
+
       // Include the token in the Authorization header
       await axios.post(`${base_url}/users/logout`, {}, {
         headers: {
           Authorization: `${accessToken}`,
         }
       })
-      
+
       // Remove the token from AsyncStorage
-      
+
       await AsyncStorage.removeItem("accessToken")
       // Navigate to the Login screen
       navigation.replace("Login")
@@ -64,13 +64,11 @@ const Sidebar = ({ navigation }) => {
           <Text style={{ color: currentTheme.primaryTextColor, fontSize: 15 }} >Setting</Text>
         </Pressable>
 
-        <View style={{ paddingHorizontal: 20 }}>
-          <ThemeSwitcherBtn />
-        </View>
+        {/* <ToggleDarkModeTheme /> */}
+        {/* <View style={{ paddingHorizontal: 20, borderWidth: 1, borderColor: "yellow" }}> */}
+          <ThemeSwitcherBtn  />
+        {/* </View> */}
       </View>
-      
-
-      {/* <ToggleDarkModeTheme /> */}
 
       <TouchableOpacity onPress={() => logoutHandleer()} style={{ backgroundColor: currentTheme.secondaryBackgroundColor, marginHorizontal: 16, paddingVertical: 8, paddingHorizontal: 10, flexDirection: "row", alignItems: 'center', gap: 13, position: 'absolute', bottom: 20, width: "90%" }} >
         <SimpleLineIcons name="logout" size={22} color="white" />
