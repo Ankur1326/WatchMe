@@ -167,13 +167,19 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
             throw new ApiError(409, "This video is not exist in this playlist")
         }
 
-        const updatedVideos = playlist.videos.filter((video) => video !== videoId)
+        // if there are only one video present so delete playlsit 
+        if (playlist.videos.length == 1) {
+            await Playlist.findByIdAndDelete(playlistId)
+            return res.status(201).json(new ApiResponse(200, playlist, "Playlist is successfully deleted "))
+        } else {
+            const updatedVideos = playlist.videos.filter((id) => id != videoId);
+            console.log("Updated videos:", updatedVideos);
 
-        playlist.videos = updatedVideos
+            playlist.videos = updatedVideos
+            await playlist.save()
 
-        // await playlist.save()
-
-        return res.status(201).json(new ApiResponse(200, playlist, "video is successfully deleted"))
+            return res.status(201).json(new ApiResponse(200, playlist, "video is successfully deleted"))
+        }
 
     } catch (error) {
         console.log("error while removing video from playlist : ", error);

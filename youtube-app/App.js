@@ -27,8 +27,8 @@ export default function App() {
 
   // dark theme colors
   const darkTheme = {
-    primaryBackgroundColor: "#111",
-    secondaryBackgroundColor: "#333",
+    primaryBackgroundColor: "#020617",
+    secondaryBackgroundColor: "#121212",
     primaryTextColor: "#fff",
     secondaryTextColor: "#cccccc",
     primaryBorderColor: "white",

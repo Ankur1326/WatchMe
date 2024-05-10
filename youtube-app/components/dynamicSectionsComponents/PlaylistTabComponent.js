@@ -7,7 +7,6 @@ import { base_url } from '../../helper/helper';
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 const PlaylistTabComponent = () => {
   const [user, setUser] = useContext(UserType);
   const [playlists, setPlaylists] = useState([]);
@@ -25,10 +24,9 @@ const PlaylistTabComponent = () => {
     }
   })
 
-
   useEffect(() => {
     getUserPlaylists()
-  }, [])
+  }, [conformDeletePlaylist])
 
   const conformDeletePlaylist = async (playlistId) => {
     try {
@@ -40,6 +38,7 @@ const PlaylistTabComponent = () => {
           }
         }
       )
+      getUserPlaylists()
     } catch (error) {
       console.log("Error while deleting playlist: ", error);
     } finally {
@@ -47,7 +46,6 @@ const PlaylistTabComponent = () => {
   }
 
   const deleteVideoHandler = (playlistId) => {
-
     // console.log("deleteVideoId : ", videoId);
     Alert.alert(
       "Confirm Deletion",
@@ -74,7 +72,7 @@ const PlaylistTabComponent = () => {
             <View style={{ width: "85%", height: 10, marginBottom: 5, backgroundColor: "#a992ad", borderTopLeftRadius: 25, borderTopRightRadius: 25 }} ></View>
 
             <View style={{ position: 'relative', alignItems: 'center', height: 200, width: "100%", borderRadius: 20, overflow: 'hidden', }} >
-              <Image source={{ uri: playlist?.videos[0].thumbnail }} style={{ height: "100%", width: "100%" }} />
+              <Image source={{ uri: playlist?.videos[0]?.thumbnail }} style={{ height: "100%", width: "100%" }} />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingHorizontal: 12, paddingVertical: 15, width: "100%", height: 60, position: 'absolute', backgroundColor: "#aeaeaeca", bottom: 0, borderTopWidth: 1, borderTopColor: "white" }}>
                 <View>
                   {/* playlist name */}
