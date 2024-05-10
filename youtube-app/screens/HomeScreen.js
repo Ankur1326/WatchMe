@@ -14,6 +14,7 @@ import HeaderComponentt from "../components/HeaderComponent.js";
 import { useTheme } from 'expo-theme-switcher';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import BottomSlideModalToHomePage from "../Modal/BottomSlideModalToHomePage.js";
+import PopupMessage from "../components/PopupMessage.jsx";
 
 const HomeScreen = () => {
   const { currentTheme } = useTheme()
@@ -150,6 +151,7 @@ const HomeScreen = () => {
       <StatusBar barStyle="light-content" />
       {/* header  */}
       <HeaderComponentt />
+
 
       {/* <Button title="getPublicVideos" onPress={() => getAllPublishVideos()} /> */}
 
