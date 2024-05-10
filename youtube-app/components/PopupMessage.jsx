@@ -1,31 +1,55 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text, Button } from 'react-native'
+import React, { useEffect } from 'react'
+import { MaterialIcons, Entypo } from "@expo/vector-icons"
+import { TouchableOpacity } from 'react-native-gesture-handler'
+import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 
-const PopupMessage = ({ showMessage, setShowMessage, isError }) => {
-    // if isError false so this message for success
+const PopupMessage = ({ isSuccess, title = "Please add titile message", isVisible, setVisible }) => {
+    // if isSuccess false so this message show error
+    const animateY = useSharedValue(-120)
+
+    const animationStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateY: animateY.value }]
+        }
+    })
+
+    useEffect(() => {
+        if (isVisible) {
+            animateY.value = withTiming(0, { duration: 300 })
+        }
+    }, [isVisible])
+
+    setTimeout(() => {
+        animateY.value = withTiming(-120, { duration: 500 })
+        setTimeout(() => {
+            setVisible(false)
+        }, 10);
+    }, 3500);
 
     return (
-        <Modal
-            animationType='slide'
-            transparent={true}
-            visible={isShowErrormessage}
-        // visible={true}
-        >
-            <View style={{ flex: 1, justifyContent: 'center', width: "100%", }}>
+        <Animated.View style={[{ backgroundColor: isSuccess ? "#61BA61" : "#F01818", alignSelf: 'center', width: "90%", height: 45, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, borderRadius: 5, position: 'absolute', zIndex: 999, top: 70 }, animationStyle]}>
 
-                <View style={{ backgroundColor: "#F65B5B", alignSelf: 'center', marginTop: 50, width: "90%", height: 45, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }} >
 
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }} >
-                        <MaterialIcons name="error-outline" size={24} color="white" fontWeight="200" />
-                        <Text style={{ fontSize: 14, color: "white" }} >Video is already added in this playlist</Text>
-                    </View>
+                {
+                    isSuccess ?
+                        <MaterialIcons name="gpp-good" size={26} color="white" /> : <MaterialIcons name="error-outline" size={24} color="white" fontWeight="200" />
+                }
 
-                    <TouchableOpacity onPress={() => { setShowErrormessage(false) }} style={{}}>
-                        <Entypo name="cross" size={28} color="white" />
-                    </TouchableOpacity>
-                </View>
+                <Text style={{ fontSize: 14, color: "white" }} >{title}</Text>
             </View>
-        </Modal>
+
+            <TouchableOpacity onPress={() => {
+                animateY.value = withTiming(-120, { duration: 500 })
+                setTimeout(() => {
+                    setVisible(false)
+                }, 10);
+            }} style={{}}>
+                <Entypo name="cross" size={28} color="white" />
+            </TouchableOpacity>
+
+        </Animated.View>
     )
 }
 

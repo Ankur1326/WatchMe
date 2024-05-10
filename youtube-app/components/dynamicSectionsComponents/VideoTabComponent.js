@@ -15,6 +15,8 @@ import { AntDesign } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import EditVideo from '../../Modal/EditVideo';
 import { useNavigation } from "@react-navigation/native";
+import CustomConfirmationDialog from '../../Modal/CustomConfirmationDialog';
+import PopupMessage from '../PopupMessage';
 
 const VideoTabComponent = () => {
     const navigation = useNavigation()
@@ -24,6 +26,12 @@ const VideoTabComponent = () => {
     const [isModalVisible, setModalVisible] = useState(false);
     const [isVideoModalVisible, setIsVideoModalVisible] = useState(false);
     const [showLoader, setShowLoader] = useState(false)
+    const [optionsVisible, setOptionsVisible] = useState(null);
+    const [editVideoModalVisible, setEditVideoModalVisible] = useState(false)
+    const [publishStatus, setPublishStatus] = useState(true)
+    const [showConfirmation, setShowConfirmation] = useState(false)
+    const [isSuccess, setSuccess] = useState(false)
+    const [isPopupMessageShow, setPopupMessageShow] = useState(false)
 
     const getAllVideos = async () => {
         const params = {
@@ -62,37 +70,18 @@ const VideoTabComponent = () => {
         setModalVisible(false)
     }
 
-    const [optionsVisible, setOptionsVisible] = useState(null);
     // const handleOptionVisible = (videoId) => {
     //     setOptionsVisible((prevState) => (prevState == videoId ? null : videoId))
     // }
 
     const [videoId, setVideoId] = useState("")
+
     // three dots
     const videoModalVisible = (videoId) => {
         getVideo(videoId)
         setIsVideoModalVisible(true)
         setVideoId(videoId)
         // console.log(" dele : ", videoId);
-    }
-
-    const deleteVideoHandler = (videod) => {
-
-        // console.log("deleteVideoId : ", videoId);
-        Alert.alert(
-            "Confirm Deletion",
-            "Are you sure you want to delete this Video?",
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel"
-                },
-                {
-                    text: "Delete",
-                    onPress: () => conformDeleteVideo(videoId)
-                }
-            ]
-        )
     }
 
     const conformDeleteVideo = async (videoId) => {
@@ -111,17 +100,20 @@ const VideoTabComponent = () => {
             )
             // console.log("response : ", response);
             getAllVideos()
-            setDeleteVideoId("")
+            // setDeleteVideoId("")
+            setSuccess(true)
+            setPopupMessageShow(true)
         } catch (error) {
             console.log("Error while deleting video: ", error);
             setShowLoader(true)
-            setDeleteVideoId("")
+            // setDeleteVideoId("")
+            setSuccess(false) 
+            setPopupMessageShow(true)
         } finally {
             setShowLoader(false)
         }
     }
 
-    const [editVideoModalVisible, setEditVideoModalVisible] = useState(false)
 
     // onClose for editVideo
     const onClose = () => {
@@ -153,7 +145,6 @@ const VideoTabComponent = () => {
     }
 
 
-    const [publishStatus, setPublishStatus] = useState(true)
     // getVideo based on videoId
     const getVideo = async (videoId) => {
 
@@ -178,6 +169,10 @@ const VideoTabComponent = () => {
             {showLoader && (
                 <ActivityIndicator style={{ position: "absolute", width: "100%", height: "100%", backgroundColor: "#00000084", zIndex: 99, }} size={65} color="#FFFFFF" />
             )}
+
+            {/* success or faliure popup message  */}
+            <PopupMessage isSuccess={isSuccess} title={isSuccess ? "Video delete successfully" : "Video is not being deleted"} isVisible={isPopupMessageShow} setVisible={setPopupMessageShow} />
+
 
             {/* add btn  */}
             <TouchableOpacity onPress={() => setModalVisible(true)} style={{ backgroundColor: "#E4D3FF", paddingHorizontal: 10, paddingVertical: 8, position: 'absolute', bottom: 20, right: 20, zIndex: 99, borderRadius: 50 }}>
@@ -272,13 +267,30 @@ const VideoTabComponent = () => {
                                                             <Feather name="edit" size={24} color="white" />
                                                             <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }} >Edit</Text>
                                                         </TouchableOpacity>
-                                                        <TouchableOpacity onPress={() => deleteVideoHandler()} style={{ backgroundColor: "", width: "100%", borderBottomWidth: 0.5, borderColor: "gray", paddingVertical: 15, flexDirection: 'row', gap: 20, paddingHorizontal: 20, alignItems: 'center' }}>
+                                                        <TouchableOpacity onPress={() => {
+                                                            setShowConfirmation(true)
+                                                            setIsVideoModalVisible(false)
+                                                            }} style={{ backgroundColor: "", width: "100%", borderBottomWidth: 0.5, borderColor: "gray", paddingVertical: 15, flexDirection: 'row', gap: 20, paddingHorizontal: 20, alignItems: 'center' }}>
                                                             <AntDesign name="delete" size={24} color="white" />
                                                             <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }} >Delete</Text>
                                                         </TouchableOpacity>
                                                     </View>
                                                 </View>
                                             </Modal>
+
+                                            {/* Conformation Dialog */}
+                                            <CustomConfirmationDialog
+                                                showConfirmation={showConfirmation}
+                                                title="Delete Video"
+                                                message="Are you sure you want to delete this Video"
+                                                onCancel={() => {
+                                                    setShowConfirmation(false)
+                                                }} // Close the confirmation dialog if Cancel is pressed
+                                                onConfirm={() => {
+                                                    conformDeleteVideo(item._id), // videoId
+                                                        setShowConfirmation(false)
+                                                }}
+                                            />
 
                                         </Pressable>
                                     ))
