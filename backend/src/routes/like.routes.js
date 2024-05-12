@@ -1,3 +1,5 @@
+// like and dislike route 
+
 import { Router } from 'express';
 import {
     getLikedVideos,

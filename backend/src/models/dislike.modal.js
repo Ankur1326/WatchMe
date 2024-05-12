@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const likeSchema = new Schema(
+const dislikeScheme = new Schema(
     {
         video: {
             type: Schema.Types.ObjectId,
@@ -11,15 +11,14 @@ const likeSchema = new Schema(
             ref: "Comment"
         },
         tweet: {
-            type: Schema
-            .Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: "Tweet"
         },
-        likedBy: {
+        dislikedBy: {
             type: Schema.Types.ObjectId,
             ref: "User"
-        },
+        }
     }, { timestamps: true }
 )
 
-export const Like = mongoose.model("Like", likeSchema)
+export const Dislike = mongoose.model("Dislike", dislikeScheme)
