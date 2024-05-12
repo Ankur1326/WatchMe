@@ -357,6 +357,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
 // endpoint to get user channel profile
 const getUserChannelProfile = asyncHandler(async (req, res) => {
+  console.log("hiii");
   const { username } = req.params; // from URL
   console.log(username);
 
@@ -396,7 +397,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     },
     {
       $addFields: {
-        subscriberCount: {
+        subscribersCount: {
           $size: "$subscribers"
         },
         channelSubscribedToCount: {
@@ -421,7 +422,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         email: 1,
         avatar: 1,
         coverImage: 1,
-        subscriberCount: 1,
+        subscribersCount: 1,
         channelSubscribedToCount: 1,
         isSubscribed: 1,
         videoCount: 1
@@ -538,7 +539,7 @@ const getUserChannel = asyncHandler(async (req, res) => {
           },
           isSubscribed: {
             $cond: {
-              if: { $in: [new mongoose.Types.ObjectId(userId), "$subscribers.subscriber"] },
+              if: { $in: [userId, "$subscribers.subscriber"] },
               then: true,
               else: false,
             }
