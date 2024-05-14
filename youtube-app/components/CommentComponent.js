@@ -20,6 +20,8 @@ const CommentComponent = ({ videoId }) => {
     const [selectedComment, setSelectedComment] = useState({})
     const [showAllComments, setShowAllComments] = useState(false)
     const ref = useRef(null)
+    // console.log("videoId ", videoId);
+    // console.log("comments ", comments );
 
     useEffect(() => {
         setComment(selectedComment.content || "")
@@ -35,6 +37,7 @@ const CommentComponent = ({ videoId }) => {
                     }
                 }
             )
+            // console.log(response.data.data.getTenVideoComments);
 
             setCommentLength(response.data.data.commentsLength)
             setComments(response.data.data.getTenVideoComments)
@@ -76,8 +79,6 @@ const CommentComponent = ({ videoId }) => {
         console.log("item  ", item);
         setSelectedComment(item)
     }
-
-
 
     const editComment = () => {
         setEditTextVisible(true)
@@ -152,6 +153,27 @@ const CommentComponent = ({ videoId }) => {
         console.log("hiii there...");
     }
 
+    // handle like or dislike 
+    const toggleCommentLikeHandler = async (commentId, action) => {
+        console.log(commentId, action);
+        const accessToken = await AsyncStorage.getItem("accessToken")
+
+        try {
+            const response = await axios.post(`${base_url}/likes/toggle/c/${commentId}`, { action },
+                {
+                    headers: {
+                        Authorization: `${accessToken}`,
+                    },
+                }
+            )
+
+            console.log("response.data ", response.data);
+            getVideoCommentsHandler()
+        } catch (error) {
+            console.log("Error while toggle comment likes ", error);
+        }
+    }
+
     return (
         <View style={{ marginTop: 20, position: "relative" }}>
 
@@ -190,10 +212,10 @@ const CommentComponent = ({ videoId }) => {
                                     <TextInput onChangeText={(text) => setComment(text)} placeholder='Add a Comment' placeholderTextColor="white" style={[{ color: "white", paddingHorizontal: 15, paddingVertical: 4, }, comment && { paddingRight: 60 }]} />
 
                                     {
-                                        comment && <Pressable onPress={addComment} style={{ position: "absolute", right: 0, borderLeftWidth: 1, borderColor: "white", paddingHorizontal: 10, paddingVertical: 5, width: 60 }}>
+                                        comment && <TouchableOpacity onPress={addComment} style={{ position: "absolute", right: 0, borderLeftWidth: 1, borderColor: "white", paddingHorizontal: 10, paddingVertical: 5, width: 60 }}>
                                             {/* TODO add right arrow  */}
                                             <Ionicons name="send" size={24} color="white" />
-                                        </Pressable>
+                                        </TouchableOpacity>
                                     }
                                 </View>
                             }
@@ -235,14 +257,14 @@ const CommentComponent = ({ videoId }) => {
 
                                                         {/* like & dislike */}
                                                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20 }}>
-                                                            <Pressable style={{ flexDirection: 'row', gap: 5 }}>
-                                                                <AntDesign name="like2" size={17} color="white" />
-                                                                <Text style={{ color: "white", fontSize: 13 }}>123</Text>
-                                                            </Pressable>
-                                                            <Pressable style={{ flexDirection: 'row', gap: 5 }}>
-                                                                <AntDesign name="dislike2" size={17} color="white" />
-                                                                <Text style={{ color: "white", fontSize: 13 }}>43</Text>
-                                                            </Pressable>
+                                                            <TouchableOpacity onPress={() => toggleCommentLikeHandler(item._id, "like")} style={{ flexDirection: 'row', gap: 5 }}>
+                                                                <AntDesign name={item.isLiked ? "like1" : "like2"} size={17} color="white" />
+                                                                <Text style={{ color: "white", fontSize: 13 }}>{item?.likesCount}</Text>
+                                                            </TouchableOpacity>
+                                                            <TouchableOpacity onPress={() => toggleCommentLikeHandler(item._id, "dislike")} style={{ flexDirection: 'row', gap: 5 }}>
+                                                                <AntDesign name={item?.isDisliked ? "dislike1" : "dislike2"} size={17} color="white" />
+                                                                <Text style={{ color: "white", fontSize: 13 }}>{item?.dislikesCount}</Text>
+                                                            </TouchableOpacity>
                                                         </View>
 
                                                     </View>

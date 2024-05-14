@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Button, TouchableOpacity, Pressable, Image, ScrollView, } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Video } from 'expo-av';
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -11,35 +11,71 @@ import { SimpleLineIcons } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import CommentComponent from '../components/CommentComponent';
 import HeaderComponent from '../components/HeaderComponent';
+import { UserType } from '../UserContext';
 
 const VideoDetailScreen = ({ route }) => {
-    const navigation = useNavigation()
     const [channel, setChannel] = useState([])
-    // console.log(" channel :: ", channel);
-    
+    const navigation = useNavigation()
+    const [user, setUser] = useContext(UserType);
     const { data } = route.params
-    // console.log(data);
+    // console.log("data ", data);
 
     const [isPlaying, setIsPlaying] = useState(false);
     const videoRef = React.useRef(null);
+    const videoId = data?._id
+    const [videoInfo, setVideoInfo] = useState([])
 
-    const togglePlay = async () => {
-        if (videoRef.current) {
-            if (isPlaying) {
-                await videoRef.current.pauseAsync();
-            } else {
-                await videoRef.current.playAsync();
-            }
-            setIsPlaying(!isPlaying);
-        }
-    };
+    // const togglePlay = async () => {
+    //     if (videoRef.current) {
+    //         if (isPlaying) {
+    //             await videoRef.current.pauseAsync();
+    //         } else {
+    //             await videoRef.current.playAsync();
+    //         }
+    //         setIsPlaying(!isPlaying);
+    //     }
+    // };
 
     const getChannel = async () => {
-        const userId = data.owner
+        let username = "";
+        if (Object.keys(data).includes("userDetals")) { // if user comes from HomeScreen
+            username = data.userDetals[0].username
+        }
+        else { // this condition will be true when user come from ProfileScreen
+            username = user.username
+        }
+
         try {
-            const response = await axios.get(`${base_url}/users/get-user-channel/${userId}`)
+            const accessToken = await AsyncStorage.getItem("accessToken")
+            const response = await axios.get(`${base_url}/users/c/${username}`,
+                {
+                    headers: {
+                        Authorization: `${accessToken}`,
+                    }
+                }
+            )
+            // console.log("response :: ", response.data.data);
+            setChannel(response.data.data)
+
+        } catch (error) {
+            console.log("Error while getting user channel : ", error);
+        }
+    }
+
+    // get video and videoDetails by video Id 
+    const getVideoInfo = async () => {
+
+        try {
+            const accessToken = await AsyncStorage.getItem("accessToken")
+            const response = await axios.get(`${base_url}/videos/${videoId}`,
+                {
+                    headers: {
+                        Authorization: `${accessToken}`,
+                    }
+                }
+            )
             // console.log("response :: ", response.data.data[0]);
-            setChannel(response.data.data[0])
+            setVideoInfo(response.data.data[0])
 
         } catch (error) {
             console.log("Error while getting user channel : ", error);
@@ -48,12 +84,13 @@ const VideoDetailScreen = ({ route }) => {
 
     useEffect(() => {
         getChannel()
+        getVideoInfo()
     }, [])
-    
 
     // handle subscribe toggle 
     const subscribeToggle = async () => {
         const accessToken = await AsyncStorage.getItem("accessToken")
+        // console.log("channel : ", channel._id);
         try {
             await axios.post(`${base_url}/subscriptions/c/${channel?._id}`, {},
                 {
@@ -69,9 +106,29 @@ const VideoDetailScreen = ({ route }) => {
         }
     }
 
+    // handle like or dislike 
+    const toggleVideoLikeHandler = async (videoId, action) => {
+        // console.log(videoId, action);
+        const accessToken = await AsyncStorage.getItem("accessToken")
+
+        try {
+            const response = await axios.post(`${base_url}/likes/toggle/v/${videoId}`, { action },
+                {
+                    headers: {
+                        Authorization: `${accessToken}`,
+                    },
+                }
+            )
+
+            // console.log(response.data);
+            getVideoInfo()
+        } catch (error) {
+
+        }
+    }
+
     return (
         <View style={{ borderWidth: 1, flex: 1, backgroundColor: "#111" }}>
-
             {/* header  */}
             <HeaderComponent />
 
@@ -79,7 +136,7 @@ const VideoDetailScreen = ({ route }) => {
                 {/* video  */}
                 <Video
                     ref={videoRef}
-                    source={{ uri: data.videoFile }}
+                    source={{ uri: videoInfo.videoFile }}
                     style={{ height: 200, borderWidth: 1, borderWidth: 0.5, borderColor: "gray", }}
                     useNativeControls
                     resizeMode="contain"
@@ -95,31 +152,38 @@ const VideoDetailScreen = ({ route }) => {
                 {/* video info  */}
                 <View style={{ marginTop: 10 }}>
                     <View style={{ borderWidth: 0.6, borderColor: "white", padding: 10, borderRadius: 10 }}>
-                        <Text style={{ color: "white", fontSize: 22, fontWeight: 600 }}>{data.title}</Text>
+                        <Text style={{ color: "white", fontSize: 22, fontWeight: 600 }}>{videoInfo?.title}</Text>
                         <View style={{ flexDirection: 'row', marginTop: 7 }}>
                             {/* viewes */}
-                            <Text style={{ color: "white" }}>14000Views . </Text>
+                            <Text style={{ color: "white" }}>{videoInfo.views} Views . </Text>
                             {/* uploaded time  */}
                             <Text style={{ color: "#dbdbdb", fontSize: 13, }} >
-                                {
-                                    formatDistanceToNow(new Date(data.createdAt), {
+                                {/* {
+                                    formatDistanceToNow(new Date(videoInfo.createdAt), {
                                         addSuffix: true,
                                     }).toString()
-                                }
+                                } */}
                             </Text>
                         </View>
 
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8, }}>
                             {/* Like and dislike  */}
                             <View style={{ borderWidth: 0.6, borderColor: "white", flexDirection: 'row', alignItems: 'center', width: 160, borderRadius: 7 }}>
-                                <Pressable style={{ flexDirection: 'row', gap: 5, paddingVertical: 7, paddingHorizontal: 15 }}>
-                                    <AntDesign name="like2" size={21} color="white" />
-                                    <Text style={{ color: "white", fontSize: 16 }}>123</Text>
-                                </Pressable>
-                                <Pressable style={{ flexDirection: 'row', gap: 5, paddingVertical: 7, paddingHorizontal: 15, borderLeftWidth: 0.6, borderLeftColor: "gray" }}>
-                                    <AntDesign name="dislike2" size={21} color="white" />
-                                    <Text style={{ color: "white", fontSize: 16 }}>43</Text>
-                                </Pressable>
+                                {/* like  */}
+                                <TouchableOpacity onPress={() => toggleVideoLikeHandler(data._id, "like")} style={{ flexDirection: 'row', gap: 5, paddingVertical: 7, paddingHorizontal: 15 }}>
+                                    {
+                                        videoInfo.isLiked ? <AntDesign name="like1" size={21} color="white" /> : <AntDesign name="like2" size={21} color="white" />
+                                    }
+
+                                    <Text style={{ color: "white", fontSize: 16 }}>{videoInfo.likesCount}</Text>
+                                </TouchableOpacity>
+                                {/* dislike  */}
+                                <TouchableOpacity onPress={() => toggleVideoLikeHandler(data._id, "dislike")} style={{ flexDirection: 'row', gap: 5, paddingVertical: 7, paddingHorizontal: 15, borderLeftWidth: 0.6, borderLeftColor: "gray" }}>
+                                    {
+                                        videoInfo.isDisliked ? <AntDesign name="dislike1" size={21} color="white" /> : <AntDesign name="dislike2" size={21} color="white" />
+                                    }
+                                    <Text style={{ color: "white", fontSize: 16 }}>{videoInfo.dislikesCount}</Text>
+                                </TouchableOpacity>
                             </View>
 
                             {/* save btn */}
@@ -166,7 +230,7 @@ const VideoDetailScreen = ({ route }) => {
                 </View>
 
                 {/* comment component */}
-                <CommentComponent videoId={data?._id} />
+                <CommentComponent videoId={videoId} />
 
             </ScrollView>
         </View>

@@ -143,7 +143,7 @@ const HomeScreen = () => {
   const videoModalVisible = (videoId) => {
     setIsVideoModalVisible(!isVideoModalVisible)
     setVideoId(videoId) // setVideoId for sending in bottomSlide.modal
-    console.log(" videoId : ", videoId);
+    // console.log(" videoId : ", videoId);
   }
 
   return (

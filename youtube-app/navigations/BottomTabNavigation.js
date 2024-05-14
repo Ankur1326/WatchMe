@@ -19,7 +19,7 @@ const BottomTabNavigation = () => {
         <Tab.Navigator>
             <Tab.Screen name="Home" component={HomeScreen} options={{
                 tabBarLabel: "Home",
-                tabBarStyle: { backgroundColor: currentTheme?.secondaryBackgroundColor, height: 55,  },
+                tabBarStyle: { backgroundColor: currentTheme?.secondaryBackgroundColor, height: 55, },
                 tabBarLabelStyle: { fontSize: 12, fontWeight: "bold", color: currentTheme?.primaryTextColor },
                 headerShown: false,
                 tabBarIcon: ({ focused }) =>

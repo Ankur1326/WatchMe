@@ -9,7 +9,8 @@ import { useState } from "react";
 import CustomConfirmationDialog from "../Modal/CustomConfirmationDialog";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
-const VideoComponent = ({ item, scrollViewRef, conformDeleteVideo }) => {
+
+const VideoComponent = ({ item, scrollViewRef, conformDeleteVideo,  }) => {
 
     const { currentTheme } = useTheme()
     const animation = useSharedValue(0)

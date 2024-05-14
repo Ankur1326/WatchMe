@@ -2,7 +2,7 @@ import { View, Text, Button } from 'react-native'
 import React, { useEffect } from 'react'
 import { MaterialIcons, Entypo } from "@expo/vector-icons"
 import { TouchableOpacity } from 'react-native-gesture-handler'
-import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
+import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 
 const PopupMessage = ({ isSuccess, title = "Please add titile message", isVisible, setVisible }) => {
     // if isSuccess false so this message show error

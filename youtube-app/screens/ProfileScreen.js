@@ -14,6 +14,7 @@ import axios from "axios"
 import { base_url } from '../helper/helper.js';
 import VideoUpload from '../Modal/VideoUpload.js';
 import HeaderComponent from '../components/HeaderComponent.js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createMaterialTopTabNavigator();
 const ProfileScreen = ({ navigation }) => {
@@ -54,7 +55,15 @@ const ProfileScreen = ({ navigation }) => {
     const handleGetUserProfile = async () => {
         const username = user.username
 
-        const response = await axios.get(`${base_url}/users/c/${username}`)
+        const accessToken = await AsyncStorage.getItem("accessToken")
+            const response = await axios.get(`${base_url}/users/c/${username}`,
+                {
+                    headers: {
+                        Authorization: `${accessToken}`,
+                    }
+                }
+            )
+            console.log("response :: ", response.data.data);
         setUserChannelProfile(response.data.data)
     }
 
@@ -95,7 +104,7 @@ const ProfileScreen = ({ navigation }) => {
                             <Feather name="edit-2" size={21} color="black" style={{ fontWeight: "bold" }} />
                             <Text style={{ fontSize: 17, fontWeight: "bold" }} >Edit</Text>
                         </TouchableOpacity>
-                        <Text style={{ color: "#999", fontSize: 13, position: 'absolute', bottom: -2, right: 70 }} >{userchannelProfile.subscriberCount} subscribers . {userchannelProfile.channelSubscribedToCount} Subscribed</Text>
+                        <Text style={{ color: "#999", fontSize: 13, position: 'absolute', bottom: -2, right: 70 }} >{userchannelProfile.subscribersCount} subscribers . {userchannelProfile.channelSubscribedToCount} Subscribed</Text>
                     </View>
 
                 </View>
