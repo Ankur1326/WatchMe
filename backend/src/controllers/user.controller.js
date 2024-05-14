@@ -66,13 +66,13 @@ const registerUser = asyncHandler(async (req, res) => {
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required");
   }
-  console.log("avatarLocalPath : ", avatarLocalPath);
-  console.log("coverImageLocalPath : ", coverImageLocalPath);
+  // console.log("avatarLocalPath : ", avatarLocalPath);
+  // console.log("coverImageLocalPath : ", coverImageLocalPath);
 
   const avatar = await uploadOnCloudinary(avatarLocalPath);
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
-  console.log("avatar cloudinary path : ", avatar);
+  // console.log("avatar cloudinary path : ", avatar);
   if (!avatar) {
     throw new ApiError(400, "Avatar file could not be uploaded to Cloudinary");
   }
@@ -357,9 +357,8 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
 // endpoint to get user channel profile
 const getUserChannelProfile = asyncHandler(async (req, res) => {
-  console.log("hiii");
   const { username } = req.params; // from URL
-  console.log(username);
+  // console.log(username);
 
   if (!username.trim()) {
     throw new ApiError(400, "username is missing");
@@ -434,7 +433,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     throw new ApiError(404, "channel does not exists");
   }
 
-  console.log("channel :: ", channel);
+  // console.log("channel :: ", channel);
 
   return res
     .status(200)
@@ -504,8 +503,8 @@ const getWatchHistory = asyncHandler(async (req, res) => {
 // This endpoint for another user which is coming form
 const getUserChannel = asyncHandler(async (req, res) => {
   const { userId } = req.params
-  console.log("userId : ", userId);
-  console.log("user : ", req.user);
+  // console.log("userId : ", userId);
+  // console.log("user : ", req.user);
 
   const user = await User.findById(userId)
 
@@ -561,10 +560,10 @@ const getUserChannel = asyncHandler(async (req, res) => {
         }
       }
     ])
-    console.log("channel : ", channel);
+    // console.log("channel : ", channel);
 
     res.status(200).json(new ApiResponse(200, channel, "channel successfully fetched"))
-    
+
   } catch (error) {
     console.log("error while getting user channel : ", error);
   }

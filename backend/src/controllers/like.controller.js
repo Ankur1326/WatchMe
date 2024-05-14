@@ -39,7 +39,7 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
                 await Dislike.deleteOne({
                     _id: alreadyDisliked._id
                 })
-            } 
+            }
 
             if (alreadyLiked) {
                 // await alreadyLiked.remove()
@@ -103,6 +103,7 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
 
 const toggleCommentLike = asyncHandler(async (req, res) => {
     const { commentId } = req.params
+    const { action } = req.body
 
     const userId = req.user._id
 
@@ -110,13 +111,88 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
         throw new ApiError(409, "commentId is required")
     }
 
-    try {
+    if (!action) {
+        throw new ApiError(409, "action is required")
+    }
 
-        
+    try {
+        // Check if user already liked this comment
+        const alreadyLiked = await Like.findOne({
+            comment: commentId,
+            likedBy: userId
+        });
+
+        // Check if user already disliked the video
+        const alreadyDisliked = await Dislike.findOne({
+            comment: commentId,
+            dislikedBy: userId
+        })
+
+        if (action === "like") {
+
+            if (alreadyDisliked) {
+                // await alreadyDisliked.remove(); // remove dislike
+                await Dislike.deleteOne({
+                    _id: alreadyDisliked._id
+                })
+            }
+
+            if (alreadyLiked) {
+                // await alreadyLiked.remove()
+                await Like.deleteOne({
+                    _id: alreadyLiked._id
+                })
+                return res.status(201).json(new ApiResponse(200, "comment successfully unlike"));
+            } else {
+                // If not liked or disliked, create a new like
+                const newLike = await Like.create({
+                    comment: commentId,
+                    likedBy: userId
+                })
+
+                if (!newLike) {
+                    throw new ApiError(409, "Comment like is not created");
+                }
+                return res.status(201).json(new ApiResponse(200, newLike, "comment like successfully created"));
+            }
+
+
+        } else if (action === "dislike") {
+
+            if (alreadyLiked) {
+                // await alreadyLiked.remove()
+                await Like.deleteOne({
+                    _id: alreadyLiked._id
+                })
+            }
+
+            if (alreadyDisliked) {
+                // await alreadyDisliked.remove(); // remove dislike
+                await Dislike.deleteOne({
+                    _id: alreadyDisliked._id
+                })
+                return res.status(201).json(new ApiResponse(200, "comment dislike successfully removed"));
+            } else {
+                // If not liked or disliked, create a new dislike
+                const newDislike = await Dislike.create({
+                    comment: commentId,
+                    dislikedBy: userId
+                })
+
+                if (!newDislike) {
+                    throw new ApiError(409, "comment dislike is not created");
+                }
+
+                return res.status(201).json(new ApiResponse(200, newDislike, "comment dislike successfully created"));
+            }
+
+        } else {
+            throw new ApiError(409, "action must be in like or dislike")
+        }
 
     } catch (error) {
-        console.log("Internal server error while toggle Comment like: ", error);
-        throw new ApiError(500, "Internal server error while toggle Comment like: ", error)
+        console.log("Internal server error while toggle comment like: ", error);
+        throw new ApiError(500, "Internal server error while toggle comment like: ", error)
     }
 
 })
@@ -131,7 +207,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
     }
 
     try {
-        
+
     } catch (error) {
         console.log("Internal server error while toggle tweet like: ", error);
         throw new ApiError(500, "Internal server error while toggle tweet like: ", error)
@@ -142,9 +218,33 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     //TODO: get all liked videos
 })
 
+const getVideosLikeAndDislike = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+
+    console.log("videoId : ", videoId);
+
+    try {
+        if (!videoId) {
+            throw new ApiError(409, "videoId is required")
+        }
+
+        const likes = await Like.find({ video: videoId })
+
+        const dislikes = await Dislike.find({ video: videoId })
+
+        return res.status(201).json(new ApiResponse(200, { likesCount: likes.length, dislikesCount: dislikes.length }, "Video like and dislike successfully fetched"))
+
+    } catch (error) {
+        throw new ApiError(500, "Internal server error while fetching all liked of this video ", error)
+    }
+
+})
+
+
 export {
     toggleCommentLike,
     toggleTweetLike,
     toggleVideoLike,
-    getLikedVideos
+    getLikedVideos,
+    getVideosLikeAndDislike
 }
