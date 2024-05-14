@@ -8,6 +8,8 @@ const getVideoComments = asyncHandler(async (req, res) => {
     //TODO: get all comments for a video
     const { videoId } = req.params
     const { page = 1, limit = 10 } = req.query
+    const { _id } = req.user
+    const userId = _id
 
     try {
         const allVideoComments = await Comment.aggregate([
@@ -44,6 +46,46 @@ const getVideoComments = asyncHandler(async (req, res) => {
                 }
             },
             {
+                $lookup: {
+                    from: "likes",
+                    localField: "_id", // match likes with comments, assuming _id is the comment ID
+                    foreignField: "comment",
+                    as: "commentLikes" // store likes associated with comments in this field
+                }
+            },
+            {
+                $lookup: {
+                    from: "dislikes",
+                    localField: "_id", // match likes with comments, assuming _id is the comment ID
+                    foreignField: "comment",
+                    as: "commentDislikes" // store likes associated with comments in this field
+                }
+            },
+            {
+                $addFields: {
+                    likesCount: {
+                        $size: "$commentLikes"
+                    },
+                    dislikesCount: {
+                        $size: "$commentDislikes"
+                    },
+                    isLiked: {
+                        $cond: {
+                            if: { $in: [new mongoose.Types.ObjectId(userId), "$commentLikes.likedBy"] },
+                            then: true,
+                            else: false
+                        }
+                    },
+                    isDisliked: {
+                        $cond: {
+                            if: { $in: [new mongoose.Types.ObjectId(userId), "$commentDislikes.dislikedBy"] },
+                            then: true,
+                            else: false
+                        }
+                    }
+                }
+            },
+            {
                 $project: {
                     content: 1,
                     createdAt: 1,
@@ -52,7 +94,13 @@ const getVideoComments = asyncHandler(async (req, res) => {
                         fullName: 1,
                         username: 1,
                         avatar: 1
-                    }
+                    },
+                    // commentLikes: 1,
+                    // commentDislikes: 1,
+                    likesCount: 1,
+                    dislikesCount: 1,
+                    isLiked: 1,
+                    isDisliked: 1,
                 }
             },
         ])
@@ -61,6 +109,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
             return res.status(404).json("No comment on this video")
         }
         // console.log("allVideoComments : ", allVideoComments);
+        // console.log("getTenVideoComments : ", getTenVideoComments);
 
         return res.status(200).json(new ApiResponse(201, { getTenVideoComments, commentsLength: allVideoComments.length }, "AllVideoComments successfully fetched "))
 
@@ -110,14 +159,14 @@ const updateComment = asyncHandler(async (req, res) => {
 
     try {
         // get comment from comment id
-        const updatedComment  = await Comment.findByIdAndUpdate(
+        const updatedComment = await Comment.findByIdAndUpdate(
             commentId,
             { content },
             { new: true, runValidators: true }
         )
         console.log("updatedComment ", updatedComment);
 
-        if (!updatedComment ) {
+        if (!updatedComment) {
             throw new ApiError(404, "this comment not exist")
         }
 
