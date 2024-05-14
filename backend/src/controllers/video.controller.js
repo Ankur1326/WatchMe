@@ -139,7 +139,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     if (title.trim() == "") {
         throw new ApiError(409, "title file is required")
     }
-    console.log("req.files", req.files);
+    // console.log("req.files", req.files);
 
     if (req.files.videoFile.length == 0 && req.files.thumbnail.length == 0) {
         throw new ApiError(409, "videoFile is required")
@@ -179,7 +179,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Something went wrong while creating new video document")
     }
 
-    console.log("Created Video :", video);
+    // console.log("Created Video :", video);
 
     return res
         .status(201)
@@ -188,16 +188,85 @@ const publishAVideo = asyncHandler(async (req, res) => {
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
+
+    const { _id } = req.user
+    const userId = _id
+
     try {
         const { videoId } = req.params
-        // console.log("Hiiiiii");
-        // console.log("videoId", videoId);
-        //TODO: get video by id
+
         if (!videoId) {
             throw new ApiError(409, "Please provide videoId")
         }
 
-        const video = await Video.findById(videoId)
+        const video = await Video.aggregate([
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(videoId)
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "userDetails",
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                fullName: 1,
+                                username: 1,
+                                avatar: 1,
+                            },
+                        }
+                    ]
+                },
+            },
+            {
+                $lookup: {
+                    from: "likes",
+                    localField: "_id",
+                    foreignField: "video",
+                    as: "likes"
+                }
+            },
+            {
+                $lookup: {
+                    from: "dislikes",
+                    localField: "_id",
+                    foreignField: "video",
+                    as: "dislikes"
+                }
+            },
+            {
+                $addFields: {
+                    likesCount: {
+                        $size: "$likes"
+                    },
+                    dislikesCount: {
+                        $size: "$dislikes"
+                    },
+                    isLiked: {
+                        $cond: {
+                            if: { $in: [new mongoose.Types.ObjectId(userId), "$likes.likedBy"] },
+                            then: true,
+                            else: false
+                        }
+                    },
+                    isDisliked: {
+                        $cond: {
+                            if: { $in: [new mongoose.Types.ObjectId(userId), "$dislikes.dislikedBy"] },
+                            then: true,
+                            else: false
+                        }
+                    }
+                }
+            }
+        ])
+
+        // const video = await Video.findById(videoId)
+        // console.log(video);
 
         if (!video) {
             throw new ApiError(404, "This Video is not present")
@@ -211,14 +280,13 @@ const getVideoById = asyncHandler(async (req, res) => {
 
 const updateVideo = asyncHandler(async (req, res) => {
     try {
-        console.log("hiiiiiiii");
         const { videoId } = req.params
         const { title, description } = req.body
 
         //TODO: update video details like title, description, thumbnail
         const video = await Video.findById(videoId) // find video based on videoId
 
-        console.log(req.file);
+        // console.log(req.file);
         const thumbnailLocalPath = req.file.path
 
         // delete previous Image 
@@ -226,7 +294,7 @@ const updateVideo = asyncHandler(async (req, res) => {
 
         const thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
 
-        console.log("thumbnail : ", thumbnail);
+        // console.log("thumbnail : ", thumbnail);
 
         // update title, description and thumbnail values of video
         video.title = title || video.title
@@ -259,7 +327,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
         // delete document from database 
         const deletedVideo = await Video.findByIdAndDelete(videoId)
-        console.log("deleteVideo : ", deletedVideo);
+        // console.log("deleteVideo : ", deletedVideo);
 
         // delete Video from cloudinary
         await deleteVideoFromCloudinary(video.videoFile)
