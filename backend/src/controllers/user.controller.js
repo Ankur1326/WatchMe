@@ -500,13 +500,13 @@ const getWatchHistory = asyncHandler(async (req, res) => {
     );
 });
 
-// This endpoint for another user which is coming form
+// This endpoint for another user
 const getUserChannel = asyncHandler(async (req, res) => {
   const { userId } = req.params
   // console.log("userId : ", userId);
   // console.log("user : ", req.user);
 
-  const user = await User.findById(userId)
+  // const user = await User.findById(userId)
 
   try {
     const channel = await User.aggregate([

@@ -189,8 +189,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
 const getVideoById = asyncHandler(async (req, res) => {
 
-    const { _id } = req.user
-    const userId = _id
+    const userId = req.user._id
 
     try {
         const { videoId } = req.params
