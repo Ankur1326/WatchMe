@@ -267,6 +267,7 @@ const getVideoById = asyncHandler(async (req, res) => {
                     videoFile: 1,
                     title: 1,
                     description: 1,
+                    thumbnail: 1,
                     duration: 1,
                     views: 1,
                     createdAt: 1,
@@ -281,7 +282,7 @@ const getVideoById = asyncHandler(async (req, res) => {
         ])
 
         // const video = await Video.findById(videoId)
-        // console.log(video);
+        console.log(video);
 
         if (!video) {
             throw new ApiError(404, "This Video is not present")
@@ -302,19 +303,27 @@ const updateVideo = asyncHandler(async (req, res) => {
         const video = await Video.findById(videoId) // find video based on videoId
 
         // console.log(req.file);
-        const thumbnailLocalPath = req.file.path
+        let thumbnailLocalPath = ""
+        
+        if (req.file) {
+            thumbnailLocalPath = req.file.path
+            await deleteImageFromCloudinary(video.thumbnail)
+        }
 
         // delete previous Image 
-        await deleteImageFromCloudinary(video.thumbnail)
-
-        const thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
-
+        let thumbnail = ""
+        if (thumbnail) {
+            thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
+        }
+            
         // console.log("thumbnail : ", thumbnail);
 
         // update title, description and thumbnail values of video
         video.title = title || video.title
         video.description = description || video.description
-        video.thumbnail = thumbnail.secure_url || video.thumbnail
+        if (thumbnail) {
+            video.thumbnail = thumbnail.secure_url || video.thumbnail
+        }
 
 
         await video.save()
