@@ -9,9 +9,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import axios from "axios"
 import { base_url } from '../helper/helper';
 import { ThemeSwitcherBtn, useTheme } from 'expo-theme-switcher';
+import { useNavigation } from '@react-navigation/native';
 
 const Sidebar = ({ navigation }) => {
   const { currentTheme } = useTheme()
+  // const navigation = useNavigation()
 
   const logoutHandleer = async () => {
     try {
@@ -47,6 +49,10 @@ const Sidebar = ({ navigation }) => {
       </View>
 
       <View style={{ flexDirection: "column", gap: 10, marginTop: 16 }}>
+        <Pressable onPress={() => navigation.navigate("AdminDashboardScreen")} style={{ borderWidth: 0.4, borderColor: currentTheme?.primaryBorderColor, marginHorizontal: 16, paddingVertical: 8, paddingHorizontal: 10, flexDirection: "row", alignItems: 'center', gap: 13 }} >
+          <AntDesign name="dashboard" size={22} color={currentTheme.primaryTextColor} />
+          <Text style={{ color: currentTheme.primaryTextColor, fontSize: 15 }} >Dashboard</Text>
+        </Pressable>
         <Pressable style={{ borderWidth: 0.4, borderColor: currentTheme?.primaryBorderColor, marginHorizontal: 16, paddingVertical: 8, paddingHorizontal: 10, flexDirection: "row", alignItems: 'center', gap: 13 }} >
           <AntDesign name="like2" size={22} color={currentTheme.primaryTextColor} />
           <Text style={{ color: currentTheme.primaryTextColor, fontSize: 15 }} >Liked Video</Text>

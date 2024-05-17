@@ -49,7 +49,7 @@ const ProfileScreen = ({ navigation }) => {
 
     const handleSections = (sectionName) => {
         setSelectedSection(sectionName)
-        console.log("selectedSection : ", selectedSection);
+        // console.log("selectedSection : ", selectedSection);
     }
 
     const handleGetUserProfile = async () => {
@@ -63,7 +63,7 @@ const ProfileScreen = ({ navigation }) => {
                     }
                 }
             )
-            console.log("response :: ", response.data.data);
+            // console.log("response :: ", response.data.data);
         setUserChannelProfile(response.data.data)
     }
 

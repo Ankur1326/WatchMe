@@ -12,7 +12,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import CommentComponent from '../components/CommentComponent';
 import HeaderComponent from '../components/HeaderComponent';
 import { UserType } from '../UserContext';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 
+const AnimatiedLikeBtn = Animated.createAnimatedComponent(TouchableOpacity)
 const VideoDetailScreen = ({ route }) => {
     const [channel, setChannel] = useState([])
     const navigation = useNavigation()
@@ -20,10 +22,20 @@ const VideoDetailScreen = ({ route }) => {
     const { data } = route.params
     // console.log("data ", data);
 
+    const sections = [1]
     const [isPlaying, setIsPlaying] = useState(false);
     const videoRef = React.useRef(null);
     const videoId = data?._id
     const [videoInfo, setVideoInfo] = useState([])
+    const likeScale = useSharedValue(1)
+
+    const animatedLikeStyle = useAnimatedStyle(() => {
+        return {
+            transform: [
+                { scale: likeScale.value },
+            ]
+        }
+    })
 
     // const togglePlay = async () => {
     //     if (videoRef.current) {
@@ -106,11 +118,17 @@ const VideoDetailScreen = ({ route }) => {
         }
     }
 
+    
     // handle like or dislike 
     const toggleVideoLikeHandler = async (videoId, action) => {
         // console.log(videoId, action);
         const accessToken = await AsyncStorage.getItem("accessToken")
-
+        if (action === "like") {
+            likeScale.value = withTiming(1.3, { duration: 100 })
+            setTimeout(() => {
+                likeScale.value = withTiming(1, { duration: 100 })
+            }, 100);
+        }
         try {
             const response = await axios.post(`${base_url}/likes/toggle/v/${videoId}`, { action },
                 {
@@ -124,6 +142,25 @@ const VideoDetailScreen = ({ route }) => {
             getVideoInfo()
         } catch (error) {
 
+        } finally {
+        }
+    }
+
+    const handlePlaybackStatusUpdate = async (status) => {
+        if (!status.isPlaying && status.didJustFinish) {
+            // Video has ended
+            setIsPlaying(false);
+            videoRef.current.replayAsync();
+        }
+
+        if (status.isPlaying) {
+            // Send request to backend to track view when video starts playing
+            try {
+                await axios.post(`YOUR_BACKEND_API_URL/videos/${videoId}/view`);
+                console.log('View tracked successfully');
+            } catch (error) {
+                console.error('Error tracking view:', error);
+            }
         }
     }
 
@@ -140,13 +177,7 @@ const VideoDetailScreen = ({ route }) => {
                     style={{ height: 200, borderWidth: 1, borderWidth: 0.5, borderColor: "gray", }}
                     useNativeControls
                     resizeMode="contain"
-                    onPlaybackStatusUpdate={(status) => {
-                        if (!status.isPlaying && status.didJustFinish) {
-                            // Video has ended
-                            setIsPlaying(false);
-                            videoRef.current.replayAsync();
-                        }
-                    }}
+                    onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
                 />
 
                 {/* video info  */}
@@ -170,13 +201,13 @@ const VideoDetailScreen = ({ route }) => {
                             {/* Like and dislike  */}
                             <View style={{ borderWidth: 0.6, borderColor: "white", flexDirection: 'row', alignItems: 'center', width: 160, borderRadius: 7 }}>
                                 {/* like  */}
-                                <TouchableOpacity onPress={() => toggleVideoLikeHandler(data._id, "like")} style={{ flexDirection: 'row', gap: 5, paddingVertical: 7, paddingHorizontal: 15 }}>
+                                <AnimatiedLikeBtn onPress={() => toggleVideoLikeHandler(data._id, "like")} style={[{ flexDirection: 'row', gap: 5, paddingVertical: 7, paddingHorizontal: 15 }, animatedLikeStyle]}>
                                     {
                                         videoInfo.isLiked ? <AntDesign name="like1" size={21} color="white" /> : <AntDesign name="like2" size={21} color="white" />
                                     }
 
                                     <Text style={{ color: "white", fontSize: 16 }}>{videoInfo.likesCount}</Text>
-                                </TouchableOpacity>
+                                </AnimatiedLikeBtn>
                                 {/* dislike  */}
                                 <TouchableOpacity onPress={() => toggleVideoLikeHandler(data._id, "dislike")} style={{ flexDirection: 'row', gap: 5, paddingVertical: 7, paddingHorizontal: 15, borderLeftWidth: 0.6, borderLeftColor: "gray" }}>
                                     {

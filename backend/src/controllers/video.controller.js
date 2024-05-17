@@ -110,12 +110,11 @@ const getAllPublishVideo = asyncHandler(async (req, res) => {
                 owner: 1,
                 createdAt: 1,
                 updatedAt: 1,
-                __v: 1,
                 userDetals: {
                     _id: 1,
                     username: 1,
                     avatar: 1,
-                    // Add other user fields as needed
+                    // Add other user fields
                 }
             }
         }
@@ -260,6 +259,23 @@ const getVideoById = asyncHandler(async (req, res) => {
                             else: false
                         }
                     }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    videoFile: 1,
+                    title: 1,
+                    description: 1,
+                    duration: 1,
+                    views: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    userDetails: 1,
+                    likesCount: 1,
+                    dislikesCount: 1,
+                    isLiked: 1,
+                    isDisliked: 1
                 }
             }
         ])

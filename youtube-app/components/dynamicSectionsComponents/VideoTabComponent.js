@@ -17,6 +17,8 @@ import EditVideo from '../../Modal/EditVideo';
 import { useNavigation } from "@react-navigation/native";
 import CustomConfirmationDialog from '../../Modal/CustomConfirmationDialog';
 import PopupMessage from '../PopupMessage';
+import { deleteVideoHandler, getAllVideosHandler, togglePublishStatusHander } from '../../actions/video.actions';
+
 
 const VideoTabComponent = () => {
     const navigation = useNavigation()
@@ -32,8 +34,9 @@ const VideoTabComponent = () => {
     const [showConfirmation, setShowConfirmation] = useState(false)
     const [isSuccess, setSuccess] = useState(false)
     const [isPopupMessageShow, setPopupMessageShow] = useState(false)
+    const [videoId, setVideoId] = useState("")
 
-    const getAllVideos = async () => {
+    const handleGetAllVideos = async () => {
         const params = {
             page: 1,
             limit: 10,
@@ -43,22 +46,16 @@ const VideoTabComponent = () => {
             userId: user._id
         }
         try {
-            const accessToken = await AsyncStorage.getItem("accessToken")
-            const response = await axios.get(`${base_url}/videos/`, {
-                params,
-                headers: {
-                    Authorization: `${accessToken}`,
-                }
-            })
+            const allVideos = await getAllVideosHandler(params)
             // console.log(response.data.videos);
-            setVideos(response.data.videos)
+            setVideos(allVideos)
         } catch (error) {
             console.log("error while gettting all videos", error);
         }
     }
 
     useEffect(() => {
-        getAllVideos()
+        handleGetAllVideos()
     }, [closeModal])
 
     // Modal 
@@ -74,43 +71,36 @@ const VideoTabComponent = () => {
     //     setOptionsVisible((prevState) => (prevState == videoId ? null : videoId))
     // }
 
-    const [videoId, setVideoId] = useState("")
 
     // three dots
     const videoModalVisible = (videoId) => {
         getVideo(videoId)
         setIsVideoModalVisible(true)
         setVideoId(videoId)
+
         // console.log(" dele : ", videoId);
     }
 
-    const conformDeleteVideo = async (videoId) => {
+    const conformDeleteVideo = async () => {
         try {
-            // console.log("videoId : ", videoId);
+            console.log("videoId : ", videoId);
             setIsVideoModalVisible(false)
             setShowLoader(true)
 
-            const accessToken = await AsyncStorage.getItem("accessToken")
-            await axios.delete(`${base_url}/videos/${videoId}`,
-                {
-                    headers: {
-                        Authorization: `${accessToken}`,
-                    }
-                }
-            )
-            // console.log("response : ", response);
-            getAllVideos()
+            await deleteVideoHandler(videoId) // action
+
+            handleGetAllVideos()
             // setDeleteVideoId("")
             setSuccess(true)
-            setPopupMessageShow(true)
         } catch (error) {
             console.log("Error while deleting video: ", error);
             setShowLoader(true)
             // setDeleteVideoId("")
-            setSuccess(false) 
-            setPopupMessageShow(true)
+            setSuccess(false)
         } finally {
             setShowLoader(false)
+            setPopupMessageShow(true)
+            setTimeout(() => setPopupMessageShow(false), 3000);
         }
     }
 
@@ -128,16 +118,8 @@ const VideoTabComponent = () => {
     // publish and unpumbish toggle ************
     const togglePublishStatus = async () => {
         try {
-            const accessToken = await AsyncStorage.getItem("accessToken")
-            const response = await axios.patch(`${base_url}/videos/toggle/publish/${videoId}`,
-                {},
-                {
-                    headers: {
-                        Authorization: `${accessToken}`,
-                    }
-                }
-            )
-            setPublishStatus(response.data.data.isPublished)
+            const isPublished = await togglePublishStatusHander(videoId)
+            setPublishStatus(isPublished)
 
         } catch (error) {
             console.log("Error while toggle publish status : ", error);
@@ -149,15 +131,8 @@ const VideoTabComponent = () => {
     const getVideo = async (videoId) => {
 
         try {
-            const accessToken = await AsyncStorage.getItem("accessToken")
-            const response = await axios.get(`${base_url}/videos/${videoId}`,
-                {
-                    headers: {
-                        Authorization: `${accessToken}`,
-                    }
-                }
-            )
-            setPublishStatus(response.data.data.isPublished)
+            await getVideoByVideoIdHandler(videoId)
+            setPublishStatus(response.isPublished)
         } catch (error) {
             console.log("error while getting video : ", error);
         }
@@ -270,7 +245,7 @@ const VideoTabComponent = () => {
                                                         <TouchableOpacity onPress={() => {
                                                             setShowConfirmation(true)
                                                             setIsVideoModalVisible(false)
-                                                            }} style={{ backgroundColor: "", width: "100%", borderBottomWidth: 0.5, borderColor: "gray", paddingVertical: 15, flexDirection: 'row', gap: 20, paddingHorizontal: 20, alignItems: 'center' }}>
+                                                        }} style={{ backgroundColor: "", width: "100%", borderBottomWidth: 0.5, borderColor: "gray", paddingVertical: 15, flexDirection: 'row', gap: 20, paddingHorizontal: 20, alignItems: 'center' }}>
                                                             <AntDesign name="delete" size={24} color="white" />
                                                             <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }} >Delete</Text>
                                                         </TouchableOpacity>
@@ -287,7 +262,7 @@ const VideoTabComponent = () => {
                                                     setShowConfirmation(false)
                                                 }} // Close the confirmation dialog if Cancel is pressed
                                                 onConfirm={() => {
-                                                    conformDeleteVideo(item._id), // videoId
+                                                    conformDeleteVideo(), // videoId
                                                         setShowConfirmation(false)
                                                 }}
                                             />
@@ -315,8 +290,8 @@ const VideoTabComponent = () => {
                     }
                 </View>
 
-                <VideoUpload isVisible={isModalVisible} onClose={closeModal} getAllVideos={getAllVideos} />
-                <EditVideo isVisible={editVideoModalVisible} videoId={videoId} onClose={onClose} getAllVideos={getAllVideos} />
+                <VideoUpload isVisible={isModalVisible} onClose={closeModal} getAllVideos={handleGetAllVideos} />
+                <EditVideo isVisible={editVideoModalVisible} videoId={videoId} onClose={onClose} getAllVideos={handleGetAllVideos} />
             </ScrollView>
         </View>
     )

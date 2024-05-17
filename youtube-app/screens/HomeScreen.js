@@ -15,6 +15,8 @@ import { useTheme } from 'expo-theme-switcher';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import BottomSlideModalToHomePage from "../Modal/BottomSlideModalToHomePage.js";
 import PopupMessage from "../components/PopupMessage.jsx";
+import { getAllPublishVideosHandler } from "../actions/video.actions.js";
+import { fetchCurrentUserHandler } from "../actions/channel.actions.js";
 
 const HomeScreen = () => {
   const { currentTheme } = useTheme()
@@ -63,45 +65,25 @@ const HomeScreen = () => {
 
   // fetch current user 
   useEffect(() => {
-    const fetchCurrentUser = async () => {
+    const handleFetchCurrentUser = async () => {
       try {
+        const response = await fetchCurrentUserHandler()
 
-        const accessToken = await AsyncStorage.getItem("accessToken")
-        // console.log(accessToken);
-        const response = await axios.get(`${base_url}/users/current-user`, {
-          headers: {
-            Authorization: `${accessToken}`,
-          }
-        })
-
-        // console.log(response.data.statusCode);
-        if (response.data.statusCode === 200) {
-          setUser(response.data.data)
+        if (response.statusCode === 200) {
+          setUser(response.data)
         }
 
       } catch (error) {
         console.log("error :: ", error);
       }
     }
-    fetchCurrentUser();
+    handleFetchCurrentUser();
   }, [])
 
-  const getAllPublishVideos = async () => {
-    // console.log("call getAllPublishVideos");
-
+  const handleGetAllPublishVideos = async () => {
     try {
-      const accessToken = await AsyncStorage.getItem("accessToken")
-      const response = await axios.get(`${base_url}/videos/getAll-publish-video/?page=${currentPage}&limit=10`, // "&query=o&sortBy=title&sortType=asc"
-
-        {
-          headers: {
-            Authorization: `${accessToken}`,
-          }
-        }
-      )
-      // console.log("response : ", response.data.videos);
-      // setVideos(response.data.videos)
-      setVideos(prevVideos => [...prevVideos, ...response.data.videos])
+      const data = await getAllPublishVideosHandler(currentPage)
+      setVideos(prevVideos => [...prevVideos, ...data])
     } catch (error) {
       console.log("Error while get all Publish videos", error);
     } finally {
@@ -111,7 +93,7 @@ const HomeScreen = () => {
   }
 
   useEffect(() => {
-    getAllPublishVideos()
+    handleGetAllPublishVideos()
   }, [currentPage])
 
   const loadingMoreVideos = () => {
@@ -121,7 +103,7 @@ const HomeScreen = () => {
 
       // delay before loading more videos
       setTimeout(async () => {
-        getAllPublishVideos()
+        handleGetAllPublishVideos()
 
         // Scroll to the end of the list after loading more videos
         flatListRef.current.scrollToEnd()
@@ -135,7 +117,7 @@ const HomeScreen = () => {
     setCurrentPage(1)
     setTimeout(() => {
       setVideos([]) // remove all videos from videos array 
-      getAllPublishVideos()
+      handleGetAllPublishVideos()
     }, 500);
   }
 
@@ -151,7 +133,6 @@ const HomeScreen = () => {
       <StatusBar barStyle="light-content" />
       {/* header  */}
       <HeaderComponentt />
-
 
       {/* <Button title="getPublicVideos" onPress={() => getAllPublishVideos()} /> */}
 
@@ -242,7 +223,7 @@ const HomeScreen = () => {
           )
         }
       </ScrollView>
-      <BottomSlideModalToHomePage isVideoModalVisible={isVideoModalVisible} setIsVideoModalVisible={setIsVideoModalVisible} videoId={videoId}  />
+      <BottomSlideModalToHomePage isVideoModalVisible={isVideoModalVisible} setIsVideoModalVisible={setIsVideoModalVisible} videoId={videoId} />
     </SafeAreaView>
   );
 };
