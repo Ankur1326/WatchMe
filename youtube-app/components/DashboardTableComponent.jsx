@@ -1,11 +1,14 @@
 import { View, Text, TouchableOpacity, StyleSheet, Switch, Image, ActivityIndicator } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { useTheme } from 'expo-theme-switcher'
 import { Feather, AntDesign } from '@expo/vector-icons';
+import CustomConfirmationDialog from '../Modal/CustomConfirmationDialog';
 
-const DashboardTableComponent = ({ item, selectedItem, handleSwitchStatus }) => {
+const DashboardTableComponent = ({ item, selectedItem, handleSwitchStatus, conformDeleteVideo, handleEditVideo }) => {
     const { currentTheme } = useTheme()
-    
+    const [showConfirmation, setShowConfirmation] = useState(false)
+
+
     return (
         <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: "gray", borderTopWidth: 0 }}>
             <View style={[{ width: "10%", alignItems: 'center', justifyContent: 'center', }]}>
@@ -19,7 +22,7 @@ const DashboardTableComponent = ({ item, selectedItem, handleSwitchStatus }) => 
                 />
             </View>
             {
-                selectedItem === item._id ? <ActivityIndicator size={"small"} style={{width: "15%"}} /> :
+                selectedItem === item._id ? <ActivityIndicator size={"small"} style={{ width: "15%" }} /> :
                     (
                         item?.isPublished ?
                             <View style={{ width: "15%", alignItems: "center", paddingHorizontal: 2, paddingVertical: 8, }} >
@@ -50,15 +53,28 @@ const DashboardTableComponent = ({ item, selectedItem, handleSwitchStatus }) => 
             <Text style={[{ color: currentTheme.primaryTextColor, width: "16%" }, styles.dataText]} >{item.createdAt.substring(0, 10)}</Text>
 
             <View style={{ width: "20%", paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 15 }}>
-                <TouchableOpacity style={{ alignItems: 'center' }}>
+                <TouchableOpacity onPress={() => setShowConfirmation(!showConfirmation)} style={{ alignItems: 'center' }}>
                     <AntDesign name="delete" size={20} color={currentTheme.primaryTextColor} />
                 </TouchableOpacity>
-                <TouchableOpacity style={{ alignItems: 'center' }}>
+                <TouchableOpacity onPress={() => handleEditVideo()} style={{ alignItems: 'center' }}>
                     <Feather name="edit-2" size={20} color={currentTheme.primaryTextColor} />
                 </TouchableOpacity>
             </View>
 
 
+            {/* Conformation Dialog */}
+            <CustomConfirmationDialog
+                showConfirmation={showConfirmation}
+                title="Delete Video"
+                message="Are you sure you want to delete this Video"
+                onCancel={() => {
+                    setShowConfirmation(false)
+                }} // Close the confirmation dialog if Cancel is pressed
+                onConfirm={() => {
+                    conformDeleteVideo(item._id), // videoId
+                        setShowConfirmation(false)
+                }}
+            />
         </View>
     )
 }

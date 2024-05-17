@@ -1,54 +1,42 @@
-import { ActivityIndicator, Image, Modal, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import axios from 'axios';
-import { base_url } from '../helper/helper';
-import AsyncStorage from "@react-native-async-storage/async-storage"
-import UploadingVideo from './UploadingVideo';
 import { Entypo } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { Feather } from '@expo/vector-icons';
+import { getVideoByVideoIdHandler, updateVideoHandler } from '../actions/video.actions';
 
 const EditVideo = ({ isVisible, videoId, onClose, getAllVideos }) => {
-
-    const [video, setVideo] = useState("")
+    const [video, setVideo] = useState({})
     const [title, setTitle] = useState(video?.title)
     const [description, setDescription] = useState(video?.description)
     const [thumbnail, setThumbnail] = useState(video?.thumbnail)
-    const [thumbnailImage, setThumbnailImage] = useState("")
+    const [thumbnailImage, setThumbnailImage] = useState(video?.thumbnail)
     const [loader, setLoader] = useState(false)
-    // console.log("thumbnailImage : ", thumbnailImage);
+
+    // Fetch video data based on videoId when the modal becomes visible
+    useEffect(() => {
+        if (isVisible && videoId) {
+            getVideo(videoId);
+        }
+    }, [isVisible, videoId]);
 
     // getVideo based on videoId
     const getVideo = async (videoId) => {
-
         try {
-            const accessToken = await AsyncStorage.getItem("accessToken")
-            console.log("Hiii");
-            const response = await axios.get(`${base_url}/videos/${videoId}`,
-                {
-                    headers: {
-                        Authorization: `${accessToken}`,
-                    }
-                }
-            )
-
-            setVideo(response.data.data)
+            const video = await getVideoByVideoIdHandler(videoId)
+            // console.log("video : ", video?.thumbnail);
+            setVideo(video)
             setTitle(video.title)
             setDescription(video.description)
             setThumbnailImage(video.thumbnail)
-            getAllVideos() // refresh videos when user update one video
+            // getAllVideos() // refresh videos when user update one video
         } catch (error) {
             console.log("error while getting video : ", error);
         }
     }
 
-    useEffect(() => {
-        getVideo(videoId)
-    }, [isVisible, videoId])
-
     // pick thumbnail 
     const pickThumbnail = async () => {
-
         const result = await DocumentPicker.getDocumentAsync({
             type: 'image/*',
         });
@@ -59,32 +47,37 @@ const EditVideo = ({ isVisible, videoId, onClose, getAllVideos }) => {
         }
     };
 
-    const updateHandler = async () => {
+    const handleViderUpdate = async () => {
         try {
             setLoader(true)
-            const accessToken = await AsyncStorage.getItem("accessToken")
             const videoId = video._id
 
             const formData = new FormData()
             formData.append("title", title);
             formData.append("description", description);
-            formData.append("thumbnail", { uri: thumbnail.uri, name: thumbnail.name.trim(), type: "image/jpg", })
 
-            await axios.patch(`${base_url}/videos/${videoId}`,
-                formData,
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                        Authorization: accessToken
-                    }
-                }
-            )
+            if (thumbnail?.uri) {
+                formData.append("thumbnail", { uri: thumbnail.uri, name: thumbnail.name.trim(), type: "image/jpg", })
+            }
+
+            await updateVideoHandler(videoId, formData)
+
             setLoader(false)
             onClose()
         } catch (error) {
             console.log("Error while updating video : ", error);
         } finally { setLoader(false) }
     }
+
+    const handleClose = () => {
+        // Clear state on close
+        setVideo({});
+        setTitle('');
+        setDescription('');
+        setThumbnail(null);
+        setThumbnailImage('');
+        onClose();
+    };
 
     return (
         <View style={{}} >
@@ -104,14 +97,14 @@ const EditVideo = ({ isVisible, videoId, onClose, getAllVideos }) => {
                                 {
                                     loader == true ? (
                                         <ActivityIndicator size={30} color="white" />
-                                        ) : (
+                                    ) : (
                                         <Feather name="edit-2" size={26} color="white" />
                                     )
                                 }
                             </View>
                             <Text style={{ fontSize: 12, color: "gray", }}>Share where you've worked on your profile.</Text>
                         </View>
-                        <TouchableOpacity onPress={() => onClose()} style={{ marginRight: 6 }}>
+                        <TouchableOpacity onPress={() => handleClose()} style={{ marginRight: 6 }}>
                             <Entypo name="cross" size={28} color="white" />
                         </TouchableOpacity>
                     </View>
@@ -145,10 +138,10 @@ const EditVideo = ({ isVisible, videoId, onClose, getAllVideos }) => {
 
                         {/* Cancel and Update */}
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15, width: "93%", alignSelf: 'center' }} >
-                            <TouchableOpacity onPress={onClose} style={{ borderWidth: 1, borderColor: "white", paddingHorizontal: "15%", paddingVertical: 8 }} >
+                            <TouchableOpacity onPress={handleClose} style={{ borderWidth: 1, borderColor: "white", paddingHorizontal: "15%", paddingVertical: 8 }} >
                                 <Text style={{ color: "white" }} >Cancel</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => updateHandler()} style={{ paddingHorizontal: "15%", paddingVertical: 8, backgroundColor: "#AE7AFF" }} >
+                            <TouchableOpacity onPress={() => handleViderUpdate()} style={{ paddingHorizontal: "15%", paddingVertical: 8, backgroundColor: "#AE7AFF" }} >
                                 <Text style={{ color: "black" }} >Update</Text>
                             </TouchableOpacity>
 

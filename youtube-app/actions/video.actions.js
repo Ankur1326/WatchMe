@@ -64,6 +64,7 @@ const deleteVideoHandler = async (videoId) => {
     }
 }
 
+// get video by id 
 const getVideoByVideoIdHandler = async (videoId) => {
 
     try {
@@ -74,7 +75,7 @@ const getVideoByVideoIdHandler = async (videoId) => {
                 }
             }
         )
-        return response.data.data
+        return response.data.data[0]
     } catch (error) {
         console.log("Error while get video by id : ", error);
         throw error;
@@ -100,5 +101,22 @@ const togglePublishStatusHander = async (videoId) => {
     }
 }
 
+const updateVideoHandler = async (videoId, formData) => {
+    try {
+        await axios.patch(`${base_url}/videos/${videoId}`,
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: accessToken
+                    }
+                }
+            )
 
-export { getAllVideosHandler, getAllPublishVideosHandler, deleteVideoHandler, getVideoByVideoIdHandler, togglePublishStatusHander }
+    } catch (error) {
+        console.log("Error while toggle updating video : ", error);
+    }
+}
+
+
+export { getAllVideosHandler, getAllPublishVideosHandler, deleteVideoHandler, getVideoByVideoIdHandler, togglePublishStatusHander, updateVideoHandler }

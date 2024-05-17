@@ -6,8 +6,10 @@ import { Feather, AntDesign, FontAwesome6 } from '@expo/vector-icons';
 import { FlatList, ScrollView } from 'react-native-gesture-handler'
 import DashboardTableComponent from '../components/DashboardTableComponent'
 import PopupMessage from '../components/PopupMessage'
-import { togglePublishStatusHander } from '../actions/video.actions'
+import { deleteVideoHandler, togglePublishStatusHander } from '../actions/video.actions'
 import { getChannelStatsHandler, getChannelVideosInfoHandler } from '../actions/channel.actions';
+import CustomConfirmationDialog from '../Modal/CustomConfirmationDialog';
+import EditVideo from '../Modal/EditVideo';
 
 const AdminDashboardScreen = () => {
     const { currentTheme } = useTheme()
@@ -16,19 +18,20 @@ const AdminDashboardScreen = () => {
     const [isPopupMessageShow, setPopupMessageShow] = useState(false);
     const [channelStats, setChannelStatus] = useState({})
     const [channelVideoInfo, setChannelVideoInfo] = useState([])
+    const [editVideoModalVisible, setEditVideoModalVisible] = useState(false)
 
-    useEffect(() => {
-        const fetchChannelData = async () => {
-            try {
-                const statusData = await getChannelStatsHandler();
-                setChannelStatus(statusData);
-                const videoInfoData = await getChannelVideosInfoHandler();
-                setChannelVideoInfo(videoInfoData);
-            } catch (error) {
-                console.log(error);
-            }
+
+    const fetchChannelData = async () => {
+        try {
+            const statusData = await getChannelStatsHandler();
+            setChannelStatus(statusData);
+            const videoInfoData = await getChannelVideosInfoHandler();
+            setChannelVideoInfo(videoInfoData);
+        } catch (error) {
+            console.log(error);
         }
-
+    }
+    useEffect(() => {
         fetchChannelData();
     }, [])
 
@@ -49,6 +52,39 @@ const AdminDashboardScreen = () => {
             setTimeout(() => setPopupMessageShow(false), 3000);
         }
     }
+
+    const conformDeleteVideo = async (videoId) => {
+        try {
+            console.log("videoId : ", videoId);
+            // setIsVideoModalVisible(false)
+            // setShowLoader(true)
+
+            await deleteVideoHandler(videoId) // action
+            fetchChannelData()
+
+            setSuccess(true)
+        } catch (error) {
+            console.log("Error while deleting video: ", error);
+            // setShowLoader(true)
+            // setDeleteVideoId("")
+            setSuccess(false)
+        } finally {
+            // setShowLoader(false)
+            setPopupMessageShow(true)
+            setTimeout(() => setPopupMessageShow(false), 3000);
+        }
+    }
+
+    const handleEditVideo = async () => {
+        setEditVideoModalVisible(true)
+    }
+    
+    // onClose for editVideo
+    const onClose = () => {
+        setEditVideoModalVisible(false)
+        fetchChannelData()
+    }
+
 
     return (
         <View style={{ flex: 1, backgroundColor: currentTheme.primaryBackgroundColor, }}>
@@ -109,7 +145,12 @@ const AdminDashboardScreen = () => {
                             data={channelVideoInfo}
                             keyExtractor={item => item._id}
                             renderItem={({ item }) => (
-                                <DashboardTableComponent item={item} selectedItem={selectedItem} handleSwitchStatus={handleSwitchStatus} />
+                                <View>
+                                    <DashboardTableComponent item={item} selectedItem={selectedItem} handleSwitchStatus={handleSwitchStatus} conformDeleteVideo={conformDeleteVideo} handleEditVideo={handleEditVideo} />
+
+                                    {/* model for edit video  */}
+                                    {editVideoModalVisible && <EditVideo isVisible={editVideoModalVisible} videoId={item._id} onClose={onClose} getAllVideos={fetchChannelData} />}
+                                </View>
                             )}
                         />
 
