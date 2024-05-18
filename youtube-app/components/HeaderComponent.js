@@ -9,13 +9,13 @@ const HeaderComponent = () => {
     const navigation = useNavigation()
 
     return (
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 9, borderBottomWidth: 1.5, borderBottomColor: currentTheme.primaryBorderColor, backgroundColor: currentTheme.primaryBackgroundColor }} >
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 5, borderBottomWidth: 1.5, borderBottomColor: currentTheme.primaryBorderColor, backgroundColor: currentTheme.primaryBackgroundColor }} >
             {/* Logo  */}
-            <Image style={{ width: 40, height: 40 }} source={require("../assets/logo.jpg")} />
+            <Image style={{ width: 35, height: 35 }} source={require("../assets/logo.jpg")} />
             <View style={{ flexDirection: "row", gap: 10, alignItems: "center", marginRight: 5 }} >
-                <Feather name="search" size={24} color={currentTheme?.primaryTextColor} />
+                <Feather name="search" size={20} color={currentTheme?.primaryTextColor} />
                 <Pressable onPress={() => navigation.openDrawer()} >
-                    <Feather name="menu" size={34} color={currentTheme?.primaryTextColor} />
+                    <Feather name="menu" size={28} color={currentTheme?.primaryTextColor} />
                 </Pressable>
             </View>
         </View>

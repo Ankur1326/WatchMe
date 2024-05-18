@@ -7,9 +7,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { base_url } from '../helper/helper';
 import { UserType } from '../UserContext';
+import PopupMessage from '../components/PopupMessage';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity)
-const BottomSlideModalToHomePage = ({ isVideoModalVisible, setIsVideoModalVisible, videoId }) => {
+const BottomSlideModalToHomePage = ({ isVideoModalVisible, setIsVideoModalVisible, videoId, setPopupMessage, setSuccess, setPopupMessageShow }) => {
     const animation = useSharedValue(0)
     const [isSaveVideoModalVisible, setSaveVideoModalVisible] = useState(false)
     const [isCreateNewPlaylistModalVisible, setCreateNewPlaylistModalVisible] = useState(false)
@@ -20,8 +21,8 @@ const BottomSlideModalToHomePage = ({ isVideoModalVisible, setIsVideoModalVisibl
     const [playlists, setPlaylists] = useState([])
     const [selectedPlaylist, setSelectedPlakylist] = useState("")
     const [selectedPlaylistId, setSelectedPlaylistId] = useState(null)
-    const [isSuccessfullyAddVideoMessageVisible, setSuccessfullyAddVideoMessageVisible] = useState(false)
-    const [isShowErrormessage, setShowErrormessage] = useState(false)
+
+
 
 
     const gestureHandler = useAnimatedGestureHandler({
@@ -76,16 +77,23 @@ const BottomSlideModalToHomePage = ({ isVideoModalVisible, setIsVideoModalVisibl
                     }
                 )
                 setCreateNewPlaylistModalVisible(false)
-                setSuccessfullyCreatedMessageVisible(true)
-                setTimeout(() => {
-                    setSuccessfullyCreatedMessageVisible(false)
-                }, 2000);
+
+                setPopupMessage("Playlist Succesfully Created")
+                setSuccess(true)
+
                 // console.log("createdPlaylist : ", createdPlaylist);
             }
         } catch (error) {
+            setPopupMessage("Playlist is not created")
+            setSuccess(false)
             Alert.alert("Playlist is not created", error.message)
             console.log("Error while creating new Playlist : ", error);
-        } finally { }
+        } finally {
+            setPopupMessageShow(true)
+            setTimeout(() => {
+                setPopupMessageShow(false)
+            }, 2000);
+        }
     }
 
     const getUserPlaylists = useCallback(async () => {
@@ -97,7 +105,7 @@ const BottomSlideModalToHomePage = ({ isVideoModalVisible, setIsVideoModalVisibl
             console.log("error while getting playlist with userID ", error);
         }
     })
-    
+
     useEffect(() => {
         getUserPlaylists()
     }, [isSaveVideoModalVisible])
@@ -113,18 +121,20 @@ const BottomSlideModalToHomePage = ({ isVideoModalVisible, setIsVideoModalVisibl
                     }
                 })
                 setSaveVideoModalVisible(false)
-                setSuccessfullyAddVideoMessageVisible(true)
-                setTimeout(() => {
-                    setSuccessfullyAddVideoMessageVisible(false)
-                }, 3000);
+                setPopupMessage("Video successfully added in playlist")
+                setSuccess(true)
             }
 
         } catch (error) {
-            console.log("error while getting playlist with userID ", error);
-            setShowErrormessage(true)
+            setPopupMessage("Video is not added in that playlist")
+            setSuccess(false)
+            console.log("error while adding video in that playlist", error);
+
+        } finally {
+            setPopupMessageShow(true)
             setTimeout(() => {
-                setShowErrormessage(false)
-            }, 4000);
+                setPopupMessageShow(false)
+            }, 3000);
         }
     }
 
@@ -139,15 +149,71 @@ const BottomSlideModalToHomePage = ({ isVideoModalVisible, setIsVideoModalVisibl
                     }
                 })
                 console.log(response);
+
+                setPopupMessage("Video is successfully removed from playlist")
+                setSuccess(true)
             }
 
+
         } catch (error) {
-            console.log("error while getting playlist with userID ", error);
+            console.log("error while removing video from playlist", error);
+            setSuccess(false)
+        } finally {
+            setPopupMessage("Video is not removed in playlist")
+            setPopupMessageShow(true)
+            setTimeout(() => {
+                setPopupMessageShow(false)
+            }, 3000);
         }
     }
 
     return (
         <View >
+
+            {/* succesfully add video message */}
+            {/* <Modal
+                animationType='slide'
+                transparent={true}
+                visible={isSuccessfullyAddVideoMessageVisible}
+            >
+                <View style={{ flex: 1, justifyContent: 'flex-end', width: "100%", }}>
+
+                    <View style={{ backgroundColor: "#F2F2F2", marginBottom: 65, alignSelf: 'center', borderRadius: 10, width: "90%", height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 }}>
+
+                        <Text style={{ fontSize: 14, fontWeight: 'bold', color: "black" }} >Video added successFully</Text>
+
+                        <TouchableOpacity onPress={() => { }} style={{}}>
+                            <Text style={{ fontSize: 15, fontWeight: 'bold', color: "#06a4ee" }} >see all videos</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                </View>
+            </Modal> */}
+
+            {/* modal to show error message */}
+            {/* <Modal
+                animationType='slide'
+                transparent={true}
+                visible={isShowErrormessage}
+            // visible={true}
+            >
+                <View style={{ flex: 1, justifyContent: 'center', width: "100%", }}>
+
+                    <View style={{ backgroundColor: "#F65B5B", alignSelf: 'center', marginTop: 50, width: "90%", height: 45, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10 }}>
+
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }} >
+                            <MaterialIcons name="error-outline" size={24} color="white" fontWeight="200" />
+                            <Text style={{ fontSize: 14, color: "white" }} >Video is already added in this playlist</Text>
+                        </View>
+
+                        <TouchableOpacity onPress={() => { setShowErrormessage(false) }} style={{}}>
+                            <Entypo name="cross" size={28} color="white" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal> */}
+
+
             <Modal
                 animationType='slide'
                 transparent={true}
@@ -358,48 +424,7 @@ const BottomSlideModalToHomePage = ({ isVideoModalVisible, setIsVideoModalVisibl
                 </View>
             </Modal>
 
-            {/* succesfully add video message */}
-            <Modal
-                animationType='slide'
-                transparent={true}
-                visible={isSuccessfullyAddVideoMessageVisible}
-            >
-                <View style={{ flex: 1, justifyContent: 'flex-end', width: "100%", }}>
 
-                    <View style={{ backgroundColor: "#F2F2F2", marginBottom: 65, alignSelf: 'center', borderRadius: 10, width: "90%", height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 }}>
-
-                        <Text style={{ fontSize: 14, fontWeight: 'bold', color: "black" }} >Video added successFully</Text>
-
-                        <TouchableOpacity onPress={() => { }} style={{}}>
-                            <Text style={{ fontSize: 15, fontWeight: 'bold', color: "#06a4ee" }} >see all videos</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                </View>
-            </Modal>
-
-            {/* modal to show error message */}
-            <Modal
-                animationType='slide'
-                transparent={true}
-                visible={isShowErrormessage}
-                // visible={true}
-            >
-                <View style={{ flex: 1, justifyContent: 'center', width: "100%", }}>
-
-                    <View style={{ backgroundColor: "#F65B5B", alignSelf: 'center', marginTop: 50, width: "90%", height: 45, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10 }}>
-
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }} >
-                            <MaterialIcons name="error-outline" size={24} color="white" fontWeight="200" />
-                            <Text style={{ fontSize: 14, color: "white" }} >Video is already added in this playlist</Text>
-                        </View>
-
-                        <TouchableOpacity onPress={() => { setShowErrormessage(false) }} style={{}}>
-                            <Entypo name="cross" size={28} color="white" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
 
         </View>
     )

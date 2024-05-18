@@ -22,6 +22,7 @@ const ChannelPlaylistVideoScreen = ({ route }) => {
     const conformDeleteVideo = async (videoId) => {
         console.log("called conformDeleteVideo", videoId);
         const playlistId = playlistData._id;
+        
         try {
             const accessToken = await AsyncStorage.getItem("accessToken")
             const response = await axios.delete(`${base_url}/playlist/${playlistId}/${videoId}`,

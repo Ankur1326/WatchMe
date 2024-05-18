@@ -13,6 +13,7 @@ import CommentComponent from '../components/CommentComponent';
 import HeaderComponent from '../components/HeaderComponent';
 import { UserType } from '../UserContext';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import { increaseViewsHandler } from '../actions/video.actions';
 
 const AnimatiedLikeBtn = Animated.createAnimatedComponent(TouchableOpacity)
 const VideoDetailScreen = ({ route }) => {
@@ -20,8 +21,8 @@ const VideoDetailScreen = ({ route }) => {
     const navigation = useNavigation()
     const [user, setUser] = useContext(UserType);
     const { data } = route.params
-    // console.log("data ", data);
-
+    
+    // console.log("data ::: ", data);
     const sections = [1]
     const [isPlaying, setIsPlaying] = useState(false);
     const videoRef = React.useRef(null);
@@ -118,7 +119,7 @@ const VideoDetailScreen = ({ route }) => {
         }
     }
 
-    
+
     // handle like or dislike 
     const toggleVideoLikeHandler = async (videoId, action) => {
         // console.log(videoId, action);
@@ -153,14 +154,16 @@ const VideoDetailScreen = ({ route }) => {
             videoRef.current.replayAsync();
         }
 
-        if (status.isPlaying) {
-            // Send request to backend to track view when video starts playing
-            try {
-                await axios.post(`YOUR_BACKEND_API_URL/videos/${videoId}/view`);
-                console.log('View tracked successfully');
-            } catch (error) {
-                console.error('Error tracking view:', error);
+        // Send request to backend to track views when user watched full video
+        try {
+            if (status.didJustFinish) { // if video is finished
+                // console.log("status.didJustFinish");
+                if (videoId) {
+                    await increaseViewsHandler(videoId)
+                }
             }
+        } catch (error) {
+            console.log("Error while increased video views : ", error);
         }
     }
 
@@ -169,7 +172,7 @@ const VideoDetailScreen = ({ route }) => {
             {/* header  */}
             <HeaderComponent />
 
-            <ScrollView style={{ paddingHorizontal: 10, paddingVertical: 12 }}>
+            <ScrollView style={{ paddingHorizontal: 10, paddingVertical: 0 }}>
                 {/* video  */}
                 <Video
                     ref={videoRef}
@@ -226,7 +229,7 @@ const VideoDetailScreen = ({ route }) => {
 
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 25 }}>
                             {/* channel  */}
-                            <Pressable style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }} >
+                            <Pressable onPress={() => navigation.navigate("Channel", { channel: channel })} style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }} >
                                 <View>
                                     <Image source={{ uri: channel?.avatar }} style={{ width: 50, height: 50, borderRadius: 25 }} />
                                 </View>

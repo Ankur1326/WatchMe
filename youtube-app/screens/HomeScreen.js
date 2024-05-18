@@ -32,6 +32,10 @@ const HomeScreen = () => {
   const [optionsVisible, setOptionsVisible] = useState(null);
   const [isVideoModalVisible, setIsVideoModalVisible] = useState(false)
 
+  const [popupMessage, setPopupMessage] = useState("") // success or faluare msg
+  const [isSuccess, setSuccess] = useState(false)
+  const [isPopupMessageShow, setPopupMessageShow] = useState(false)
+
   const category = [
     {
       id: "0",
@@ -134,6 +138,7 @@ const HomeScreen = () => {
       {/* header  */}
       <HeaderComponentt />
 
+      <PopupMessage isSuccess={isSuccess} title={popupMessage} isVisible={isPopupMessageShow} setVisible={setPopupMessageShow} />
       {/* <Button title="getPublicVideos" onPress={() => getAllPublishVideos()} /> */}
 
       {/* skeleton loader */}
@@ -223,7 +228,7 @@ const HomeScreen = () => {
           )
         }
       </ScrollView>
-      <BottomSlideModalToHomePage isVideoModalVisible={isVideoModalVisible} setIsVideoModalVisible={setIsVideoModalVisible} videoId={videoId} />
+      <BottomSlideModalToHomePage isVideoModalVisible={isVideoModalVisible} setIsVideoModalVisible={setIsVideoModalVisible} videoId={videoId} setPopupMessage={setPopupMessage} setSuccess={setSuccess} setPopupMessageShow={setPopupMessageShow} />
     </SafeAreaView>
   );
 };

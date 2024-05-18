@@ -6,18 +6,20 @@ import { UserType } from '../UserContext';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { ScrollView } from "react-native-gesture-handler";
 
-import VideoTabComponent from '../components/dynamicSectionsComponents/VideoTabComponent';
-import PlaylistTabComponent from '../components/dynamicSectionsComponents/PlaylistTabComponent';
-import TweetsTabComponent from '../components/dynamicSectionsComponents/TweetsTabComponent';
-import SubscribedTabcomponent from '../components/dynamicSectionsComponents/SubscribedTabcomponent';
+import VideoTabComponent from '../components/myChannelSectionComponents/VideoTabComponent.js';
+import PlaylistTabComponent from '../components/myChannelSectionComponents/PlaylistTabComponent.js';
+import TweetsTabComponent from '../components/myChannelSectionComponents/TweetsTabComponent.js';
+import SubscribedTabcomponent from '../components/myChannelSectionComponents/SubscribedTabcomponent.js';
 import axios from "axios"
 import { base_url } from '../helper/helper.js';
 import VideoUpload from '../Modal/VideoUpload.js';
 import HeaderComponent from '../components/HeaderComponent.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from 'expo-theme-switcher';
 
 const Tab = createMaterialTopTabNavigator();
 const ProfileScreen = ({ navigation }) => {
+    const { currentTheme } = useTheme()
     const scrollRef = useRef(null)
     const [user, setUser] = useContext(UserType);
     const [selectedSection, setSelectedSection] = useState("Videos")
@@ -56,14 +58,14 @@ const ProfileScreen = ({ navigation }) => {
         const username = user.username
 
         const accessToken = await AsyncStorage.getItem("accessToken")
-            const response = await axios.get(`${base_url}/users/c/${username}`,
-                {
-                    headers: {
-                        Authorization: `${accessToken}`,
-                    }
+        const response = await axios.get(`${base_url}/users/c/${username}`,
+            {
+                headers: {
+                    Authorization: `${accessToken}`,
                 }
-            )
-            // console.log("response :: ", response.data.data);
+            }
+        )
+        // console.log("response :: ", response.data.data);
         setUserChannelProfile(response.data.data)
     }
 
@@ -83,7 +85,7 @@ const ProfileScreen = ({ navigation }) => {
             <ScrollView ref={scrollRef} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} >
 
                 {/* Header */}
-                <HeaderComponent /> 
+                <HeaderComponent />
 
                 <View style={{}}>
 
@@ -93,16 +95,16 @@ const ProfileScreen = ({ navigation }) => {
                     </View>
 
                     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, gap: 5, paddingBottom: 12 }} >
-                        <Image source={{ uri: userchannelProfile.avatar }} style={{ width: 110, height: 110, resizeMode: "cover", borderRadius: 55, borderWidth: 2, borderColor: "white", position: 'absolute', top: -30, left: 10 }} />
+                        <Image source={{ uri: userchannelProfile.avatar }} style={{ width: 100, height: 100, resizeMode: "cover", borderRadius: 55, borderWidth: 2, borderColor: "white", position: 'absolute', top: -30, left: 10 }} />
                         <View style={{ paddingLeft: 110, paddingVertical: 10 }}>
                             <Text style={{ color: "white", fontSize: 17 }} >{userchannelProfile.fullName}</Text>
                             <Text style={{ color: "#999", fontSize: 13 }} >@{userchannelProfile.username}</Text>
                         </View>
 
                         {/* Edit btn  */}
-                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: "#AE7AFF", paddingHorizontal: 16, paddingVertical: 10, }}>
-                            <Feather name="edit-2" size={21} color="black" style={{ fontWeight: "bold" }} />
-                            <Text style={{ fontSize: 17, fontWeight: "bold" }} >Edit</Text>
+                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: "#AE7AFF", paddingHorizontal: 15, paddingVertical: 10, }}>
+                            <Feather name="edit-2" size={17} color="black" style={{ fontWeight: "bold" }} />
+                            <Text style={{ fontSize: 15, fontWeight: "bold" }} >Edit</Text>
                         </TouchableOpacity>
                         <Text style={{ color: "#999", fontSize: 13, position: 'absolute', bottom: -2, right: 70 }} >{userchannelProfile.subscribersCount} subscribers . {userchannelProfile.channelSubscribedToCount} Subscribed</Text>
                     </View>
@@ -122,12 +124,17 @@ const ProfileScreen = ({ navigation }) => {
                             },
                             indicatorStyle: {
                                 backgroundColor: '#AE7AFF', // Set the indicator color
-                                height: 2.5,
+                                height: 1.5,
                             },
                         }}
                     >
                         {sections.map((section) => (
                             <Tab.Screen key={section.id} name={section.name} component={section.component} options={{
+                                tabBarLabel: ({ focused, }) => (
+                                    <Text style={{ fontSize: 12, fontWeight: "bold", color: focused ? "#AE7AFF" : currentTheme?.primaryTextColor, marginBottom: 4 }}>
+                                        {section.name}
+                                    </Text>
+                                ),
                             }} />
                         ))}
                     </Tab.Navigator>
