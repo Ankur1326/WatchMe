@@ -48,6 +48,24 @@ const getAllPublishVideosHandler = async (currentPage) => {
     }
 }
 
+// get all publish videos 
+const getAllAnoterChannelVideosHandler = async (userId) => {
+
+    try {
+        const response = await axios.get(`${base_url}/videos/getAll-anoter-channel-videos/${userId}`, 
+            {
+                headers: {
+                    Authorization: `${accessToken}`,
+                }
+            }
+        )
+        return response.data
+    } catch (error) {
+        console.log("Error while get all Publish videos :: ", error);
+    } finally {
+    }
+}
+
 const deleteVideoHandler = async (videoId) => {
 
     try {
@@ -104,19 +122,38 @@ const togglePublishStatusHander = async (videoId) => {
 const updateVideoHandler = async (videoId, formData) => {
     try {
         await axios.patch(`${base_url}/videos/${videoId}`,
-                formData,
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                        Authorization: accessToken
-                    }
+            formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    Authorization: accessToken
                 }
-            )
+            }
+        )
 
     } catch (error) {
         console.log("Error while toggle updating video : ", error);
     }
 }
 
+const increaseViewsHandler = async (videoId) => {
+    try {
+        const response = await axios.post(`${base_url}/videos/views/${videoId}`,
+            {
+                headers: {
+                    Authorization: accessToken
+                }
+            }
+        )
+        
+        // console.log(response);
+        
+    } catch (error) {
+        console.log("Error while increased video views : ", error);
+    }
+}
 
-export { getAllVideosHandler, getAllPublishVideosHandler, deleteVideoHandler, getVideoByVideoIdHandler, togglePublishStatusHander, updateVideoHandler }
+
+
+
+export { getAllVideosHandler, getAllPublishVideosHandler, deleteVideoHandler, getVideoByVideoIdHandler, togglePublishStatusHander, updateVideoHandler, increaseViewsHandler, getAllAnoterChannelVideosHandler }

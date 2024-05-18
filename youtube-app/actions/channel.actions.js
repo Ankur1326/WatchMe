@@ -56,4 +56,20 @@ const fetchCurrentUserHandler = async () => {
     }
 }
 
-export { getChannelStatsHandler, getChannelVideosInfoHandler, fetchCurrentUserHandler }
+// another user channel profile 
+const getUserchannelProfile = async (userId, ) => {
+    try {
+        const response = await axios.get(`${base_url}/users//get-user-channel/${userId}`,{
+            headers: {
+                Authorization: `${accessToken}`,
+            }
+        })
+        return response.data.data[0]
+
+    } catch (error) {
+        console.log("error while getting anoter user channel profile:: ", error);
+    }
+
+}
+
+export { getChannelStatsHandler, getChannelVideosInfoHandler, fetchCurrentUserHandler, getUserchannelProfile }
