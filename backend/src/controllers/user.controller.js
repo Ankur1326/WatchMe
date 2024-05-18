@@ -4,7 +4,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Mongoose, Schema } from "mongoose";
 
 const generateRefreshAndAccessToken = async (user_id) => {
   try {
@@ -355,7 +355,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 });
 
 
-// endpoint to get user channel profile
+// endpoint to get user (my) channel profile
 const getUserChannelProfile = asyncHandler(async (req, res) => {
   const { username } = req.params; // from URL
   // console.log(username);
@@ -502,7 +502,9 @@ const getWatchHistory = asyncHandler(async (req, res) => {
 
 // This endpoint for another user
 const getUserChannel = asyncHandler(async (req, res) => {
-  const { userId } = req.params
+  const userId = new mongoose.Types.ObjectId(req.params.userId)
+  // const { myChannelUserId } = req.body?._id
+  // console.log("myChannelUserId ", myChannelUserId);
   // console.log("userId : ", userId);
   // console.log("user : ", req.user);
 
@@ -550,7 +552,9 @@ const getUserChannel = asyncHandler(async (req, res) => {
       },
       {
         $project: {
+          fullName: 1,
           username: 1,
+          email: 1,
           avatar: 1,
           coverImage: 1,
           subscribers: 1,

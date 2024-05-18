@@ -6,6 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { deleteImageFromCloudinary, deleteVideoFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js"
 
+// get all publish or unpublish video
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
     //TODO: get all videos based on query, sort, pagination
@@ -304,7 +305,7 @@ const updateVideo = asyncHandler(async (req, res) => {
 
         // console.log(req.file);
         let thumbnailLocalPath = ""
-        
+
         if (req.file) {
             thumbnailLocalPath = req.file.path
             await deleteImageFromCloudinary(video.thumbnail)
@@ -315,7 +316,7 @@ const updateVideo = asyncHandler(async (req, res) => {
         if (thumbnail) {
             thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
         }
-            
+
         // console.log("thumbnail : ", thumbnail);
 
         // update title, description and thumbnail values of video
@@ -377,7 +378,6 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     // check video found or not 
     if (!video) {
         throw new ApiError(404, "video not found")
-        // throw new ApiError(404, "video not found")
     }
 
     // toggle publish status 
@@ -390,6 +390,93 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 
 })
 
+// get all user another user channel videos
+const getChannelVideos = asyncHandler(async (req, res) => {
+    const { userId } = req.params
+
+    console.log(userId);
+    try {
+        const videos = await Video.aggregate([
+            {
+                $match: {
+                    owner: new mongoose.Types.ObjectId(userId),
+                    isPublished: true,
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "userDetals"
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    videoFile: 1,
+                    thumbnail: 1,
+                    title: 1,
+                    description: 1,
+                    duration: 1,
+                    views: 1,
+                    isPublished: 1,
+                    owner: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    userDetals: {
+                        _id: 1,
+                        username: 1,
+                        avatar: 1,
+                        // Add other user fields
+                    }
+
+                }
+            },
+
+        ])
+
+        console.log("videos ", videos);
+
+        if (!videos || videos.length === 0) {
+            throw new ApiError(404, "Videos not found for this user")
+        }
+
+        return res.status(200).json(new ApiResponse(200, videos, `Videos successfully  fetched`))
+
+    } catch (error) {
+        console.log("Internal server error while fetched videos", error);
+        throw new ApiError(500, "Internal server error while fetched videos", error)
+    }
+
+})
+const increaseVideoView = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+    try {
+        // get video based on videoId
+        const video = await Video.findById(videoId)
+
+        // check video found or not
+        if (!video) {
+            throw new ApiError(404, "video not found")
+        }
+
+        // increase the video views
+        video.views = +1
+
+        // save it 
+        const updatedVideo = await video.save()
+
+        return res.status(200).json(new ApiResponse(200, updatedVideo, `Video views successfully increased by one`))
+
+    } catch (error) {
+        throw new ApiError(500, "Internal server error while increased video views", error)
+    }
+
+})
+
+
+
 export {
     getAllVideos,
     publishAVideo,
@@ -398,4 +485,6 @@ export {
     deleteVideo,
     togglePublishStatus,
     getAllPublishVideo,
+    increaseVideoView,
+    getChannelVideos
 }
