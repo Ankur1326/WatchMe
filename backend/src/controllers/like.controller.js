@@ -230,6 +230,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
                 await Dislike.deleteOne({
                     _id: alreadyDisliked._id
                 })
+                console.log("like");
             }
 
             if (alreadyLiked) {

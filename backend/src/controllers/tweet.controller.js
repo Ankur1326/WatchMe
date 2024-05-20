@@ -34,10 +34,12 @@ const createTweet = asyncHandler(async (req, res) => {
 
 
 const getUserTweets = asyncHandler(async (req, res) => {
-    const userId = req.user._id
+    // const userId = req.user._id
+    const { userId } = req.params
+    // console.log(userId);
 
     try {
-        const tweets = Tweet.aggregate([
+        const tweets = await Tweet.aggregate([
             {
                 $match: {
                     owner: new mongoose.Types.ObjectId(userId)
@@ -53,12 +55,12 @@ const getUserTweets = asyncHandler(async (req, res) => {
                     from: "users",
                     localField: "owner",
                     foreignField: "_id",
-                    as: userDetails,
+                    as: "userDetails",
                     pipeline: [
                         {
                             $project: {
                                 fullName: 1,
-                                acatar: 1
+                                avatar: 1
                             }
                         }
                     ]
@@ -125,14 +127,14 @@ const getUserTweets = asyncHandler(async (req, res) => {
         return res.status(200).json(new ApiResponse(200, tweets, "tweets successfully fetched"))
 
     } catch (error) {
-        throw new ApiError(500, "Internal server while getting user Tweets")
+        throw new ApiError(500, "Internal server while getting user Tweets :", error)
     }
 
 })
 
 const updateTweet = asyncHandler(async (req, res) => {
     const { tweetId } = req.params
-    const {content} = req.body
+    const { content } = req.body
 
     console.log(commentId, content);
 
