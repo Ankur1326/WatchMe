@@ -41,7 +41,9 @@ const getAllPublishVideosHandler = async (currentPage) => {
                 }
             }
         )
+        // console.log("response.data.videos ; ", response.data.videos);
         return response.data.videos
+        
     } catch (error) {
         console.log("Error while get all Publish videos", error);
     } finally {
@@ -59,7 +61,8 @@ const getAllAnoterChannelVideosHandler = async (userId) => {
                 }
             }
         )
-        return response.data
+        console.log("response.data ; ", response.data);
+        return response.data.data
     } catch (error) {
         console.log("Error while get all Publish videos :: ", error);
     } finally {
@@ -138,22 +141,17 @@ const updateVideoHandler = async (videoId, formData) => {
 
 const increaseViewsHandler = async (videoId) => {
     try {
-        const response = await axios.post(`${base_url}/videos/views/${videoId}`,
+        await axios.post(`${base_url}/videos/views/${videoId}`,
+            {},
             {
                 headers: {
                     Authorization: accessToken
                 }
             }
         )
-        
-        // console.log(response);
-        
     } catch (error) {
         console.log("Error while increased video views : ", error);
     }
 }
-
-
-
 
 export { getAllVideosHandler, getAllPublishVideosHandler, deleteVideoHandler, getVideoByVideoIdHandler, togglePublishStatusHander, updateVideoHandler, increaseViewsHandler, getAllAnoterChannelVideosHandler }

@@ -32,7 +32,7 @@ const VideoTabComponent = ({ route }) => {
         try {
             const allVideos = await getAllAnoterChannelVideosHandler(userId)
             // console.log(allVideos.data);
-            setVideos(allVideos.data)
+            setVideos(allVideos)
         } catch (error) {
             console.log("error while gettting all videos", error);
         }

@@ -1,5 +1,5 @@
 import { Alert, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, ActivityIndicator } from 'react-native'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import axios from "axios"
 import { UserType } from '../../UserContext';
 import { base_url } from '../../helper/helper';
@@ -14,7 +14,7 @@ import { Fontisto } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import EditVideo from '../../Modal/EditVideo';
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import CustomConfirmationDialog from '../../Modal/CustomConfirmationDialog';
 import PopupMessage from '../PopupMessage';
 import { deleteVideoHandler, getAllVideosHandler, togglePublishStatusHander } from '../../actions/video.actions';
@@ -54,9 +54,15 @@ const VideoTabComponent = () => {
         }
     }
 
-    useEffect(() => {
-        handleGetAllVideos()
-    }, [closeModal])
+    // useEffect(() => {
+    //     handleGetAllVideos()
+    // }, [closeModal])
+
+    useFocusEffect(
+        useCallback(() => {
+            handleGetAllVideos();
+        }, [])
+    );
 
     // Modal 
 
@@ -66,11 +72,6 @@ const VideoTabComponent = () => {
     const closeModal = () => {
         setModalVisible(false)
     }
-
-    // const handleOptionVisible = (videoId) => {
-    //     setOptionsVisible((prevState) => (prevState == videoId ? null : videoId))
-    // }
-
 
     // three dots
     const videoModalVisible = (videoId) => {
@@ -169,20 +170,20 @@ const VideoTabComponent = () => {
                                                 <Image source={{ uri: item?.thumbnail }} style={{ width: 170, height: 110, borderRadius: 6 }} />
 
                                                 {/* video duration */}
-                                                <Text style={{ color: "white", fontSize: 16, fontWeight: 600, position: 'absolute', bottom: 10, left: 110, backgroundColor: "#000000c3", fontWeight: 700, paddingHorizontal: 7, paddingVertical: 1, borderRadius: 5 }} >{(item?.duration / 60).toString().substring(0, 4)}</Text>
+                                                <Text style={{ color: "white", fontSize: 16, fontWeight: 600, position: 'absolute', bottom: 10, left: 110, backgroundColor: "#000000c3", fontWeight: 700, paddingHorizontal: 7, paddingVertical: 1, borderRadius: 5 }} >{(item?.duration / 60)?.toString()?.substring(0, 4)}</Text>
 
                                                 {/* title and date */}
                                                 <View>
                                                     <Text style={{ color: "white", fontSize: 15, fontWeight: 600 }} >
 
-                                                        {item?.title.length > 15 ? `${item?.title.slice(0, 15)}...` : item.title}
+                                                        {item?.title.length > 15 ? `${item?.title.slice(0, 15)}...` : item?.title}
                                                     </Text>
                                                     {/* <Text>10k Views</Text> */}
                                                     <Text style={{ color: "#dbdbdb", fontSize: 13, }} >
                                                         {
-                                                            formatDistanceToNow(new Date(item.createdAt), {
+                                                            formatDistanceToNow(new Date(item?.createdAt), {
                                                                 addSuffix: true,
-                                                            }).toString()
+                                                            })?.toString()
                                                         }
                                                     </Text>
                                                 </View>

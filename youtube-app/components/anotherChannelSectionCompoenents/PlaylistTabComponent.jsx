@@ -19,7 +19,7 @@ const PlaylistTabComponent = ({ route }) => {
   const getUserPlaylists = useCallback(async () => {
     try {
       const fetchedPlaylists = await axios.get(`${base_url}/playlist/user/${userId}`)
-      console.log(fetchedPlaylists.data.data);
+      // console.log(fetchedPlaylists.data.data);
       setPlaylists(fetchedPlaylists.data.data)
     } catch (error) {
       console.log("error while getting playlist with userID ", error);
@@ -98,8 +98,6 @@ const PlaylistTabComponent = ({ route }) => {
               <Text style={{ fontSize: 16, color: "white", textAlign: 'center' }} >There are no playlist created on this channel</Text>
             </View>
         }
-        
-
       </View >
     </ScrollView >
   )

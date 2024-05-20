@@ -5,10 +5,10 @@ import RegisterScreen from "../screens/RegisterScreen";
 import LoginScreen from "../screens/LoginScreen";
 import DrawerNavigation from "./DrawerNavigation";
 import VideoDetailScreen from "../screens/VideoDetailScreen";
-import ChannelPlaylistVideoScreen from "../screens/ChannelPlaylistVideoScreen";
 import AdminDashboardScreen from "../screens/AdminDashboardScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import ChannelScreen from "../screens/ChannelScreen";
+import ProfilePlaylistVideoScreen from "../screens/ProfilePlaylistVideoScreen";
 
 const Stack = createNativeStackNavigator();
 const StackNavigation = () => {
@@ -19,7 +19,7 @@ const StackNavigation = () => {
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Drawer" component={DrawerNavigation} options={{ headerShown: false }} />
         <Stack.Screen name="VideoDetail" component={VideoDetailScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="ChannelPlaylistVideosPage" component={ChannelPlaylistVideoScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="ChannelPlaylistVideosPage" component={ProfilePlaylistVideoScreen} options={{ headerShown: false }} />
         <Stack.Screen name="AdminDashboardScreen" component={AdminDashboardScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Channel" component={ChannelScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
