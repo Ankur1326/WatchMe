@@ -10,13 +10,13 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     // TODO : toggle subscription
     // console.log("channeId : ", channelId);
     // console.log("user : ", req.user);
-    const user = req.user
+    const userId = req.user._id
 
     try {
         // check if subscribtion already exists for the given subscriber and channel 
         const existingSubscription = await Subscription.findOneAndDelete({
             $and: [
-                { subscriber: user?._id },
+                { subscriber: userId },
                 { channel: channelId },
             ]
         })
@@ -26,7 +26,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
         // Subscription doesn't exist, create a new one
         if (!existingSubscription) {
             const subscription = await Subscription.create({
-                subscriber: user?._id, // another user channel
+                subscriber: userId, // another user channel
                 channel: channelId, // my channel
             })
 
@@ -61,7 +61,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
         throw new ApiError(409, "ChannelId is required")
     }
 
-    const subscribers = await Subscription.find({channel: channelId})
+    const subscribers = await Subscription.find({ channel: channelId })
 
     if (!subscribers) {
         throw new ApiError(404, "This channel has no subscribe")
@@ -78,14 +78,76 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     const { subscriberId } = req.params
     // mne kinko subscribe kiya hai
 
-    if (!subscriberId) {
-        throw new ApiError(409, "subscriberId required")
+    try {
+        if (!subscriberId) {
+            throw new ApiError(409, "subscriberId required")
+        }
+
+        const subscribedChannels = await Subscription.aggregate([
+            {
+                $match: {
+                    subscriber: new mongoose.Types.ObjectId(subscriberId)
+                }
+            },
+            {
+                $sort: {
+                    createdAt: -1 // descending order based on createdAt time like first creation showing first like this...
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "channel",
+                    foreignField: "_id",
+                    as: "channelDetails",
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: "subscriptions",
+                                localField: "_id",
+                                foreignField: "channel",
+                                as: "subscribers",
+                            },
+
+                        },
+                        {
+                            $addFields: {
+                                subscribersCount: {
+                                    $size: "$subscribers"
+                                }
+                            },
+                        },
+                        {
+                            $project: {
+                                subscribersCount: 1,
+                                avatar: 1,
+                                username: 1,
+                            },
+                        },
+                    ]
+                },
+            },
+            {
+                $project: {
+                    avatar: 1,
+                    username: 1,
+                    subscribersCount: 1,
+                    channelDetails: 1,
+                },
+            },
+        ])
+
+
+        // const subscribedChannels = await Subscription.find({subscriber: subscriberId}) 
+
+        console.log("subscribedChannels : ", subscribedChannels);
+        // console.log("subscribedChannels : ", subscribedChannels.channelDetails);
+
+        return res.status(201).json(new ApiResponse(200, subscribedChannels, "subscribed channles successfully fetched"))
+
+    } catch (error) {
+        console.log("Error while getting subscribed channles");
     }
-
-    const subscribedChannels = await Subscription.find({subscriber: subscriberId}) 
-
-    console.log("subscribedChannels : ", subscribedChannels);
-
 })
 
 export {
