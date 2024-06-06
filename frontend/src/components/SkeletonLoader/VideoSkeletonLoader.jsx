@@ -13,7 +13,7 @@ const VideoSkeletonLoader = ({ style }) => {
     console.log(isDarkMode);
 
     return (
-        <View style={{ borderBottomWidth: 1, borderBottomColor: currentTheme?.primaryBorderColor, paddingBottom: 26, }} >
+        <View style={{ borderBottomWidth: 1, borderBottomColor: currentTheme?.primaryBorderColor, paddingBottom: 26, backgroundColor: currentTheme.primaryBackgroundColor}} >
             {/* video  */}
             <ShimmerPlaceholder style={{ width: "100%", height: 210, backgroundColor: isDarkMode ? 'red' : 'yellow', overflow: 'hidden'}} />
 

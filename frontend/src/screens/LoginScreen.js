@@ -8,7 +8,7 @@ import customStyles from "../styles/styles";
 import axios from "axios";
 
 import jwt_decode from "jwt-decode"
-import { base_url } from "../helper/helper.js";
+import { base_url } from "../helper/helper";
 
 
 const LoginScreen = () => {

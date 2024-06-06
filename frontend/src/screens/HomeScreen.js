@@ -17,6 +17,7 @@ import PopupMessage from "../components/PopupMessage.jsx";
 import { getAllPublishVideosHandler } from "../actions/video.actions.js";
 import { fetchCurrentUserHandler } from "../actions/channel.actions.js";
 import { UserType } from "../context/UserContext.js";
+import VideoSkeletonLoader from "../components/SkeletonLoader/VideoSkeletonLoader.jsx";
 
 const HomeScreen = () => {
   const { currentTheme } = useTheme()
@@ -28,7 +29,6 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(false);
   const flatListRef = useRef(null)
   const [refreshing, setRefreshing] = useState(false)
-  const [isVisibleskeletion, setIsVisibleskeletion] = useState(true)
   const [optionsVisible, setOptionsVisible] = useState(null);
   const [isVideoModalVisible, setIsVideoModalVisible] = useState(false)
 
@@ -122,7 +122,7 @@ const HomeScreen = () => {
     setTimeout(() => {
       setVideos([]) // remove all videos from videos array 
       handleGetAllPublishVideos()
-    }, 500);
+    }, 0);
   }
 
   const [videoId, setVideoId] = useState("")
@@ -130,6 +130,17 @@ const HomeScreen = () => {
     setIsVideoModalVisible(!isVideoModalVisible)
     setVideoId(videoId) // setVideoId for sending in bottomSlide.modal
     // console.log(" videoId : ", videoId);
+  }
+
+  if (refreshing) {
+    return (
+      <ScrollView>
+        <VideoSkeletonLoader />
+        <VideoSkeletonLoader />
+        <VideoSkeletonLoader />
+        <VideoSkeletonLoader />
+      </ScrollView>
+    )
   }
 
   return (
@@ -142,90 +153,82 @@ const HomeScreen = () => {
       {/* <Button title="getPublicVideos" onPress={() => getAllPublishVideos()} /> */}
 
       {/* skeleton loader */}
-      {
-        <SkeletonLoader isVisibleskeletion={isVisibleskeletion} />
-      }
 
       <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} style={{}}>
         {
-          videos.length > 0 ? (
-            <View style={{ flexDirection: 'column', gap: 25, position: 'relative' }}>
-              {
-                <FlatList
-                  data={videos}
-                  key={(item) => item._id.toString()}
-                  renderItem={({ item }) => (
-                    <Pressable onPress={() => navigation.navigate("VideoDetail", { data: item })} style={{ borderBottomWidth: 1, borderBottomColor: currentTheme?.primaryBorderColor, paddingBottom: 26, }} >
-                      <View style={{ flexDirection: 'column', gap: 10, position: 'relative', alignItems: 'flex-start' }}>
-                        {/* thumbnail */}
-                        <Image source={{ uri: item?.thumbnail }} style={{ width: "100%", height: 210 }} />
+          <View style={{ flexDirection: 'column', gap: 25, position: 'relative' }}>
+            <FlatList
+              data={videos}
+              key={(item) => item._id.toString()}
+              renderItem={({ item }) => (
+                <Pressable onPress={() => navigation.navigate("VideoDetail", { data: item })} style={{ borderBottomWidth: 1, borderBottomColor: currentTheme?.primaryBorderColor, paddingBottom: 26, }} >
+                  <View style={{ flexDirection: 'column', gap: 10, position: 'relative', alignItems: 'flex-start' }}>
+                    {/* thumbnail */}
+                    <Image source={{ uri: item?.thumbnail }} style={{ width: "100%", height: 210 }} />
 
-                        {/* video duration */}
-                        <Text style={{ color: "white", fontSize: 16, fontWeight: 600, position: 'absolute', bottom: 60, right: 10, backgroundColor: "#000000c3", fontWeight: 700, paddingHorizontal: 7, paddingVertical: 1, borderRadius: 5 }} >{(item?.duration / 60).toString().substring(0, 4)}</Text>
+                    {/* video duration */}
+                    <Text style={{ color: "white", fontSize: 16, fontWeight: 600, position: 'absolute', bottom: 60, right: 10, backgroundColor: "#000000c3", fontWeight: 700, paddingHorizontal: 7, paddingVertical: 1, borderRadius: 5 }} >{(item?.duration / 60).toString().substring(0, 4)}</Text>
 
-                        {/* title and date */}
+                    {/* title and date */}
+                    <View>
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginLeft: 5 }}>
+                        {/* channel avatar image */}
+                        <Image source={{ uri: item.userDetails[0]?.avatar }} style={{ width: 42, height: 42, borderRadius: 25 }} />
                         <View>
-                          <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginLeft: 5 }}>
-                            {/* channel avatar image */}
-                            <Image source={{ uri: item.userDetails[0]?.avatar }} style={{ width: 42, height: 42, borderRadius: 25 }} />
-                            <View>
-                              {/* titile */}
-                              <Text style={{ color: currentTheme?.primaryTextColor, fontSize: 18, fontWeight: 600 }} >
-                                {item?.title}
-                              </Text>
-                              {/* views and time ago */}
-                              <View style={{ flexDirection: "row", alignItems: "center", }}>
-                                <Text style={{ color: currentTheme?.secondaryTextColor, fontSize: 13, }}>{item.userDetails[0]?.username} • </Text>
-                                <Text style={{ color: currentTheme?.secondaryTextColor, fontSize: 13, }}>{item.views} Views • </Text>
-                                <Text style={{ color: currentTheme?.secondaryTextColor, fontSize: 13, }} >
-                                  {
-                                    formatDistanceToNow(new Date(item.createdAt), {
-                                      addSuffix: true,
-                                    }).toString()
-                                  }
-                                </Text>
-                              </View>
-
-                            </View>
-
-                            {/* dots */}
-                            <Pressable onPress={() => videoModalVisible(item._id)} style={[
-                              { borderColor: "white", paddingHorizontal: 7, paddingVertical: 7, borderRadius: 0, borderBottomWidth: 0, right: -30 },
-                              item._id == optionsVisible && { backgroundColor: "#333", }
-                            ]}>
-                              <MaterialCommunityIcons name="dots-vertical" size={24} color="white" />
-                            </Pressable>
-
+                          {/* titile */}
+                          <Text style={{ color: currentTheme?.primaryTextColor, fontSize: 18, fontWeight: 600 }} >
+                            {item?.title}
+                          </Text>
+                          {/* views and time ago */}
+                          <View style={{ flexDirection: "row", alignItems: "center", }}>
+                            <Text style={{ color: currentTheme?.secondaryTextColor, fontSize: 13, }}>{item.userDetails[0]?.username} • </Text>
+                            <Text style={{ color: currentTheme?.secondaryTextColor, fontSize: 13, }}>{item.views} Views • </Text>
+                            <Text style={{ color: currentTheme?.secondaryTextColor, fontSize: 13, }} >
+                              {
+                                formatDistanceToNow(new Date(item.createdAt), {
+                                  addSuffix: true,
+                                }).toString()
+                              }
+                            </Text>
                           </View>
 
                         </View>
 
+                        {/* dots */}
+                        <Pressable onPress={() => videoModalVisible(item._id)} style={[
+                          { borderColor: "white", paddingHorizontal: 7, paddingVertical: 7, borderRadius: 0, borderBottomWidth: 0, right: -30 },
+                          item._id == optionsVisible && { backgroundColor: "#333", }
+                        ]}>
+                          <MaterialCommunityIcons name="dots-vertical" size={24} color="white" />
+                        </Pressable>
+
                       </View>
 
-                    </Pressable>
-                  )}
-                  onEndReached={loadingMoreVideos}
-                  onEndReachedThreshold={0.5}
-                  ref={flatListRef}
+                    </View>
 
-                />
-              }
-              {
-                loading && <ActivityIndicator size={"large"} style={{ marginBottom: 20 }} />
-              }
-            </View>
-          ) : (
-            // Empty video page
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 30, gap: 15, paddingHorizontal: 20, marginTop: "50%" }} >
-              <View style={{ backgroundColor: currentTheme?.primaryBackgroundColor, paddingVertical: 15, paddingHorizontal: 15, borderRadius: 50, }} >
-                <Ionicons name="play-outline" size={28} color="#AE7AFF" />
-              </View>
+                  </View>
 
-              <Text style={{ fontSize: 20, color: currentTheme?.primaryTextColor, fontWeight: 600 }} >No videos available</Text>
-              <Text style={{ fontSize: 16, color: currentTheme?.primaryTextColor, textAlign: 'center' }} >There are no videos here available. Please try to search some thing else.</Text>
+                </Pressable>
+              )}
+              onEndReached={loadingMoreVideos}
+              onEndReachedThreshold={0.5}
+              ref={flatListRef}
+              ListEmptyComponent={() => (
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 30, gap: 15, paddingHorizontal: 20, marginTop: "50%" }} >
+                  <View style={{ backgroundColor: currentTheme?.primaryBackgroundColor, paddingVertical: 15, paddingHorizontal: 15, borderRadius: 50, }} >
+                    <Ionicons name="play-outline" size={28} color="#AE7AFF" />
+                  </View>
 
-            </View>
-          )
+                  <Text style={{ fontSize: 20, color: currentTheme?.primaryTextColor, fontWeight: 600 }} >No videos available</Text>
+                  <Text style={{ fontSize: 16, color: currentTheme?.primaryTextColor, textAlign: 'center' }} >There are no videos here available. Please try to search some thing else.</Text>
+                </View>
+              )}
+
+            />
+            {
+              loading && <VideoSkeletonLoader />
+            }
+          </View>
         }
       </ScrollView>
       <BottomSlideModalToHomePage isVideoModalVisible={isVideoModalVisible} setIsVideoModalVisible={setIsVideoModalVisible} videoId={videoId} setPopupMessage={setPopupMessage} setSuccess={setSuccess} setPopupMessageShow={setPopupMessageShow} />

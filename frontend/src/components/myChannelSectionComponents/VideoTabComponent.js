@@ -1,6 +1,5 @@
 import { Alert, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, ActivityIndicator } from 'react-native'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import axios from "axios"
 import { Ionicons } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import { formatDistanceToNow } from 'date-fns';
@@ -16,7 +15,6 @@ import CustomConfirmationDialog from '../../Modal/CustomConfirmationDialog';
 import VideoUpload from '../../Modal/VideoUpload';
 import EditVideo from '../../Modal/EditVideo';
 import { UserType } from '../../context/UserContext';
-
 
 const VideoTabComponent = () => {
     const navigation = useNavigation()
@@ -102,7 +100,6 @@ const VideoTabComponent = () => {
             setTimeout(() => setPopupMessageShow(false), 3000);
         }
     }
-
 
     // onClose for editVideo
     const onClose = () => {
