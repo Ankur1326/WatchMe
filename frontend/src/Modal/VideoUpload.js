@@ -7,9 +7,10 @@ import axios from 'axios';
 import { base_url } from '../helper/helper';
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import UploadingVideo from './UploadingVideo';
+import BottomSlideModal from './BottomSlideModal';
+import MiddleSliderModal from './MiddleSliderModal';
 
-
-const VideoUpload = ({ isVisible, onClose, getAllVideos }) => {
+const VideoUpload = ({ isVisible, setVisible, getAllVideos }) => {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [selectedThumbnail, setSelectedThumbnail] = useState(null);
   const [title, setTitle] = useState("");
@@ -22,7 +23,8 @@ const VideoUpload = ({ isVisible, onClose, getAllVideos }) => {
     try {
       setUploadStatus("loading")
 
-      onClose() // close the Modal
+      // onClose() // close the Modal
+      setVisible(false)
 
       const formData = new FormData()
       formData.append("title", title);
@@ -93,20 +95,15 @@ const VideoUpload = ({ isVisible, onClose, getAllVideos }) => {
   }
 
   return (
-    <View style={{}} >
+    <View>
       {/* video upload modal  */}
-      <Modal
-        animationType='slide'
-        transparent={true}
-        visible={isVisible}
-        onRequestClose={onClose}
-        style={{}}
-      >
-        <View style={{ height: "80%", marginTop: 45 }} >
-          <ScrollView showsVerticalScrollIndicator={true} style={{ backgroundColor: "#121212", width: "93%", alignSelf: "center", borderWidth: 1, borderColor: "white", height: 100, }}>
+      <MiddleSliderModal isVisible={isVisible} setVisible={setVisible} >
+        <View style={{ height: "100%", width: "100%" }} >
+          <ScrollView showsVerticalScrollIndicator={true} style={{ backgroundColor: "#121212", width: "100%", alignSelf: "center", borderWidth: 1, borderColor: "white", }}>
 
             {/* header  */}
             <View style={{ borderBottomWidth: 1, borderBottomColor: "white", flexDirection: 'row', alignItems: "center", justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 11 }} >
+
               <Text style={{ fontSize: 15, color: "white" }}>Upload Videos</Text>
               <TouchableOpacity onPress={saveHandler} style={{ backgroundColor: "#AE7AFF", paddingHorizontal: 7, paddingVertical: 4 }}>
                 <Text style={{ fontWeight: 600, paddingHorizontal: 7, paddingVertical: 3 }} >Save</Text>
@@ -117,13 +114,13 @@ const VideoUpload = ({ isVisible, onClose, getAllVideos }) => {
             <View style={{ width: "90%", borderWidth: 1, borderStyle: 'dashed', borderColor: "white", alignSelf: 'center', marginTop: 20, alignItems: 'center', height: 240, justifyContent: 'space-between', gap: 10, paddingVertical: 20, paddingHorizontal: 15 }}>
               {
                 selectedVideo !== null ? (
-                  <View style={{ flexDirection: 'column', gap: 15, alignItems: 'flex-start', marginHorizontal: 20,  borderColor: "gray", paddingHorizontal: 15, paddingVertical: 10 }} >
+                  <View style={{ flexDirection: 'column', gap: 15, alignItems: 'flex-start', marginHorizontal: 20, borderColor: "gray", paddingHorizontal: 15, paddingVertical: 10 }} >
 
-                    <View style={{ flexDirection: 'row', alignItems: 'center' , gap: 10}}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                       <Text style={{ color: "white", fontSize: 18, fontWeight: 600 }} >Name: </Text>
                       <Text style={{ color: "white" }} >{selectedVideo?.name}</Text>
                     </View>
-                    
+
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                       <Text style={{ color: "white", fontSize: 18, fontWeight: 600 }} >Size: </Text>
                       <Text style={{ color: "white" }} >{(selectedVideo?.size / 1024 / 1024).toString().length > 4 ? `${(selectedVideo?.size / 1024 / 1024).toString().substring(0, 4)}MB` : `${selectedVideo?.size / 1024 / 1024}MB`}</Text>
@@ -176,7 +173,7 @@ const VideoUpload = ({ isVisible, onClose, getAllVideos }) => {
           </ScrollView>
 
         </View>
-      </Modal>
+      </MiddleSliderModal>
 
 
       {/* video uploading popup modal  */}

@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { EvilIcons, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { createPlaylist } from '../store/slices/playlistSlice';
+import PopupMessage from '../components/PopupMessage';
 
 const CreatePlaylist = ({ isVisible, setVisible }) => {
     const dispatch = useDispatch()
