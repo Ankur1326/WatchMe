@@ -6,11 +6,14 @@ import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { ThemeProvider } from 'expo-theme-switcher';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Provider } from "react-redux"
+import { Provider, useSelector } from "react-redux"
 import StackNavigation from './src/navigations/StackNavigation';
 import { UserContext } from './src/context/UserContext';
 import { store } from './src/store/store';
 // import { ThemeProvider } from "../npm-package/ThemeSwitcherProvider.ts"
+import { ModalPortal } from "react-native-modals";
+import PopupMessage from './src/components/PopupMessage';
+import { useState } from 'react';
 
 export default function App() {
   // const navigation = useNavigation()
@@ -36,6 +39,8 @@ export default function App() {
     secondaryBorderColor: "gray",
   }
 
+ 
+
   return (
     <>
       <GestureHandlerRootView style={{ flex: 1 }} >
@@ -44,6 +49,7 @@ export default function App() {
             <StatusBar barStyle="light-content" />
             <Provider store={store}>
               <StackNavigation />
+              <ModalPortal />
             </Provider>
           </ThemeProvider>
         </UserContext>

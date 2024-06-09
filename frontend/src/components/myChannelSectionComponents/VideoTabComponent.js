@@ -286,7 +286,7 @@ const VideoTabComponent = () => {
                     }
                 </View>
 
-                <VideoUpload isVisible={isModalVisible} onClose={closeModal} getAllVideos={handleGetAllVideos} />
+                <VideoUpload isVisible={isModalVisible} setVisible={setModalVisible} getAllVideos={handleGetAllVideos} />
                 <EditVideo isVisible={editVideoModalVisible} videoId={videoId} onClose={onClose} getAllVideos={handleGetAllVideos} />
             </ScrollView>
         </View>

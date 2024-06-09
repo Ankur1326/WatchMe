@@ -76,6 +76,7 @@ const playlistSlice = createSlice({
         error: null,
         isSuccess: false,
         message: '',
+        isPopupMessageShow: false,
     },
     reducers: {
         clearMessage: (state) => {
@@ -91,7 +92,7 @@ const playlistSlice = createSlice({
             })
             .addCase(fetchPlaylists.fulfilled, (state, action) => {
                 state.loading = false;
-                state.playlists = action.payload
+                state.playlists = action.payload;
             })
             .addCase(fetchPlaylists.rejected, (state, action) => {
                 state.loading = false;
@@ -101,17 +102,23 @@ const playlistSlice = createSlice({
             .addCase(createPlaylist.pending, (state) => {
                 state.loading = true;
                 state.error = null;
+                state.isPopupMessageShow = true;
             })
             .addCase(createPlaylist.fulfilled, (state, action) => {
                 state.loading = false;
                 // state.playlists.push(action.payload)
                 state.isSuccess = true
                 state.message = 'Playlist successfully created';
+                state.isPopupMessageShow = true;
+                setTimeout(() => {
+                    state.isPopupMessageShow = false;
+                }, 3000);
             })
             .addCase(createPlaylist.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload
                 state.isSuccess = false
+                state.isPopupMessageShow = true;
                 state.message = 'Failed to create playlist';
             })
             // delete Playlist

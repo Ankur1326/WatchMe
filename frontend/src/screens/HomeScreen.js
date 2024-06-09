@@ -18,6 +18,8 @@ import { getAllPublishVideosHandler } from "../actions/video.actions.js";
 import { fetchCurrentUserHandler } from "../actions/channel.actions.js";
 import { UserType } from "../context/UserContext.js";
 import VideoSkeletonLoader from "../components/SkeletonLoader/VideoSkeletonLoader.jsx";
+import { useSelector } from "react-redux";
+
 
 const HomeScreen = () => {
   const { currentTheme } = useTheme()
@@ -32,9 +34,10 @@ const HomeScreen = () => {
   const [optionsVisible, setOptionsVisible] = useState(null);
   const [isVideoModalVisible, setIsVideoModalVisible] = useState(false)
 
-  const [popupMessage, setPopupMessage] = useState("") // success or faluare msg
-  const [isSuccess, setSuccess] = useState(false)
   const [isPopupMessageShow, setPopupMessageShow] = useState(false)
+  const isSuccess = useSelector((state) => state.playlists.isSuccess)
+  const message = useSelector((state) => state.playlists.message)
+  
 
   const category = [
     {
@@ -149,7 +152,7 @@ const HomeScreen = () => {
       {/* header  */}
       <HeaderComponentt />
 
-      <PopupMessage isSuccess={isSuccess} title={popupMessage} isVisible={isPopupMessageShow} setVisible={setPopupMessageShow} />
+      <PopupMessage isSuccess={isSuccess} title={message} isVisible={isPopupMessageShow} setVisible={setPopupMessageShow} />
       {/* <Button title="getPublicVideos" onPress={() => getAllPublishVideos()} /> */}
 
       {/* skeleton loader */}
@@ -231,7 +234,7 @@ const HomeScreen = () => {
           </View>
         }
       </ScrollView>
-      <BottomSlideModalToHomePage isVideoModalVisible={isVideoModalVisible} setIsVideoModalVisible={setIsVideoModalVisible} videoId={videoId} setPopupMessage={setPopupMessage} setSuccess={setSuccess} setPopupMessageShow={setPopupMessageShow} />
+      <BottomSlideModalToHomePage isVideoModalVisible={isVideoModalVisible} setIsVideoModalVisible={setIsVideoModalVisible} videoId={videoId}  setPopupMessageShow={setPopupMessageShow} />
     </SafeAreaView>
   );
 };

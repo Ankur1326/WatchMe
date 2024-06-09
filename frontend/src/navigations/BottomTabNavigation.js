@@ -4,11 +4,11 @@ import HomeScreen from "../screens/HomeScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import ChannelScreen from "../screens/ChannelScreen";
-import { FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
+import { FontAwesome5, FontAwesome6, Feather, AntDesign } from "@expo/vector-icons";
 import ProfileScreen from "../screens/ProfileScreen";
 import { useTheme } from 'expo-theme-switcher';
 import { UserType } from "../context/UserContext";
-
+import VideoUpload from "../Modal/VideoUpload";
 
 const Tab = createBottomTabNavigator();
 const BottomTabNavigation = () => {
@@ -42,23 +42,20 @@ const BottomTabNavigation = () => {
                         <Ionicons name="home-outline" size={20} color={currentTheme?.primaryTextColor} />
                     ),
             }} />
-            {/* <Tab.Screen name="Channel" component={ChannelScreen} options={{
+
+            <Tab.Screen name="Upload" component={VideoUpload} options={{
                 tabBarLabel: ({ focused, size, }) => (
-                    <Text style={{
-                        fontSize: 12, fontWeight: "bold", color: focused ? "#AE7AFF" : currentTheme?.primaryTextColor, alignSelf: "center",
-                        marginBottom: 4,
-                    }}>
-                        Channel
-                    </Text>
+                    <Text style={{ color: "white", }}></Text>
                 ),
                 headerShown: false,
                 tabBarIcon: ({ focused, size }) =>
                     focused ? (
-                        <FontAwesome5 name="user-alt" size={20} color="#AE7AFF" style={{}} />
+                        <AntDesign name="pluscircleo" size={34} color="#AE7AFF" style={{ height: 40, marginTop: 10 }} />
                     ) : (
-                        <FontAwesome5 name="user" size={20} color={currentTheme?.primaryTextColor} />
+                        <AntDesign name="pluscircleo" size={34} color={currentTheme?.primaryTextColor} style={{ height: 40, marginTop: 10 }} />
                     ),
-            }} /> */}
+            }} />
+
             <Tab.Screen name="You" component={ProfileScreen} options={{
                 tabBarLabel: ({ focused, size, }) => (
                     <Text style={{
