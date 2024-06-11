@@ -28,7 +28,6 @@ const ChannelScreen = ({ route }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const userId = route.params.channel._id
   const { currentTheme } = useTheme()
-  // console.log(userId);
 
   const sections = [
     {

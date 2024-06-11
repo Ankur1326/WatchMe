@@ -61,7 +61,62 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
         throw new ApiError(409, "ChannelId is required")
     }
 
-    const subscribers = await Subscription.find({ channel: channelId })
+    // const subscribers = await Subscription.find({ channel: channelId })
+
+    const subscribers = await Subscription.aggregate([
+        {
+            $match: {
+                channel: new mongoose.Types.ObjectId(channelId)
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1 // descending order based on createdAt time like first creation showing first like this...
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "subscriber",
+                foreignField: "_id",
+                as: "channelDetails",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "subscriptions",
+                            localField: "_id",
+                            foreignField: "channel",
+                            as: "subscribers",
+                        },
+
+                    },
+                    {
+                        $addFields: {
+                            subscribersCount: {
+                                $size: "$subscribers"
+                            }
+                        },
+                    },
+                    {
+                        $project: {
+                            subscribersCount: 1,
+                            avatar: 1,
+                            username: 1,
+                        },
+                    },
+                ]
+            },
+        },
+        {
+            $project: {
+                avatar: 1,
+                username: 1,
+                subscribersCount: 1,
+                channelDetails: 1,
+            },
+        },
+    ])
+
 
     if (!subscribers) {
         throw new ApiError(404, "This channel has no subscribe")
@@ -138,9 +193,6 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
         ])
 
 
-        // const subscribedChannels = await Subscription.find({subscriber: subscriberId}) 
-
-        console.log("subscribedChannels : ", subscribedChannels);
         // console.log("subscribedChannels : ", subscribedChannels.channelDetails);
 
         return res.status(201).json(new ApiResponse(200, subscribedChannels, "subscribed channles successfully fetched"))
