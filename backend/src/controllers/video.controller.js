@@ -95,7 +95,7 @@ const getAllPublishVideo = asyncHandler(async (req, res) => {
                 from: "users",
                 localField: "owner",
                 foreignField: "_id",
-                as: "userDetals"
+                as: "userDetails"
             }
         },
         {
@@ -111,7 +111,7 @@ const getAllPublishVideo = asyncHandler(async (req, res) => {
                 owner: 1,
                 createdAt: 1,
                 updatedAt: 1,
-                userDetals: {
+                userDetails: {
                     _id: 1,
                     username: 1,
                     avatar: 1,
@@ -408,7 +408,7 @@ const getChannelVideos = asyncHandler(async (req, res) => {
                     from: "users",
                     localField: "owner",
                     foreignField: "_id",
-                    as: "userDetals"
+                    as: "userDetails"
                 }
             },
             {
@@ -424,7 +424,7 @@ const getChannelVideos = asyncHandler(async (req, res) => {
                     owner: 1,
                     createdAt: 1,
                     updatedAt: 1,
-                    userDetals: {
+                    userDetails: {
                         _id: 1,
                         username: 1,
                         avatar: 1,

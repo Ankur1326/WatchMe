@@ -21,7 +21,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
             ]
         })
 
-        console.log("existingSubscription : ", existingSubscription);
+        // console.log("existingSubscription : ", existingSubscription);
 
         // Subscription doesn't exist, create a new one
         if (!existingSubscription) {
@@ -67,7 +67,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
         throw new ApiError(404, "This channel has no subscribe")
     }
 
-    console.log("subscribers : ", subscribers);
+    // console.log("subscribers : ", subscribers);
 
     return res.status(201).json(new ApiResponse(200, subscribers, "subscribers successfully fetched"))
 

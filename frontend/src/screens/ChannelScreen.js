@@ -11,10 +11,10 @@ import VideoUpload from '../Modal/VideoUpload.js';
 import HeaderComponent from '../components/HeaderComponent.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUserchannelProfile } from '../actions/channel.actions.js';
-import VideoTabComponent from '../components/anotherChannelSectionCompoenents/VideoTabComponent.jsx';
-import PlaylistTabComponent from '../components/anotherChannelSectionCompoenents/PlaylistTabComponent.jsx';
-import TweetsTabComponent from '../components/anotherChannelSectionCompoenents/TweetsTabComponent.jsx';
-import SubscribedTabcomponent from '../components/anotherChannelSectionCompoenents/SubscribedTabcomponent.jsx';
+import VideoTabComponent from '../components/tabSectionComponents/VideoTabComponent.js';
+import PlaylistTabComponent from '../components/tabSectionComponents/PlaylistTabComponent.js'
+import TweetsTabComponent from '../components/tabSectionComponents/TweetsTabComponent.js';
+import SubscribedTabcomponent from '../components/tabSectionComponents/SubscribersComponent.jsx';
 import { useTheme } from 'expo-theme-switcher';
 import { UserType } from '../context/UserContext.js';
 

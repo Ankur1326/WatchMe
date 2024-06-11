@@ -3,12 +3,12 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { ScrollView } from "react-native-gesture-handler";
+import { FlatList, ScrollView } from "react-native-gesture-handler";
 
-import VideoTabComponent from '../components/myChannelSectionComponents/VideoTabComponent.js';
-import PlaylistTabComponent from '../components/myChannelSectionComponents/PlaylistTabComponent.js';
-import TweetsTabComponent from '../components/myChannelSectionComponents/TweetsTabComponent.js';
-import SubscribedTabcomponent from '../components/myChannelSectionComponents/SubscribedTabcomponent.js';
+import VideoTabComponent from '../components/tabSectionComponents/VideoTabComponent.js';
+import PlaylistTabComponent from '../components/tabSectionComponents/PlaylistTabComponent.js';
+import TweetsTabComponent from '../components/tabSectionComponents/TweetsTabComponent.js';
+import SubscribedTabcomponent from '../components/tabSectionComponents/SubscribedTabcomponent.js';
 import axios from "axios"
 import { base_url } from '../helper/helper.js';
 import VideoUpload from '../Modal/VideoUpload.js';
@@ -134,15 +134,15 @@ const ProfileScreen = ({ navigation }) => {
                                     <Text style={{ fontSize: 12, fontWeight: "bold", color: focused ? "#AE7AFF" : currentTheme?.primaryTextColor, marginBottom: 4 }}>
                                         {section.name}
                                     </Text>
-                                ),
+                                )
                             }} />
                         ))}
                     </Tab.Navigator>
                 </View>
 
-                <VideoUpload isVisible={isModalVisible} onClose={closeModal} />
 
             </ScrollView>
+            <VideoUpload isVisible={isModalVisible} onClose={closeModal} />
 
         </SafeAreaView>
     )
