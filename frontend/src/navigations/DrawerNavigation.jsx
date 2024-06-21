@@ -1,6 +1,6 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import Sidebar from './Sidebar';
+import Sidebar from './SidebarNavigation';
 import BottomTabNavigation from './BottomTabNavigation';
 
 const Drawer = createDrawerNavigator();

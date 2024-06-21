@@ -1,7 +1,7 @@
 import { View, Image, Pressable, Text } from "react-native";
 import { useRef, useState } from "react";
 import { useTheme } from 'expo-theme-switcher';
-import HeaderComponent from "../components/HeaderComponent.js";
+import HeaderComponent from "../components/HeaderComponent.jsx";
 import { useNavigation } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
 import VideoComponent from "../components/VideoComponent.jsx";

@@ -2,7 +2,7 @@ import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, TextInput
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
-import customStyles from "../styles/styles";
+import customStyles from "../styles/styles.js";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 

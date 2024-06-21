@@ -5,14 +5,14 @@ import { Feather } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { FlatList, ScrollView } from "react-native-gesture-handler";
 
-import VideoTabComponent from '../components/tabSectionComponents/VideoTabComponent.js';
-import PlaylistTabComponent from '../components/tabSectionComponents/PlaylistTabComponent.js';
-import TweetsTabComponent from '../components/tabSectionComponents/TweetsTabComponent.js';
-import SubscribedTabcomponent from '../components/tabSectionComponents/SubscribedTabcomponent.js';
+import VideoTabComponent from '../components/tabSectionComponents/VideoTabComponent.jsx';
+import PlaylistTabComponent from '../components/tabSectionComponents/PlaylistTabComponent.jsx';
+import TweetsTabComponent from '../components/tabSectionComponents/TweetsTabComponent.jsx';
+import SubscribedTabcomponent from '../components/tabSectionComponents/SubscribedTabcomponent.jsx';
 import axios from "axios"
 import { base_url } from '../helper/helper.js';
-import VideoUpload from '../Modal/VideoUpload.js';
-import HeaderComponent from '../components/HeaderComponent.js';
+import VideoUpload from '../Modal/VideoUpload.jsx';
+import HeaderComponent from '../components/HeaderComponent.jsx';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from 'expo-theme-switcher';
 import { UserType } from '../context/UserContext.js';

@@ -19,8 +19,6 @@ const TweetsTabComponent = ({ route }) => {
 
   const userId = route?.params?.userId || user._id;
   
-  console.log("tweets : ", tweets);
-
   const handleCreateTweet = async () => {
     try {
       await createTweetHandler(tweet)

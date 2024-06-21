@@ -7,7 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 import { ThemeProvider } from 'expo-theme-switcher';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useSelector } from "react-redux"
-import StackNavigation from './src/navigations/StackNavigation';
+import StackNavigation from './src/navigations/StackNavigation.jsx';
 import { UserContext } from './src/context/UserContext';
 import { store } from './src/store/store';
 // import { ThemeProvider } from "../npm-package/ThemeSwitcherProvider.ts"

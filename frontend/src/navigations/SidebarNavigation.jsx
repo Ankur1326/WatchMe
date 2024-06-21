@@ -11,7 +11,7 @@ import { base_url } from '../helper/helper';
 import { ThemeSwitcherBtn, useTheme } from 'expo-theme-switcher';
 import { useNavigation } from '@react-navigation/native';
 
-const Sidebar = ({ navigation }) => {
+const SidebarNavigation = ({ navigation }) => {
   const { currentTheme } = useTheme()
   // const navigation = useNavigation()
 
@@ -85,4 +85,4 @@ const Sidebar = ({ navigation }) => {
   )
 }
 
-export default Sidebar
+export default SidebarNavigation
