@@ -1,18 +1,17 @@
-import { View, Text, Modal, ActivityIndicator, TouchableOpacity, Pressable } from 'react-native'
+import { View, Text, Modal, ActivityIndicator, TouchableOpacity, Pressable, ProgressBarAndroid, Platform, ProgressViewIOS, StyleSheet, Button } from 'react-native'
 import React from 'react'
 import { Entypo } from '@expo/vector-icons';
 
 
-const UploadingVideo = ({ isVisible, onClose, videoName, fileSize, uploadingStatus, getAllVideos }) => {
+const UploadingVideo = ({ isVisible, onClose, videoName, fileSize, uploadingStatus, getAllVideos, uploadProgress }) => {
 
     return (
         <Modal
             animationType='fade'
             transparent={true}
             visible={isVisible}
-
         >
-            <View style={{ flexDirection: 'column', gap: 15, width: "90%", height: 230, backgroundColor: "#121212", alignSelf: 'center', marginTop: "40%", borderWidth: 0.5, borderColor: "gray", paddingVertical: 10, paddingHorizontal: 10, borderRadius: 10 }} >
+            <View style={{ flexDirection: 'column', gap: 15, width: "90%", height: 260, backgroundColor: "#121212", alignSelf: 'center', marginTop: "40%", borderWidth: 0.5, borderColor: "gray", paddingVertical: 10, paddingHorizontal: 10, borderRadius: 10 }} >
                 {/* header  */}
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }} >
                     <View>
@@ -24,6 +23,20 @@ const UploadingVideo = ({ isVisible, onClose, videoName, fileSize, uploadingStat
                     </Pressable>
                 </View>
 
+                {Platform.OS === 'android' ? (
+                    <ProgressBarAndroid
+                        styleAttr="Horizontal"
+                        indeterminate={false}
+                        progress={uploadProgress / 100}
+                        // style={{ width: '80%', color: "#AE7AFF" }}
+                        style={styles.progressBar}
+                    />
+                ) : (
+                    <ProgressViewIOS
+                        progress={uploadProgress / 100}
+                        style={{ width: '80%' }}
+                    />
+                )}
                 {/* card  */}
                 <View style={{ flexDirection: 'row', gap: 10, borderWidth: 1, borderColor: "white", paddingVertical: 10, paddingHorizontal: 10, position: 'relative', paddingBottom: 40 }} >
                     <View style={{ backgroundColor: "#E4D3FF", paddingVertical: 5, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center', borderRadius: 50 }} >
@@ -40,11 +53,12 @@ const UploadingVideo = ({ isVisible, onClose, videoName, fileSize, uploadingStat
                             uploadingStatus == "loading" ? (
                                 <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
                                     <ActivityIndicator size={"small"} color={"white"} />
-                                    <Text style={{ color: "white" }} >Uploading...</Text>
+                                    {/* <Text style={{ color: "white" }} >Uploading...</Text> */}
+                                    <Text style={styles.progressText}>Upload Progress: {uploadProgress}%</Text>
                                 </View>
                             ) : (
                                 <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-                                    <Entypo style={{backgroundColor: "#AE7AFF", borderRadius: 50, paddingHorizontal: 3, paddingVertical: 3}} name="check" size={18} color="white" />
+                                    <Entypo style={{ backgroundColor: "#AE7AFF", borderRadius: 50, paddingHorizontal: 3, paddingVertical: 3 }} name="check" size={18} color="white" />
                                     <Text style={{ color: "white" }} >Uploaded Successfully</Text>
                                 </View>
                             )
@@ -66,5 +80,17 @@ const UploadingVideo = ({ isVisible, onClose, videoName, fileSize, uploadingStat
         </Modal>
     )
 }
+
+const styles = StyleSheet.create({
+    progressText: {
+        fontSize: 13,
+        color: '#fff',
+    },
+    progressBar: {
+        width: '100%',
+        borderRadius: 5,
+        overflow: 'hidden',
+    },
+});
 
 export default UploadingVideo

@@ -17,6 +17,7 @@ import TweetsTabComponent from '../components/tabSectionComponents/TweetsTabComp
 import SubscribedTabcomponent from '../components/tabSectionComponents/SubscribersComponent.jsx';
 import { useTheme } from 'expo-theme-switcher';
 import { UserType } from '../context/UserContext.js';
+import axiosInstance from '../helper/axiosInstance.js';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -51,21 +52,14 @@ const ChannelScreen = ({ route }) => {
       component: SubscribedTabcomponent
     },
   ]
-
-  // const handleSections = (sectionName) => {
-  //   setSelectedSection(sectionName)
-  //   // console.log("selectedSection : ", selectedSection);
-  // }
-
+  
   const handleGetUserProfile = async () => {
-    const response = await getUserchannelProfile(userId)
+    const response = await axiosInstance.get(`users/get-user-channel/${userId}`)
     // console.log("response :: ", response.isSubscribed);
-    setUserChannelProfile(response)
+    setUserChannelProfile(response.data.data[0])
   }
 
   useEffect(() => {
-    // Scroll to the top of the ScrollView
-    // scrollRef.current?.scrollTo({ y: 0, animated: true });
     handleGetUserProfile()
   }, [])
 

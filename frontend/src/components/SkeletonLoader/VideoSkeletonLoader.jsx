@@ -8,23 +8,22 @@ import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
 const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
 const VideoSkeletonLoader = ({ style }) => {
     const { currentTheme } = useTheme()
-
     const isDarkMode = currentTheme.isDarkMode
-    console.log(isDarkMode);
 
     return (
-        <View style={{ borderBottomWidth: 1, borderBottomColor: currentTheme?.primaryBorderColor, paddingBottom: 26, backgroundColor: currentTheme.primaryBackgroundColor}} >
-            {/* video  */}
-            <ShimmerPlaceholder style={{ width: "100%", height: 210, backgroundColor: isDarkMode ? 'red' : 'yellow', overflow: 'hidden'}} />
+        <View style={{ borderBottomWidth: 1, borderBottomColor: currentTheme?.primaryBorderColor, paddingBottom: 26, backgroundColor: currentTheme.primaryBackgroundColor }}>
+            {/* Video thumbnail */}
+            <ShimmerPlaceholder style={{ width: "100%", height: 210, backgroundColor: isDarkMode ? 'red' : 'yellow', overflow: 'hidden' }} />
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 10, marginLeft: 5,  }}>
-                {/* avatar  */}
-                <ShimmerPlaceholder style={{ width: 45, height: 45, borderRadius: 100, }} />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 10, marginLeft: 5 }}>
+                {/* Avatar */}
+                <ShimmerPlaceholder style={{ width: 45, height: 45, borderRadius: 100 }} />
 
-                <View style={{ flexDirection: 'column', gap: 10, justifyContent: 'flex-start', }}>
-                    {/* title  */}
+                <View style={{ flexDirection: 'column', gap: 10, justifyContent: 'flex-start' }}>
+                    {/* Title */}
                     <ShimmerPlaceholder style={{ width: 60, height: 20, borderRadius: 4 }} />
-                    <View style={{ flexDirection: 'row', gap: 6, }}>
+                    {/* Metadata */}
+                    <View style={{ flexDirection: 'row', gap: 6 }}>
                         <ShimmerPlaceholder style={{ width: 100, height: 12, borderRadius: 4 }} />
                         <ShimmerPlaceholder style={{ width: 50, height: 12, borderRadius: 4 }} />
                         <ShimmerPlaceholder style={{ width: 90, height: 12, borderRadius: 4 }} />

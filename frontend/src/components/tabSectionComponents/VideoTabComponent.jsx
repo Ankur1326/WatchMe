@@ -16,6 +16,7 @@ import VideoUpload from '../../Modal/VideoUpload';
 import EditVideo from '../../Modal/EditVideo';
 import { UserType } from '../../context/UserContext';
 import BottomSlideModal from '../../Modal/BottomSlideModal';
+import axiosInstance from '../../helper/axiosInstance';
 
 const VideoTabComponent = ({ route }) => {
     const navigation = useNavigation()
@@ -27,32 +28,32 @@ const VideoTabComponent = ({ route }) => {
     const [showLoader, setShowLoader] = useState(false)
     const [optionsVisible, setOptionsVisible] = useState(null);
     const [editVideoModalVisible, setEditVideoModalVisible] = useState(false)
-    const [publishStatus, setPublishStatus] = useState(true)
     const [showConfirmation, setShowConfirmation] = useState(false)
     const [isSuccess, setSuccess] = useState(false)
     const [isPopupMessageShow, setPopupMessageShow] = useState(false)
     const [videoId, setVideoId] = useState("")
 
     const userId = route?.params?.userId || user._id;
+    console.log(videos);
 
     const handleGetAllVideos = async () => {
-        const params = {
-            page: 1,
-            limit: 10,
-            // query: 'someQuery',
-            sortBy: 'createdAt',
-            sortType: 'desc',
-            userId: user._id
-        }
         try {
             let allVideos;
             if (userId === user._id) {
-                allVideos = await getAllVideosHandler(params)
+                const params = {
+                    page: 1,
+                    limit: 10,
+                    // query: 'someQuery',
+                    sortBy: 'createdAt',
+                    sortType: 'desc',
+                    userId: user._id
+                }
+                const response = await axiosInstance.get(`videos/`, { params })
+                allVideos = response.data.videos
             } else {
-                allVideos = await getAllAnoterChannelVideosHandler(userId)
+                const response = await axiosInstance.get(`videos/getAll-anoter-channel-videos/${userId}`)
+                allVideos = response.data.data
             }
-            // console.log(response.data.videos);
-            // console.log("allVideos : ", allVideos);
             setVideos(allVideos)
         } catch (error) {
             console.log("error while gettting all videos", error);
@@ -68,9 +69,6 @@ const VideoTabComponent = ({ route }) => {
 
     const showModal = () => {
         setModalVisible(true)
-    }
-    const closeModal = () => {
-        setModalVisible(false)
     }
 
     // three dots
@@ -88,7 +86,7 @@ const VideoTabComponent = ({ route }) => {
             setIsVideoModalVisible(false)
             setShowLoader(true)
 
-            await deleteVideoHandler(videoId) // action
+            await axiosInstance.delete(`videos/${videoId}`)
 
             handleGetAllVideos()
             // setDeleteVideoId("")
@@ -118,9 +116,7 @@ const VideoTabComponent = ({ route }) => {
     // publish and unpumbish toggle ************
     const togglePublishStatus = async () => {
         try {
-            const isPublished = await togglePublishStatusHander(videoId)
-            setPublishStatus(isPublished)
-
+            const response = await axiosInstance.patch(`videos/toggle/publish/${videoId}`, {})
         } catch (error) {
             console.log("Error while toggle publish status : ", error);
         }
@@ -129,10 +125,8 @@ const VideoTabComponent = ({ route }) => {
 
     // getVideo based on videoId
     const getVideo = async (videoId) => {
-
         try {
-            await getVideoByVideoIdHandler(videoId)
-            setPublishStatus(response.isPublished)
+            const response = await axiosInstance.get(`videos/${videoId}`)
         } catch (error) {
             console.log("error while getting video : ", error);
         }
@@ -147,8 +141,6 @@ const VideoTabComponent = ({ route }) => {
 
             {/* success or faliure popup message  */}
             <PopupMessage isSuccess={isSuccess} title={isSuccess ? "Video delete successfully" : "Video is not being deleted"} isVisible={isPopupMessageShow} setVisible={setPopupMessageShow} />
-
-
             <View style={{ flex: 1, backgroundColor: "#121212", }}>
                 {/* video content  */}
                 <View style={{ flex: 1, paddingHorizontal: 10, paddingVertical: 10 }} >
@@ -188,13 +180,6 @@ const VideoTabComponent = ({ route }) => {
                                         <MaterialCommunityIcons name="dots-vertical" size={24} color="white" />
                                     </Pressable>
                                 </View>
-                                {/* <Modal
-                                    animationType='slide'
-                                    transparent={true}
-                                    visible={isVideoModalVisible}
-                                >
-                                </Modal> */}
-
                                 <BottomSlideModal isVisible={isVideoModalVisible} setVisible={setIsVideoModalVisible}>
                                     {
                                         userId === user._id ?
@@ -202,21 +187,20 @@ const VideoTabComponent = ({ route }) => {
                                                 <View style={{ width: "100%" }}>
                                                     <TouchableOpacity onPress={() => togglePublishStatus()} style={{ width: "100%", borderBottomWidth: 0.5, borderColor: "gray", paddingVertical: 15, flexDirection: 'row', gap: 20, paddingHorizontal: 20, alignItems: 'center' }}>
                                                         {
-                                                            publishStatus == true ? (
+                                                            item.isPublished ?
                                                                 <View style={{ flexDirection: 'row', gap: 15 }}>
+                                                                    {/* <Text style={{ color: "white", fontSize: 20 }} >{item.isPublished}</Text> */}
                                                                     <MaterialCommunityIcons name="earth-off" size={24} color="white" />
                                                                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }} >Unpublish</Text>
                                                                     <Text style={{ fontSize: 12, color: "green", borderWidth: 0.5, borderColor: "green", paddingHorizontal: 10, paddingVertical: 3, borderRadius: 15 }} >Publish</Text>
                                                                 </View>
-
-                                                            ) : (
+                                                                :
                                                                 <View style={{ flexDirection: 'row', gap: 15 }} >
-
                                                                     <Fontisto name="world-o" size={24} color="white" />
                                                                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }} >Publish</Text>
                                                                     <Text style={{ fontSize: 12, color: "red", borderWidth: 0.5, borderColor: "red", paddingHorizontal: 10, paddingVertical: 3, borderRadius: 15 }} >Unpublish</Text>
                                                                 </View>
-                                                            )
+
                                                         }
                                                     </TouchableOpacity>
 

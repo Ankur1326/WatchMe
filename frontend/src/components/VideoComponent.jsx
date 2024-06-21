@@ -62,10 +62,6 @@ const VideoComponent = ({ item, scrollViewRef,  }) => {
         setShowConfirmation(true); // Show the confirmation dialog when delete is pressed
     };
 
-    
-    console.log("item ", item);
-    console.log("item.videoDetails[0].userDetails[0] ", item.videoDetails[0]);
-
     return (
         <PanGestureHandler key={item?._id} onGestureEvent={gesturehandler} simultaneousHandlers={scrollViewRef}>
             <Animated.View>

@@ -10,6 +10,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { Feather } from "@expo/vector-icons";
 import { Ionicons } from '@expo/vector-icons';
 import { EvilIcons } from '@expo/vector-icons';
+import axiosInstance from '../helper/axiosInstance';
 
 const CommentComponent = ({ videoId }) => {
     const [comment, setComment] = useState("");
@@ -20,24 +21,14 @@ const CommentComponent = ({ videoId }) => {
     const [selectedComment, setSelectedComment] = useState({})
     const [showAllComments, setShowAllComments] = useState(false)
     const ref = useRef(null)
-    // console.log("videoId ", videoId);
-    // console.log("comments ", comments );
 
     useEffect(() => {
         setComment(selectedComment.content || "")
     }, [selectedComment])
 
     const getVideoCommentsHandler = async () => {
-        const accessToken = await AsyncStorage.getItem("accessToken")
         try {
-            const response = await axios.get(`${base_url}/comments/${videoId}`,
-                {
-                    headers: {
-                        Authorization: `${accessToken}`
-                    }
-                }
-            )
-            // console.log(response.data.data.getTenVideoComments);
+            const response = await axiosInstance.get(`comments/${videoId}`)
 
             setCommentLength(response.data.data.commentsLength)
             setComments(response.data.data.getTenVideoComments)
@@ -50,17 +41,8 @@ const CommentComponent = ({ videoId }) => {
     }, [])
 
     const addComment = async () => {
-
         try {
-            const accessToken = await AsyncStorage.getItem("accessToken")
-            const response = await axios.post(`${base_url}/comments/${videoId}`,
-                { content: comment },
-                {
-                    headers: {
-                        Authorization: `${accessToken}`
-                    }
-                }
-            )
+            const response = await axiosInstance.post(`comments/${videoId}`, { content: comment })
             if (response) {
                 getVideoCommentsHandler() // refresh comment list
             }
@@ -95,16 +77,8 @@ const CommentComponent = ({ videoId }) => {
     const editCommentHandler = async () => {
         const commentId = selectedComment._id
         try {
-            const accessToken = await AsyncStorage.getItem("accessToken")
+            const response = await axiosInstance.patch(`comments/c/${commentId}`, { content: comment })
 
-            const response = await axios.patch(`${base_url}/comments/c/${commentId}`,
-                { content: comment }, // new comment
-                {
-                    headers: {
-                        Authorization: `${accessToken}`
-                    }
-                }
-            )
             if (response) {
                 setVisible(false)
                 setComment("")
@@ -123,14 +97,8 @@ const CommentComponent = ({ videoId }) => {
     // function to delete comment 
     const deleteCommentHandler = async () => {
         const commentId = selectedComment?._id
-
         try {
-            const accessToken = await AsyncStorage.getItem("accessToken")
-            const response = await axios.delete(`${base_url}/comments/c/${commentId}`, {
-                headers: {
-                    Authorization: `${accessToken}`
-                }
-            })
+            const response = await axiosInstance.delete(`comments/c/${commentId}`)
             if (response) {
                 getVideoCommentsHandler() // refresh comment list
                 setVisible(false)
@@ -140,9 +108,7 @@ const CommentComponent = ({ videoId }) => {
         } finally {
             setVisible(false)
         }
-
     }
-
 
     const closeModal = () => {
         setVisible(false)
@@ -155,19 +121,8 @@ const CommentComponent = ({ videoId }) => {
 
     // handle like or dislike 
     const toggleCommentLikeHandler = async (commentId, action) => {
-        console.log(commentId, action);
-        const accessToken = await AsyncStorage.getItem("accessToken")
-
         try {
-            const response = await axios.post(`${base_url}/likes/toggle/c/${commentId}`, { action },
-                {
-                    headers: {
-                        Authorization: `${accessToken}`,
-                    },
-                }
-            )
-
-            console.log("response.data ", response.data);
+            await axiosInstance.post(`likes/toggle/c/${commentId}`, { action })
             getVideoCommentsHandler()
         } catch (error) {
             console.log("Error while toggle comment likes ", error);

@@ -17,9 +17,9 @@ const VideoUpload = ({ isVisible, setVisible, getAllVideos }) => {
   const [description, setDescription] = useState("");
   const [showUploadingVideoModal, setshowUploadingVideoModal] = useState(false)
   const [uploadStatus, setUploadStatus] = useState("loading")
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const saveHandler = async () => {
-
     try {
       setUploadStatus("loading")
 
@@ -29,23 +29,30 @@ const VideoUpload = ({ isVisible, setVisible, getAllVideos }) => {
       const formData = new FormData()
       formData.append("title", title);
       formData.append("description", description);
-      formData.append("videoFile", { uri: selectedVideo.uri, name: selectedVideo.name.trim(), type: "video/mp4", });
-      formData.append("thumbnail", { uri: selectedThumbnail.uri, name: selectedThumbnail.name.trim(), type: "image/jpg", });
+
+       // Replace spaces with hyphens in the file names
+       const videoFileName = selectedVideo.name.replace(/[()]/g, '').replace(/ /g, '-');
+       const thumbnailFileName = selectedThumbnail.name.replace(/[()]/g, '').replace(/ /g, '-');
+      
+      formData.append("videoFile", { uri: encodeURI(selectedVideo.uri), name: videoFileName, type: "video/mp4", });
+      formData.append("thumbnail", { uri: encodeURI(selectedThumbnail.uri), name: thumbnailFileName, type: "image/jpg", });
 
       const accessToken = await AsyncStorage.getItem("accessToken")
 
       setshowUploadingVideoModal(true) // show uploading video popup
 
       const response = await axios.post(`${base_url}/videos/`, formData,
-
         {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `${accessToken}`,
-          }
+          },
+          onUploadProgress: (progressEvent) => {
+            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(progress);
+          },
         }
       )
-
       setUploadStatus("success")
       // console.log("response.data", response.data);
       getAllVideos();
@@ -56,7 +63,6 @@ const VideoUpload = ({ isVisible, setVisible, getAllVideos }) => {
 
   // pick video 
   const pickVideo = async () => {
-    // console.log("hii");
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: 'video/*',
@@ -177,7 +183,7 @@ const VideoUpload = ({ isVisible, setVisible, getAllVideos }) => {
 
 
       {/* video uploading popup modal  */}
-      <UploadingVideo isVisible={showUploadingVideoModal} onClose={onCloseUploadingModal} videoName={selectedVideo?.name} fileSize={selectedVideo?.size} uploadingStatus={uploadStatus} />
+      <UploadingVideo isVisible={showUploadingVideoModal} onClose={onCloseUploadingModal} videoName={selectedVideo?.name} fileSize={selectedVideo?.size} uploadingStatus={uploadStatus} uploadProgress={uploadProgress} />
 
     </View>
   )

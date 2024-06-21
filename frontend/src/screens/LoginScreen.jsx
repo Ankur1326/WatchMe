@@ -1,5 +1,5 @@
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -16,10 +16,7 @@ const LoginScreen = () => {
     const [email, setEmail] = useState("swamiankur@gmail.com");
     const [password, setPassword] = useState("ankurswami");
     const [showLoader, setShowLoader] = useState(false);
-
     const navigation = useNavigation();
-    const currentTime = Math.floor(Date.now() / 1000);
-    // console.log(currentTime);
 
     useEffect(() => {
         // check Login status 
@@ -46,23 +43,21 @@ const LoginScreen = () => {
         checkLoginStatus();
     }, [])
 
-    const loginHandler = async () => {
-        const formData = { username, email, password }
+    const loginHandler = useCallback(async () => {
         try {
             setShowLoader(true)
-            if (username == "" && email == "" && password == "") {
+            if (!username || !email || !password) {
                 Alert.alert("All fields are requied")
+                return;
             }
 
+            const formData = { username, email, password }
             const response = await axios.post(`${base_url}/users/login`, formData)
-            // console.log(response);
 
             if (response.data.statusCode == 200) {
                 Alert.alert("Logged In", response.data.message)
-
                 await AsyncStorage.setItem("accessToken", response.data.data.accessToken)
                 // await AsyncStorage.setItem("refreshToken", response.data.data.refreshToken)
-
                 navigation.navigate("Drawer")
             }
 
@@ -85,7 +80,7 @@ const LoginScreen = () => {
         } finally {
             setShowLoader(false)
         }
-    }
+    }, [username, email, password])
 
     return (
         <SafeAreaView style={{ flex: 1, alignItems: "center", backgroundColor: "#121212", gap: 30, }}>
