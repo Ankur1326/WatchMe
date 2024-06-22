@@ -14,6 +14,7 @@ import HeaderComponent from '../components/HeaderComponent';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { increaseViewsHandler } from '../actions/video.actions';
 import { UserType } from '../context/UserContext';
+import axiosInstance from '../helper/axiosInstance';
 
 const AnimatiedLikeBtn = Animated.createAnimatedComponent(TouchableOpacity)
 const VideoDetailScreen = ({ route }) => {
@@ -21,7 +22,7 @@ const VideoDetailScreen = ({ route }) => {
     const navigation = useNavigation()
     const [user, setUser] = useContext(UserType);
     const { data } = route.params
-    
+
     // console.log("data ::: ", data);
     const sections = [1]
     const [isPlaying, setIsPlaying] = useState(false);
@@ -37,18 +38,6 @@ const VideoDetailScreen = ({ route }) => {
             ]
         }
     })
-
-    // const togglePlay = async () => {
-    //     if (videoRef.current) {
-    //         if (isPlaying) {
-    //             await videoRef.current.pauseAsync();
-    //         } else {
-    //             await videoRef.current.playAsync();
-    //         }
-    //         setIsPlaying(!isPlaying);
-    //     }
-    // };
-
     const getChannel = async () => {
         let username = "";
         if (Object.keys(data).includes("userDetails")) { // if user comes from HomeScreen
@@ -59,14 +48,7 @@ const VideoDetailScreen = ({ route }) => {
         }
 
         try {
-            const accessToken = await AsyncStorage.getItem("accessToken")
-            const response = await axios.get(`${base_url}/users/c/${username}`,
-                {
-                    headers: {
-                        Authorization: `${accessToken}`,
-                    }
-                }
-            )
+            const response = await axiosInstance.get(`users/c/${username}`)
             // console.log("response :: ", response.data.data);
             setChannel(response.data.data)
 
@@ -79,14 +61,7 @@ const VideoDetailScreen = ({ route }) => {
     const getVideoInfo = async () => {
 
         try {
-            const accessToken = await AsyncStorage.getItem("accessToken")
-            const response = await axios.get(`${base_url}/videos/${videoId}`,
-                {
-                    headers: {
-                        Authorization: `${accessToken}`,
-                    }
-                }
-            )
+            const response = await axiosInstance.get(`videos/${videoId}`)
             // console.log("response :: ", response.data.data[0]);
             setVideoInfo(response.data.data[0])
 
@@ -102,16 +77,8 @@ const VideoDetailScreen = ({ route }) => {
 
     // handle subscribe toggle 
     const subscribeToggle = async () => {
-        const accessToken = await AsyncStorage.getItem("accessToken")
-        // console.log("channel : ", channel._id);
         try {
-            await axios.post(`${base_url}/subscriptions/c/${channel?._id}`, {},
-                {
-                    headers: {
-                        Authorization: `${accessToken}`,
-                    }
-                }
-            )
+            await axiosInstance.post(`subscriptions/c/${channel?._id}`)
             getChannel()
             // console.log("response : ", response);
         } catch (error) {
@@ -119,11 +86,8 @@ const VideoDetailScreen = ({ route }) => {
         }
     }
 
-
     // handle like or dislike 
     const toggleVideoLikeHandler = async (videoId, action) => {
-        // console.log(videoId, action);
-        const accessToken = await AsyncStorage.getItem("accessToken")
         if (action === "like") {
             likeScale.value = withTiming(1.3, { duration: 100 })
             setTimeout(() => {
@@ -131,14 +95,7 @@ const VideoDetailScreen = ({ route }) => {
             }, 100);
         }
         try {
-            const response = await axios.post(`${base_url}/likes/toggle/v/${videoId}`, { action },
-                {
-                    headers: {
-                        Authorization: `${accessToken}`,
-                    },
-                }
-            )
-
+            await axiosInstance.post(`likes/toggle/v/${videoId}`, { action })
             // console.log(response.data);
             getVideoInfo()
         } catch (error) {
@@ -229,7 +186,7 @@ const VideoDetailScreen = ({ route }) => {
 
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 25 }}>
                             {/* channel  */}
-                            <Pressable onPress={() => navigation.navigate("Channel", { channel: channel })} style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }} >
+                            <TouchableOpacity onPress={() => navigation.navigate("Channel", { channel: channel })} style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }} >
                                 <View>
                                     <Image source={{ uri: channel?.avatar }} style={{ width: 50, height: 50, borderRadius: 25 }} />
                                 </View>
@@ -237,7 +194,7 @@ const VideoDetailScreen = ({ route }) => {
                                     <Text style={{ color: "white", fontSize: 18 }}>{channel?.username}</Text>
                                     <Text style={{ color: "#9e9e9e", }}>{channel?.subscribersCount} Subscribers</Text>
                                 </View>
-                            </Pressable>
+                            </TouchableOpacity>
                             {/* subscribe btn */}
                             <TouchableOpacity onPress={() => subscribeToggle()} style={{ backgroundColor: "#AE7AFF", paddingHorizontal: 12, paddingVertical: 8 }}>
                                 {
