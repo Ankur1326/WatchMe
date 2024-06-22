@@ -24,7 +24,7 @@ const EditVideo = ({ isVisible, videoId, onClose, getAllVideos }) => {
     const getVideo = async (videoId) => {
         try {
             const video = await getVideoByVideoIdHandler(videoId)
-            // console.log("video : ", video?.thumbnail);
+            console.log("video : ", video.title);
             setVideo(video)
             setTitle(video.title)
             setDescription(video.description)
@@ -47,7 +47,7 @@ const EditVideo = ({ isVisible, videoId, onClose, getAllVideos }) => {
         }
     };
 
-    const handleViderUpdate = async () => {
+    const handleVideoUpdate = async () => {
         try {
             setLoader(true)
             const videoId = video._id
@@ -61,6 +61,7 @@ const EditVideo = ({ isVisible, videoId, onClose, getAllVideos }) => {
             }
 
             await updateVideoHandler(videoId, formData)
+            getAllVideos()
 
             setLoader(false)
             onClose()
@@ -141,7 +142,7 @@ const EditVideo = ({ isVisible, videoId, onClose, getAllVideos }) => {
                             <TouchableOpacity onPress={handleClose} style={{ borderWidth: 1, borderColor: "white", paddingHorizontal: "15%", paddingVertical: 8 }} >
                                 <Text style={{ color: "white" }} >Cancel</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => handleViderUpdate()} style={{ paddingHorizontal: "15%", paddingVertical: 8, backgroundColor: "#AE7AFF" }} >
+                            <TouchableOpacity onPress={() => handleVideoUpdate()} style={{ paddingHorizontal: "15%", paddingVertical: 8, backgroundColor: "#AE7AFF" }} >
                                 <Text style={{ color: "black" }} >Update</Text>
                             </TouchableOpacity>
 
@@ -154,4 +155,4 @@ const EditVideo = ({ isVisible, videoId, onClose, getAllVideos }) => {
     )
 }
 
-export default EditVideo
+export default React.memo(EditVideo)

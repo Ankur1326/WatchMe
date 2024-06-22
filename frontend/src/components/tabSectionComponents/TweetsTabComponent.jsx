@@ -18,7 +18,8 @@ const TweetsTabComponent = ({ route }) => {
   const [tweetId, setTweetId] = useState("")
 
   const userId = route?.params?.userId || user._id;
-  
+  // console.log(user._id);
+
   const handleCreateTweet = async () => {
     try {
       await createTweetHandler(tweet)
@@ -82,7 +83,7 @@ const TweetsTabComponent = ({ route }) => {
       setTweetId("")
     }
   }
-
+  console.log("tweets : ", tweets);
   return (
     <View style={{ flex: 1, backgroundColor: currentTheme.primaryBackgroundColor, paddingVertical: 10, paddingHorizontal: 4 }} >
 
@@ -137,13 +138,13 @@ const TweetsTabComponent = ({ route }) => {
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20, marginTop: 8 }}>
                     <TouchableOpacity onPress={() => handleToggleTweetLike(item._id, "like")} style={{ flexDirection: 'row', gap: 5 }}>
                       {/* <AntDesign name={item.isLiked ? "like1" : "like2"} size={17} color="white" /> */}
-                      <AntDesign name={item?.isLiked ? "like1" : "like2"} size={17} color="white" />
+                      <AntDesign name={item.isLiked ? "like1" : "like2"} size={17} color="white" />
                       <Text style={{ color: "white", fontSize: 13 }}>{item.likesCount}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => handleToggleTweetLike(item._id, "dislike")} style={{ flexDirection: 'row', gap: 5 }}>
                       {/* <AntDesign name={item?.isDisliked ? "dislike1" : "dislike2"} size={17} color="white" /> */}
-                      <AntDesign name={item?.isDisliked ? "dislike1" : "dislike2"} size={17} color="white" />
+                      <AntDesign name={item.isDisliked ? "dislike1" : "dislike2"} size={17} color="white" />
                       <Text style={{ color: "white", fontSize: 13 }}>{item.dislikesCount}</Text>
                     </TouchableOpacity>
                   </View>

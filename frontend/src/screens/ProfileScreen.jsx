@@ -95,7 +95,7 @@ const ProfileScreen = ({ navigation }) => {
                     </View>
 
                     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, gap: 5, paddingBottom: 12 }} >
-                        <Image source={{ uri: userchannelProfile.avatar }} style={{ width: 100, height: 100, resizeMode: "cover", borderRadius: 55, borderWidth: 2, borderColor: "white", position: 'absolute', top: -30, left: 10 }} />
+                        <Image source={{ uri: userchannelProfile?.avatar }} style={{ width: 100, height: 100, resizeMode: "cover", borderRadius: 55, borderWidth: 2, borderColor: "white", position: 'absolute', top: -30, left: 10 }} />
                         <View style={{ paddingLeft: 110, paddingVertical: 10 }}>
                             <Text style={{ color: "white", fontSize: 17 }} >{userchannelProfile.fullName}</Text>
                             <Text style={{ color: "#999", fontSize: 13 }} >@{userchannelProfile.username}</Text>

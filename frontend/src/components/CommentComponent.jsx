@@ -115,10 +115,6 @@ const CommentComponent = ({ videoId }) => {
         setEditTextVisible(false)
     }
 
-    const test = () => {
-        console.log("hiii there...");
-    }
-
     // handle like or dislike 
     const toggleCommentLikeHandler = async (commentId, action) => {
         try {
@@ -159,9 +155,7 @@ const CommentComponent = ({ videoId }) => {
                                     <EvilIcons name="close" size={29} color="white" />
                                 </TouchableOpacity>
                             </View>
-
-                            {
-                                // show when EditTextVisible not show
+                            {// show when EditTextVisible not show
                                 isEditTextVisible != true &&
                                 <View style={{ flexDirection: "row", borderWidth: 0.6, borderColor: "white", borderRadius: 15, position: "relative", marginTop: 10 }} >
                                     <TextInput onChangeText={(text) => setComment(text)} placeholder='Add a Comment' placeholderTextColor="white" style={[{ color: "white", paddingHorizontal: 15, paddingVertical: 4, }, comment && { paddingRight: 60 }]} />

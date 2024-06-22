@@ -10,6 +10,7 @@ import { deleteVideoHandler, togglePublishStatusHander } from '../actions/video.
 import { getChannelStatsHandler, getChannelVideosInfoHandler } from '../actions/channel.actions';
 import CustomConfirmationDialog from '../Modal/CustomConfirmationDialog';
 import EditVideo from '../Modal/EditVideo';
+import axiosInstance from '../helper/axiosInstance';
 
 const AdminDashboardScreen = () => {
     const { currentTheme } = useTheme()
@@ -19,18 +20,20 @@ const AdminDashboardScreen = () => {
     const [channelStats, setChannelStatus] = useState({})
     const [channelVideoInfo, setChannelVideoInfo] = useState([])
     const [editVideoModalVisible, setEditVideoModalVisible] = useState(false)
-
+    const [selectedVideoId, setSelectedVideoId] = useState(null);
 
     const fetchChannelData = async () => {
         try {
-            const statusData = await getChannelStatsHandler();
-            setChannelStatus(statusData);
-            const videoInfoData = await getChannelVideosInfoHandler();
-            setChannelVideoInfo(videoInfoData);
+            const response = await axiosInstance.get(`dashboard/stats`)
+            setChannelStatus(response.data.data[0]);
+
+            const videoInfoResponse = await axiosInstance.get(`dashboard/videos`)
+            setChannelVideoInfo(videoInfoResponse.data.data);
         } catch (error) {
             console.log(error);
         }
     }
+
     useEffect(() => {
         fetchChannelData();
     }, [])
@@ -39,13 +42,14 @@ const AdminDashboardScreen = () => {
         // console.log(videoId);
         setSelectedItem(videoId)
         try {
-            await togglePublishStatusHander(videoId)
-            const updatedVideoInfo = await getChannelVideosInfoHandler();
-            setChannelVideoInfo(updatedVideoInfo);
+            await axiosInstance.patch(`videos/toggle/publish/${videoId}`, {})
+
+            const response = await axiosInstance.get(`dashboard/stats`)
+            setChannelVideoInfo(response.data.data);
             setSuccess(true)
         } catch (error) {
             setSuccess(false)
-            console.log(error);
+            console.log("Error while getting user channel videos Info ", error);
         } finally {
             setSelectedItem("")
             setPopupMessageShow(true)
@@ -55,41 +59,32 @@ const AdminDashboardScreen = () => {
 
     const conformDeleteVideo = async (videoId) => {
         try {
-            // console.log("videoId : ", videoId);
-            // setIsVideoModalVisible(false)
-            // setShowLoader(true)
-
-            await deleteVideoHandler(videoId) // action
+            await axiosInstance.delete(`videos/${videoId}`)
             fetchChannelData()
-
             setSuccess(true)
+
         } catch (error) {
-            console.log("Error while deleting video: ", error);
-            // setShowLoader(true)
-            // setDeleteVideoId("")
             setSuccess(false)
         } finally {
-            // setShowLoader(false)
             setPopupMessageShow(true)
             setTimeout(() => setPopupMessageShow(false), 3000);
         }
     }
 
-    const handleEditVideo = async () => {
+    const handleEditVideo = async (videoId) => {
+        setSelectedVideoId(videoId);
         setEditVideoModalVisible(true)
     }
-    
+
     // onClose for editVideo
     const onClose = () => {
+        setSelectedVideoId(null);
         setEditVideoModalVisible(false)
-        fetchChannelData()
     }
-
 
     return (
         <View style={{ flex: 1, backgroundColor: currentTheme.primaryBackgroundColor, }}>
             <HeaderComponent />
-
             {/* success or faliure popup message  */}
             <PopupMessage isSuccess={isSuccess} title={isSuccess ? "Status successfully changed" : "Status has not changed"} isVisible={isPopupMessageShow} setVisible={setPopupMessageShow} />
 
@@ -147,12 +142,11 @@ const AdminDashboardScreen = () => {
                             renderItem={({ item }) => (
                                 <View>
                                     <DashboardTableComponent item={item} selectedItem={selectedItem} handleSwitchStatus={handleSwitchStatus} conformDeleteVideo={conformDeleteVideo} handleEditVideo={handleEditVideo} />
-
-                                    {/* model for edit video  */}
-                                    {editVideoModalVisible && <EditVideo isVisible={editVideoModalVisible} videoId={item._id} onClose={onClose} getAllVideos={fetchChannelData} />}
                                 </View>
                             )}
                         />
+                        {/* model for edit video  */}
+                        <EditVideo isVisible={editVideoModalVisible} videoId={selectedVideoId} onClose={onClose} getAllVideos={fetchChannelData} />
 
                     </View>
                 </ScrollView>

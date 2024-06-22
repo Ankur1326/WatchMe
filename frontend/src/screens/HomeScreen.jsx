@@ -78,17 +78,17 @@ const HomeScreen = () => {
     } catch (error) {
       console.log("error :: ", error);
     }
-  })
+  }, [])
 
   useEffect(() => {
     handleFetchCurrentUser();
   }, [])
 
-  const handleGetAllPublishVideos = useCallback(async (page = 1) => {
+  const handleGetAllPublishVideos = async (page = 1) => {
     setLoading(true);
     console.log("currentPage ", currentPage);
     try {
-      const response =  await axiosInstance.get(`videos/getAll-publish-video/?page=${currentPage}&limit=10`)
+      const response = await axiosInstance.get(`videos/getAll-publish-video/?page=${currentPage}&limit=10`)
       const data = response.data.data
       if (page === 1) {
         setVideos(data);
@@ -100,7 +100,7 @@ const HomeScreen = () => {
       setRefreshing(false);
       setLoading(false)
     }
-  })
+  }
 
   useEffect(() => {
     handleGetAllPublishVideos(currentPage)

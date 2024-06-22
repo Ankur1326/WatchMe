@@ -5,8 +5,7 @@ import HeaderComponent from "../components/HeaderComponent.jsx";
 import { useNavigation } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
 import VideoComponent from "../components/VideoComponent.jsx";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
+import axiosInstance from "../helper/axiosInstance.js";
 
 const ChannelPlaylistVideoScreen = ({ route }) => {
     const { data } = route.params
@@ -18,17 +17,8 @@ const ChannelPlaylistVideoScreen = ({ route }) => {
         // console.log("called conformDeleteVideo", videoId);
         const playlistId = data._id
         try {
-            const accessToken = await AsyncStorage.getItem("accessToken")
-            await axios.delete(`${base_url}/playlist/${playlistId}` / `${videoId}`,
-                {
-                    headers: {
-                        Authorization: `${accessToken}`,
-                    }
-                }
-            )
-
-
-        } catch (error) {
+            await axiosInstance.delete(`playlist/${playlistId}` / `${videoId}`)
+        } catch (error) {  
             console.log("Error while deleting playlist: ", error);
         } finally {
         }

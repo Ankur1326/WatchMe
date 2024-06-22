@@ -8,7 +8,6 @@ const DashboardTableComponent = ({ item, selectedItem, handleSwitchStatus, confo
     const { currentTheme } = useTheme()
     const [showConfirmation, setShowConfirmation] = useState(false)
 
-
     return (
         <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: "gray", borderTopWidth: 0 }}>
             <View style={[{ width: "10%", alignItems: 'center', justifyContent: 'center', }]}>
@@ -53,10 +52,12 @@ const DashboardTableComponent = ({ item, selectedItem, handleSwitchStatus, confo
             <Text style={[{ color: currentTheme.primaryTextColor, width: "16%" }, styles.dataText]} >{item.createdAt.substring(0, 10)}</Text>
 
             <View style={{ width: "20%", paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 15 }}>
+                {/* delete */}
                 <TouchableOpacity onPress={() => setShowConfirmation(!showConfirmation)} style={{ alignItems: 'center' }}>
                     <AntDesign name="delete" size={20} color={currentTheme.primaryTextColor} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleEditVideo()} style={{ alignItems: 'center' }}>
+                {/* Edit */}
+                <TouchableOpacity onPress={() => handleEditVideo(item._id)} style={{ alignItems: 'center' }}>
                     <Feather name="edit-2" size={20} color={currentTheme.primaryTextColor} />
                 </TouchableOpacity>
             </View>

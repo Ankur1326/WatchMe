@@ -1,5 +1,5 @@
 import { Text, TouchableOpacity, View, Modal, Pressable, Alert, ScrollView } from 'react-native'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react'
 import { PanGestureHandler, TextInput } from 'react-native-gesture-handler';
 import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Ionicons, MaterialIcons, EvilIcons, Entypo, Octicons, Feather } from '@expo/vector-icons';
@@ -46,7 +46,6 @@ const BottomSlideModalToHomePage = ({ isVideoModalVisible, setIsVideoModalVisibl
 
     // create new playlist 
     const createNewPlaylistHandler = async () => {
-        // console.log("Hiiiiiiiiiiiiii");
         try {
             dispatch(createPlaylist({ title, privacyStatus, videoId }))
 
@@ -73,7 +72,6 @@ const BottomSlideModalToHomePage = ({ isVideoModalVisible, setIsVideoModalVisibl
                 })
                 setSaveVideoModalVisible(false)
             }
-
         } catch (error) {
             console.log("error while adding video in that playlist", error);
 
@@ -96,9 +94,7 @@ const BottomSlideModalToHomePage = ({ isVideoModalVisible, setIsVideoModalVisibl
                     }
                 })
                 console.log(response);
-
             }
-
 
         } catch (error) {
             console.log("error while removing video from playlist", error);
@@ -224,5 +220,4 @@ const BottomSlideModalToHomePage = ({ isVideoModalVisible, setIsVideoModalVisibl
     )
 }
 
-export default BottomSlideModalToHomePage
-
+export default memo(BottomSlideModalToHomePage)

@@ -34,7 +34,7 @@ const VideoTabComponent = ({ route }) => {
     const [videoId, setVideoId] = useState("")
 
     const userId = route?.params?.userId || user._id;
-    console.log(videos);
+    // console.log(videos);
 
     const handleGetAllVideos = async () => {
         try {

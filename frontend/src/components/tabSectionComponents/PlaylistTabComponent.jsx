@@ -41,9 +41,6 @@ const PlaylistTabComponent = ({ route }) => {
   );
 
   const conformDeleteVideo = async (videoId) => {
-    // console.log("called conformDeleteVideo", videoId);
-    // const playlistId = playlistData._id;
-    // console.log("playlistId : ", playlistId);
     try {
       dispatch(deleteVideoFromPlaylsit({ videoId, playlistId }))
       navigation.goBack()

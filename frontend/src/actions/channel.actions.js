@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios"
 import { base_url } from '../helper/helper';
+import axiosInstance from "../helper/axiosInstance";
 
 // Define accessToken globally
 let accessToken = '';
@@ -44,12 +45,8 @@ const getChannelVideosInfoHandler = async () => {
 // fetch current user that is logged in 
 const fetchCurrentUserHandler = async () => {
     try {
-        const response = await axios.get(`${base_url}/users/current-user`, {
-            headers: {
-                Authorization: `${accessToken}`,
-            }
-        })
-        return response.data
+        const response = await axiosInstance.get(`users/current-user`)
+        return response
 
     } catch (error) {
         console.log("error :: ", error);

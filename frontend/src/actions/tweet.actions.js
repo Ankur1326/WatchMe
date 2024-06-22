@@ -25,7 +25,7 @@ const createTweetHandler = async (tweet) => {
         }
       }
     )
-    console.log("response.data.data : ", response.data.data);
+    // console.log("response.data.data : ", response.data.data);
     if (response.data.data) {
       return {
         data: response.data.data,
@@ -70,8 +70,7 @@ const toggleTweetLikeHandler = async (tweetId, action) => {
         },
       }
     )
-
-    console.log(response.data);
+    // console.log(response.data);
   } catch (error) {
     throw error
   } finally {

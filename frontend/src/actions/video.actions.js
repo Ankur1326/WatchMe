@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios"
 import { base_url } from '../helper/helper';
+import axiosInstance from "../helper/axiosInstance";
 
 // Define accessToken globally
 let accessToken = '';
@@ -32,36 +33,21 @@ const getAllVideosHandler = async (params) => {
 
 // get all publish videos 
 const getAllPublishVideosHandler = async (currentPage) => {
-
     try {
-        const response = await axios.get(`${base_url}/videos/getAll-publish-video/?page=${currentPage}&limit=10`, // "&query=o&sortBy=title&sortType=asc"
-            {
-                headers: {
-                    Authorization: `${accessToken}`,
-                }
-            }
-        )
-        // console.log("response.data.videos ; ", response.data.videos);
-        return response.data.videos
-        
+        const response = await axiosInstance.get(`videos/getAll-publish-video/?page=${currentPage}&limit=10`)
+        // "&query=o&sortBy=title&sortType=asc"
+        // console.log("response.data.videos ; ", response.videos);
+        return response.data.data
     } catch (error) {
         console.log("Error while get all Publish videos", error);
     } finally {
     }
 }
 
-// get all publish videos 
 const getAllAnoterChannelVideosHandler = async (userId) => {
-
     try {
-        const response = await axios.get(`${base_url}/videos/getAll-anoter-channel-videos/${userId}`, 
-            {
-                headers: {
-                    Authorization: `${accessToken}`,
-                }
-            }
-        )
-        console.log("response.data ; ", response.data);
+        const response = await axiosInstance.get(`videos/getAll-anoter-channel-videos/${userId}`)
+        // console.log("response ; ", response);
         return response.data.data
     } catch (error) {
         console.log("Error while get all Publish videos :: ", error);
@@ -70,7 +56,6 @@ const getAllAnoterChannelVideosHandler = async (userId) => {
 }
 
 const deleteVideoHandler = async (videoId) => {
-
     try {
         await axios.delete(`${base_url}/videos/${videoId}`,
             {

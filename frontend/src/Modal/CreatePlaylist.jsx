@@ -1,9 +1,8 @@
 import { Modal, ScrollView, Text, TextInput, TouchableOpacity, View, Pressable } from 'react-native'
-import React, { useState } from 'react'
+import React, { memo, useState } from 'react'
 import { EvilIcons, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { createPlaylist } from '../store/slices/playlistSlice';
-import PopupMessage from '../components/PopupMessage';
 
 const CreatePlaylist = ({ isVisible, setVisible }) => {
     const dispatch = useDispatch()
@@ -33,7 +32,6 @@ const CreatePlaylist = ({ isVisible, setVisible }) => {
 
     return (
         <View style={{}} >
-
             {/* video upload modal  */}
             <Modal
                 animationType='slide'
@@ -112,4 +110,4 @@ const CreatePlaylist = ({ isVisible, setVisible }) => {
     )
 }
 
-export default CreatePlaylist
+export default memo(CreatePlaylist)

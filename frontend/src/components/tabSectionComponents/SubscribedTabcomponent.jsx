@@ -24,10 +24,10 @@ const SubscribedTabcomponent = () => {
         renderItem={({ item }) =>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <Pressable style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-              <Image source={{ uri: item?.channelDetails[0].avatar }} style={{ width: 50, height: 50, borderRadius: 25 }} />
+              <Image source={{ uri: item?.channelDetails[0]?.avatar }} style={{ width: 50, height: 50, borderRadius: 25 }} />
               <View style={{}}>
-                <Text style={{ color: "white", fontSize: 18 }}>{item.channelDetails[0].username}</Text>
-                <Text style={{ color: currentTheme.secondaryTextColor, fontSize: 12 }}>{item.channelDetails[0].subscribersCount} Subscribers</Text>
+                <Text style={{ color: "white", fontSize: 18 }}>{item.channelDetails[0]?.username}</Text>
+                <Text style={{ color: currentTheme.secondaryTextColor, fontSize: 12 }}>{item.channelDetails[0]?.subscribersCount} Subscribers</Text>
               </View>
             </Pressable>
             {/* subscribedBtn */}
@@ -37,7 +37,7 @@ const SubscribedTabcomponent = () => {
             </TouchableOpacity>
           </View>
         }
-        keyExtractor={(channel, index) => channel.username + index.toString()}
+        keyExtractor={(channel, index) => channel?.username + index.toString()}
         ListEmptyComponent={() => (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 30, gap: 15, paddingHorizontal: 20 }}>
             <View style={{ backgroundColor: currentTheme?.primaryBackgroundColor, paddingVertical: 15, paddingHorizontal: 15, borderRadius: 50 }}>

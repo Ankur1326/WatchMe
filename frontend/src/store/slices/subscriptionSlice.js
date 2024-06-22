@@ -3,7 +3,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { base_url } from "../../helper/helper";
 
-let accessToken: String = '';
+let accessToken = '';
 
 // Function to initialize accessToken
 const initializeAccessToken = async () => {

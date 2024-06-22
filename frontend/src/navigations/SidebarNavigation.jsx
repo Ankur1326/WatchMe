@@ -29,7 +29,7 @@ const SidebarNavigation = ({ navigation }) => {
 
       // Remove the token from AsyncStorage
 
-      await AsyncStorage.removeItem("accessToken")
+      await AsyncStorage.clear()
       // Navigate to the Login screen
       navigation.replace("Login")
     } catch (error) {

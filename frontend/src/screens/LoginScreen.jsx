@@ -9,29 +9,25 @@ import axios from "axios";
 
 import jwt_decode from "jwt-decode"
 import { base_url } from "../helper/helper";
-
+import axiosInstance from "../helper/axiosInstance";
 
 const LoginScreen = () => {
-    const [username, setUsername] = useState("ankurswami");
-    const [email, setEmail] = useState("swamiankur@gmail.com");
-    const [password, setPassword] = useState("ankurswami");
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [showLoader, setShowLoader] = useState(false);
     const navigation = useNavigation();
-
+    
     useEffect(() => {
         // check Login status 
         const checkLoginStatus = async () => {
-            // await AsyncStorage.removeItem("accessToken") // if need to logged out direcrtly
             try {
                 setShowLoader(true)
+                // get accessToken form async storage 
                 const accessToken = await AsyncStorage.getItem("accessToken")
+                // console.log(accessToken);
                 if (accessToken) {
-                    // get accessToken form async storage 
-                    const accessToken = await AsyncStorage.getItem("accessToken")
-                    const decodedAccessToken = jwt_decode(accessToken) // convert into decode 
-
                     // set userId in context 
-                    // console.log("decodedAccessToken : ", decodedAccessToken._id);
                     navigation.replace("Drawer")
                 }
             } catch (error) {
@@ -52,11 +48,13 @@ const LoginScreen = () => {
             }
 
             const formData = { username, email, password }
+            // const response = await axiosInstance.post(`users/login`, formData)
             const response = await axios.post(`${base_url}/users/login`, formData)
 
             if (response.data.statusCode == 200) {
                 Alert.alert("Logged In", response.data.message)
                 await AsyncStorage.setItem("accessToken", response.data.data.accessToken)
+                console.log("New Access Token stored:", response.data.data.accessToken);
                 // await AsyncStorage.setItem("refreshToken", response.data.data.refreshToken)
                 navigation.navigate("Drawer")
             }
@@ -76,7 +74,6 @@ const LoginScreen = () => {
                     Alert.alert(errorMessage);
                 }
             }
-
         } finally {
             setShowLoader(false)
         }
