@@ -36,8 +36,6 @@ const createTweet = asyncHandler(async (req, res) => {
 const getUserTweets = asyncHandler(async (req, res) => {
     // const userId = req.user._id
     const { userId } = req.params
-    // console.log(userId);
-
     try {
         const tweets = await Tweet.aggregate([
             {
@@ -92,14 +90,14 @@ const getUserTweets = asyncHandler(async (req, res) => {
                     },
                     isLiked: {
                         $cond: {
-                            if: { $in: [new mongoose.Types.ObjectId(userId), "$likes.likedBy"] },
+                            if: { $in: [new mongoose.Types.ObjectId(req.user._id), "$likes.likedBy"] },
                             then: true,
                             else: false
                         }
                     },
                     isDisliked: {
                         $cond: {
-                            if: { $in: [new mongoose.Types.ObjectId(userId), "$dislikes.dislikedBy"] },
+                            if: { $in: [new mongoose.Types.ObjectId(req.user._id), "$dislikes.dislikedBy"] },
                             then: true,
                             else: false
                         }

@@ -68,65 +68,68 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
 // get all publish video 
 const getAllPublishVideo = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
-
-    const videos = await Video.aggregate([
-        {
-            $match: {
+    const { page = 1, limit = 10, query, sortBy = 'createdAt', sortType = 'asc', userId } = req.query
+    
+    try {
+        
+            // Step 1: Count total matching documents
+            const matchStage = {
                 isPublished: true,
                 ...(query && {
                     $or: [
-                        { title: { $regex: new RegExp(query, 'i') } },
-                        { description: { $regex: new RegExp(query, 'i') } },
-                    ],
-                }),
-                // ...(userId && { owner: userId }),
-            }
-        },
-        { $sample: { size: parseInt(limit) } }, // get rendom videos
-        {
-            $skip: (page - 1) * limit, //&query=o&sortBy=title&sortType=asc
-        },
-        {
-            $limit: parseInt(limit)
-        },
-        {
-            $lookup: {
-                from: "users",
-                localField: "owner",
-                foreignField: "_id",
-                as: "userDetails"
-            }
-        },
-        {
-            $project: {
-                _id: 1,
-                videoFile: 1,
-                thumbnail: 1,
-                title: 1,
-                description: 1,
-                duration: 1,
-                views: 1,
-                isPublished: 1,
-                owner: 1,
-                createdAt: 1,
-                updatedAt: 1,
-                userDetails: {
+                    { title: { $regex: new RegExp(query, 'i') } },
+                    { description: { $regex: new RegExp(query, 'i') } },
+                ],
+            }),
+            // ...(userId && { owner: mongoose.Types.ObjectId(userId) }),
+        };
+        const totalVideos = await Video.countDocuments(matchStage);
+        console.log('Total matching videos:', totalVideos);
+
+        const sortStage = {};
+        sortStage[sortBy] = sortType === 'desc' ? -1 : 1;
+
+        const videos = await Video.aggregate([
+            { $match: matchStage },
+            { $sort: sortStage },
+            { $skip: (page - 1) * limit }, //&query=o&sortBy=title&sortType=asc
+            { $limit: parseInt(limit) },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "userDetails"
+                }
+            },
+            {
+                $project: {
                     _id: 1,
-                    username: 1,
-                    avatar: 1,
-                    // Add other user fields
+                    videoFile: 1,
+                    thumbnail: 1,
+                    title: 1,
+                    description: 1,
+                    duration: 1,
+                    views: 1,
+                    isPublished: 1,
+                    owner: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    userDetails: {
+                        _id: 1,
+                        username: 1,
+                        avatar: 1,
+                        // Add other user fields
+                    }
                 }
             }
-        }
+        ])
+        return res.status(200).json(new ApiResponse(201, videos, "publish videos successfully fetched"))
+        // return res.status(200).json({ videos })
+    } catch (error) {
+        console.log("error while fetching all publish videos : ", error);
+    }
 
-    ])
-
-    // console.log("videos ", videos);
-    // console.log("videos.length ", videos.length);
-
-
-    res.status(200).json({ videos })
 
 })
 
@@ -139,10 +142,15 @@ const publishAVideo = asyncHandler(async (req, res) => {
     if (title.trim() == "") {
         throw new ApiError(409, "title file is required")
     }
-    // console.log("req.files", req.files);
+    console.log("req.files", req.files);
 
-    if (req.files.videoFile.length == 0 && req.files.thumbnail.length == 0) {
-        throw new ApiError(409, "videoFile is required")
+    // Check if req.files exists and contains the necessary files
+    if (!req.files || !req.files.videoFile || req.files.videoFile.length === 0) {
+        throw new ApiError(409, "videoFile is required");
+    }
+
+    if (!req.files.thumbnail || req.files.thumbnail.length === 0) {
+        throw new ApiError(409, "thumbnail is required");
     }
 
     // get local path 

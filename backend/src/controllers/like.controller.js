@@ -104,7 +104,6 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
 const toggleCommentLike = asyncHandler(async (req, res) => {
     const { commentId } = req.params
     const { action } = req.body
-
     const userId = req.user._id
 
     if (!commentId) {
@@ -224,13 +223,12 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
         })
 
         if (action === "like") {
-
             if (alreadyDisliked) {
                 // await alreadyDisliked.remove(); // remove dislike
                 await Dislike.deleteOne({
                     _id: alreadyDisliked._id
                 })
-                console.log("like");
+                console.log("In alreadyDisliked");
             }
 
             if (alreadyLiked) {
@@ -238,6 +236,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
                 await Like.deleteOne({
                     _id: alreadyLiked._id
                 })
+                console.log("in alreadyLiked");
                 return res.status(201).json(new ApiResponse(200, "tweet successfully unlike"));
             } else {
                 // If not liked or disliked, create a new like
@@ -298,7 +297,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
 const getVideosLikeAndDislike = asyncHandler(async (req, res) => {
     const { videoId } = req.params
 
-    console.log("videoId : ", videoId);
+    // console.log("videoId : ", videoId);
 
     try {
         if (!videoId) {
