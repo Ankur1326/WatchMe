@@ -1,4 +1,4 @@
-import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View, } from "react-native";
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -80,56 +80,152 @@ const RegisterScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#121212", gap: 30, }}>
-      {/* loader */}
-      {showLoader && (
-        <ActivityIndicator style={{ position: "absolute", width: "100%", height: "100%", backgroundColor: "#00000084", zIndex: 99, }} size={65} color="#FFFFFF" />
-      )}
-      <ScrollView style={{ width: "100%" }} showsVerticalScrollIndicator={false} >
-        <View style={{ flexDirection: "column", alignItems: "center" }}>
-          <View>
-            <Image source={require("../../assets/logo.jpg")} style={{ width: 150, height: 150 }} />
-          </View>
-          <View style={{ flexDirection: "column", gap: 10, alignItems: "center", width: "100%", }}>
-            <TextInput onChangeText={(text) => setUsername(text)} value={username} placeholder="Enter your username" style={customStyles.inputText} placeholderTextColor="#999" />
-            <TextInput onChangeText={(text) => setFullName(text)} value={fullName} placeholder="Enter your fullName" style={customStyles.inputText} placeholderTextColor="#999" />
-            <TextInput onChangeText={(text) => setEmail(text)} value={email} placeholder="Enter your Email" style={customStyles.inputText} placeholderTextColor="#999" />
-            <TextInput onChangeText={(text) => setPassword(text)} value={password} placeholder="Enter your Pasword" style={customStyles.inputText} placeholderTextColor="#999" secureTextEntry />
+    <SafeAreaView style={styles.container}>
+            {/* loader */}
+            {showLoader && (
+                <ActivityIndicator style={styles.loader} size={65} color="#FFFFFF" />
+            )}
+            <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+                <View style={styles.content}>
+                    <View>
+                        <Image source={require("../../assets/logo.jpg")} style={styles.logo} />
+                    </View>
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            onChangeText={(text) => setUsername(text)}
+                            value={username}
+                            placeholder="Enter your username"
+                            style={customStyles.inputText}
+                            placeholderTextColor="#999"
+                        />
+                        <TextInput
+                            onChangeText={(text) => setFullName(text)}
+                            value={fullName}
+                            placeholder="Enter your fullName"
+                            style={customStyles.inputText}
+                            placeholderTextColor="#999"
+                        />
+                        <TextInput
+                            onChangeText={(text) => setEmail(text)}
+                            value={email}
+                            placeholder="Enter your Email"
+                            style={customStyles.inputText}
+                            placeholderTextColor="#999"
+                        />
+                        <TextInput
+                            onChangeText={(text) => setPassword(text)}
+                            value={password}
+                            placeholder="Enter your Password"
+                            style={customStyles.inputText}
+                            placeholderTextColor="#999"
+                            secureTextEntry
+                        />
 
-            <View style={{ width: "90%", flexDirection: "column", alignItems: "center", }}>
-              <TouchableOpacity onPress={() => pickImage("avatar")} style={customStyles.imageButton} >
-                <Text style={{ textAlign: "center", fontSize: 15, fontWeight: "bold", color: "#777", }}>Pick avatar image</Text>
-              </TouchableOpacity>
-              {avatarImage && (
-                <Image source={{ uri: avatarImage }} style={{ width: 200, height: 200, marginTop: 20, borderWidth: 1, borderColor: "white", borderRadius: 100, }} />
-              )}
-            </View>
+                        <View style={styles.imageButtonContainer}>
+                            <TouchableOpacity onPress={() => pickImage("avatar")} style={customStyles.imageButton}>
+                                <Text style={styles.buttonText}>Pick avatar image</Text>
+                            </TouchableOpacity>
+                            {avatarImage && (
+                                <Image source={{ uri: avatarImage }} style={styles.avatarImage} />
+                            )}
+                        </View>
 
-            <View style={{ width: "90%", flexDirection: "column", alignItems: "center", }}>
-              <TouchableOpacity onPress={() => pickImage("coverImage")} style={customStyles.imageButton}>
-                <Text style={{ textAlign: "center", fontSize: 15, fontWeight: "bold", color: "#888", }}> Pick avatar image</Text>
-              </TouchableOpacity>
+                        <View style={styles.imageButtonContainer}>
+                            <TouchableOpacity onPress={() => pickImage("coverImage")} style={customStyles.imageButton}>
+                                <Text style={styles.buttonText}>Pick cover image</Text>
+                            </TouchableOpacity>
+                            {coverImage && (
+                                <Image source={{ uri: coverImage }} style={styles.coverImage} />
+                            )}
+                        </View>
 
-              {coverImage && (
-                <Image source={{ uri: coverImage }} style={{ width: 300, height: 200, marginTop: 20, borderWidth: 1, borderColor: "white", }} />
-              )}
-            </View>
+                        <TouchableOpacity onPress={registerHandler} style={customStyles.colorFullButton}>
+                            <Text style={styles.buttonText}>Sign Up</Text>
+                        </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => registerHandler()} style={customStyles.colorFullButton} >
-              <Text style={{ textAlign: "center", fontSize: 15, fontWeight: "bold", }}>Sign Up</Text>
-            </TouchableOpacity>
-
-            <Pressable onPress={() => navigation.navigate("Login")}>
-              <Text style={{ color: "white", fontSize: 16 }}>
-                If You have a account{" "}
-                <Text style={{ color: "#3573E4", fontSize: 16 }}>Login</Text>
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+                        <Pressable onPress={() => navigation.navigate("Login")}>
+                            <Text style={styles.loginText}>
+                                If you have an account,{" "}
+                                <Text style={styles.loginLink}>Login</Text>
+                            </Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </ScrollView>
+        </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "#121212",
+      paddingHorizontal: 20,
+      paddingTop: 30,
+  },
+  loader: {
+      position: "absolute",
+      width: "100%",
+      height: "100%",
+      backgroundColor: "#00000084",
+      zIndex: 99,
+  },
+  scrollView: {
+      width: "100%",
+  },
+  content: {
+      flexDirection: "column",
+      alignItems: "center",
+  },
+  logo: {
+      width: 150,
+      height: 150,
+      marginBottom: 20,
+  },
+  inputContainer: {
+      flexDirection: "column",
+      gap: 10,
+      alignItems: "center",
+      width: "100%",
+  },
+  imageButtonContainer: {
+      width: "90%",
+      flexDirection: "column",
+      alignItems: "center",
+      marginBottom: 20,
+  },
+  avatarImage: {
+      width: 200,
+      height: 200,
+      marginTop: 10,
+      borderWidth: 1,
+      borderColor: "white",
+      borderRadius: 100,
+  },
+  coverImage: {
+      width: 300,
+      height: 200,
+      marginTop: 10,
+      borderWidth: 1,
+      borderColor: "white",
+  },
+  buttonText: {
+      textAlign: "center",
+      fontSize: 15,
+      fontWeight: "bold",
+      color: "#777",
+  },
+  loginText: {
+      color: "white",
+      fontSize: 16,
+      marginTop: 20,
+  },
+  loginLink: {
+      color: "#3573E4",
+      fontSize: 16,
+  },
+});
 
 export default RegisterScreen;

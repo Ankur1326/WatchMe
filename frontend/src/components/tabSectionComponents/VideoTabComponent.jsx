@@ -1,4 +1,4 @@
-import { Alert, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, ActivityIndicator } from 'react-native'
+import { Alert, FlatList, Image, Pressable, StyleSheet, Text, TouchableOpacity, View, Modal, ActivityIndicator } from 'react-native'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
@@ -11,7 +11,7 @@ import { Entypo } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import PopupMessage from '../PopupMessage';
 import { deleteVideoHandler, getAllAnoterChannelVideosHandler, getAllVideosHandler, togglePublishStatusHander } from '../../actions/video.actions';
-import CustomConfirmationDialog from '../../Modal/CustomConfirmationDialog';
+import CustomDeleteDialog from '../../Modal/CustomDeleteDialog';
 import VideoUpload from '../../Modal/VideoUpload';
 import EditVideo from '../../Modal/EditVideo';
 import { UserType } from '../../context/UserContext';
@@ -133,148 +133,109 @@ const VideoTabComponent = ({ route }) => {
     }
 
     return (
-        <View style={{ flex: 1 }} >
-
+        <View style={styles.container}>
             {showLoader && (
-                <ActivityIndicator style={{ position: "absolute", width: "100%", height: "100%", backgroundColor: "#00000084", zIndex: 99, }} size={65} color="#FFFFFF" />
+                <ActivityIndicator style={styles.absoluteFill} size={65} color="#FFFFFF" />
             )}
 
-            {/* success or faliure popup message  */}
             <PopupMessage isSuccess={isSuccess} title={isSuccess ? "Video delete successfully" : "Video is not being deleted"} isVisible={isPopupMessageShow} setVisible={setPopupMessageShow} />
-            <View style={{ flex: 1, backgroundColor: "#121212", }}>
-                {/* video content  */}
-                <View style={{ flex: 1, paddingHorizontal: 10, paddingVertical: 10 }} >
-                    <FlatList
-                        data={videos}
-                        renderItem={({ item }) => (
-                            <Pressable onPress={() => navigation.push("VideoDetail", { data: item })} style={{ borderBottomWidth: 0.4, borderBottomColor: "gray", paddingBottom: 15 }} >
-                                {/* < */}
-                                <View style={{ flexDirection: 'row', gap: 15, position: 'relative', alignItems: 'flex-start' }}>
-                                    {/* thumbnail */}
-                                    <Image source={{ uri: item?.thumbnail }} style={{ width: 170, height: 110, borderRadius: 6 }} />
 
-                                    {/* video duration */}
-                                    <Text style={{ color: "white", fontSize: 16, fontWeight: 600, position: 'absolute', bottom: 10, left: 110, backgroundColor: "#000000c3", fontWeight: 700, paddingHorizontal: 7, paddingVertical: 1, borderRadius: 5 }} >{(item?.duration / 60)?.toString()?.substring(0, 4)}</Text>
-
-                                    {/* title and date */}
-                                    <View>
-                                        <Text style={{ color: "white", fontSize: 15, fontWeight: 600 }} >
-
-                                            {item?.title.length > 15 ? `${item?.title.slice(0, 15)}...` : item?.title}
-                                        </Text>
-                                        {/* <Text>10k Views</Text> */}
-                                        <Text style={{ color: "#dbdbdb", fontSize: 13, }} >
-                                            {
-                                                formatDistanceToNow(new Date(item?.createdAt), {
-                                                    addSuffix: true,
-                                                })?.toString()
-                                            }
-                                        </Text>
-                                    </View>
-
-                                    {/* dots */}
-                                    <Pressable onPress={() => videoModalVisible(item._id)} style={[
-                                        { borderColor: "white", paddingHorizontal: 7, paddingVertical: 7, borderRadius: 0, borderBottomWidth: 0, position: "absolute", right: 5 },
-                                        item._id == optionsVisible && { backgroundColor: "#333", }
-                                    ]}>
-                                        <MaterialCommunityIcons name="dots-vertical" size={24} color="white" />
-                                    </Pressable>
+            <View style={styles.videoItemContainer}>
+                <FlatList
+                    data={videos}
+                    renderItem={({ item }) => (
+                        <Pressable onPress={() => navigation.push("VideoDetail", { data: item })} style={{ borderBottomWidth: 0.4, borderBottomColor: "gray", paddingVertical: 15 }}>
+                            <View style={{ flexDirection: 'row', gap: 15, position: 'relative', alignItems: 'flex-start' }}>
+                                <Image source={{ uri: item?.thumbnail }} style={styles.thumbnail} />
+                                <Text style={styles.durationText}>{(item?.duration / 60)?.toString()?.substring(0, 4)}</Text>
+                                <View>
+                                    <Text style={styles.videoTitle}>{item?.title.length > 15 ? `${item?.title.slice(0, 15)}...` : item?.title}</Text>
+                                    <Text style={styles.videoDate}>
+                                        {formatDistanceToNow(new Date(item?.createdAt), {
+                                            addSuffix: true,
+                                        })}
+                                    </Text>
                                 </View>
-                                <BottomSlideModal isVisible={isVideoModalVisible} setVisible={setIsVideoModalVisible}>
-                                    {
-                                        userId === user._id ?
-                                            (
-                                                <View style={{ width: "100%" }}>
-                                                    <TouchableOpacity onPress={() => togglePublishStatus()} style={{ width: "100%", borderBottomWidth: 0.5, borderColor: "gray", paddingVertical: 15, flexDirection: 'row', gap: 20, paddingHorizontal: 20, alignItems: 'center' }}>
-                                                        {
-                                                            item.isPublished ?
-                                                                <View style={{ flexDirection: 'row', gap: 15 }}>
-                                                                    {/* <Text style={{ color: "white", fontSize: 20 }} >{item.isPublished}</Text> */}
-                                                                    <MaterialCommunityIcons name="earth-off" size={24} color="white" />
-                                                                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }} >Unpublish</Text>
-                                                                    <Text style={{ fontSize: 12, color: "green", borderWidth: 0.5, borderColor: "green", paddingHorizontal: 10, paddingVertical: 3, borderRadius: 15 }} >Publish</Text>
-                                                                </View>
-                                                                :
-                                                                <View style={{ flexDirection: 'row', gap: 15 }} >
-                                                                    <Fontisto name="world-o" size={24} color="white" />
-                                                                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }} >Publish</Text>
-                                                                    <Text style={{ fontSize: 12, color: "red", borderWidth: 0.5, borderColor: "red", paddingHorizontal: 10, paddingVertical: 3, borderRadius: 15 }} >Unpublish</Text>
-                                                                </View>
-
-                                                        }
-                                                    </TouchableOpacity>
-
-                                                    <TouchableOpacity onPress={() => editVideoHandler()} style={{ backgroundColor: "", width: "100%", borderBottomWidth: 0.5, borderColor: "gray", paddingVertical: 15, flexDirection: 'row', gap: 20, paddingHorizontal: 20, alignItems: 'center' }}>
-                                                        <Feather name="edit" size={24} color="white" />
-                                                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }} >Edit</Text>
-                                                    </TouchableOpacity>
-                                                    <TouchableOpacity onPress={() => {
-                                                        setShowConfirmation(true)
-                                                        setIsVideoModalVisible(false)
-                                                    }} style={{ backgroundColor: "", width: "100%", borderBottomWidth: 0.5, borderColor: "gray", paddingVertical: 15, flexDirection: 'row', gap: 20, paddingHorizontal: 20, alignItems: 'center' }}>
-                                                        <AntDesign name="delete" size={24} color="white" />
-                                                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }} >Delete</Text>
-                                                    </TouchableOpacity>
-
-                                                </View>
-                                            )
-                                            :
-                                            (
-                                                <View style={{ width: "100%", }}>
-                                                    <TouchableOpacity style={{ backgroundColor: "", width: "100%", borderBottomWidth: 0.5, borderColor: "gray", paddingVertical: 15, flexDirection: 'row', gap: 20, paddingHorizontal: 20, alignItems: 'center' }}>
-                                                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }} >Add Buttons over here ...</Text>
-                                                    </TouchableOpacity>
-                                                </View>
-                                            )
-                                    }
-
-                                </BottomSlideModal>
-
-
-                                {/* Conformation Dialog */}
-                                <CustomConfirmationDialog
-                                    showConfirmation={showConfirmation}
-                                    title="Delete Video"
-                                    message="Are you sure you want to delete this Video"
-                                    onCancel={() => {
-                                        setShowConfirmation(false)
-                                    }} // Close the confirmation dialog if Cancel is pressed
-                                    onConfirm={() => {
-                                        conformDeleteVideo(), // videoId
-                                            setShowConfirmation(false)
-                                    }}
-                                />
-
-                            </Pressable>
-                        )}
-                        keyExtractor={item => item._id}
-                        ListEmptyComponent={() => (
-                            // Empty video page
-                            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', borderWidth: 1, marginTop: 30, gap: 15, paddingHorizontal: 20 }} >
-                                <View style={{ backgroundColor: "#E4D3FF", paddingVertical: 15, paddingHorizontal: 15, borderRadius: 50, }} >
-                                    <Ionicons name="play-outline" size={28} color="#AE7AFF" />
-                                </View>
-
-                                <Text style={{ fontSize: 20, color: "white", fontWeight: 600 }} >No videos uploaded</Text>
-                                <Text style={{ fontSize: 16, color: "white", textAlign: 'center' }} >This page has yet to upload a video. Search another page in order to find more videos.</Text>
-
-                                <TouchableOpacity onPress={() => showModal()} style={{ backgroundColor: "#AE7AFF", paddingVertical: 10, flexDirection: 'row', gap: 4, paddingLeft: 10, paddingRight: 13 }} >
-                                    <Feather name="plus" size={24} color="black" />
-                                    <Text style={{ fontSize: 16 }} >New Video</Text>
-                                </TouchableOpacity>
+                                <Pressable onPress={() => videoModalVisible(item._id)} style={[styles.dotsButton, item._id == optionsVisible && { backgroundColor: "#333" }]}>
+                                    <MaterialCommunityIcons name="dots-vertical" size={24} color="white" />
+                                </Pressable>
                             </View>
-                        )}
-                    />
-                </View>
 
-                {/* add btn  */}
-                {
-                    userId === user._id &&
-                    <TouchableOpacity onPress={() => setModalVisible(true)} style={{ backgroundColor: "#E4D3FF", paddingHorizontal: 10, paddingVertical: 8, position: 'absolute', bottom: 20, right: 20, zIndex: 99, borderRadius: 50 }}>
+                            <BottomSlideModal isVisible={isVideoModalVisible} setVisible={setIsVideoModalVisible}>
+                                {userId === user._id ? (
+                                    <View style={styles.confirmationDialogContainer}>
+                                        <TouchableOpacity onPress={() => togglePublishStatus()} style={styles.confirmationButton}>
+                                            {item.isPublished ? (
+                                                <View style={{ flexDirection: 'row', gap: 15 }}>
+                                                    <MaterialCommunityIcons name="earth-off" size={24} color="white" />
+                                                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }}>Unpublish</Text>
+                                                    <Text style={{ fontSize: 12, color: "green", borderWidth: 0.5, borderColor: "green", paddingHorizontal: 10, paddingVertical: 3, borderRadius: 15 }}>Publish</Text>
+                                                </View>
+                                            ) : (
+                                                <View style={{ flexDirection: 'row', gap: 15 }}>
+                                                    <Fontisto name="world-o" size={24} color="white" />
+                                                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }}>Publish</Text>
+                                                    <Text style={{ fontSize: 12, color: "red", borderWidth: 0.5, borderColor: "red", paddingHorizontal: 10, paddingVertical: 3, borderRadius: 15 }}>Unpublish</Text>
+                                                </View>
+                                            )}
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity onPress={() => editVideoHandler()} style={styles.confirmationButton}>
+                                            <Feather name="edit" size={24} color="white" />
+                                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }}>Edit</Text>
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity onPress={() => {
+                                            setShowConfirmation(true);
+                                            setIsVideoModalVisible(false);
+                                        }} style={styles.confirmationButton}>
+                                            <AntDesign name="delete" size={24} color="white" />
+                                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }}>Delete</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                ) : (
+                                    <View style={styles.confirmationDialogContainer}>
+                                        <TouchableOpacity style={styles.confirmationButton}>
+                                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }}>Add Buttons over here ...</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                )}
+                            </BottomSlideModal>
+
+                            <CustomDeleteDialog
+                                showConfirmation={showConfirmation}
+                                title="Delete Video"
+                                message="Are you sure you want to delete this Video"
+                                onCancel={() => {
+                                    setShowConfirmation(false);
+                                }}
+                                onConfirm={() => {
+                                    conformDeleteVideo();
+                                    setShowConfirmation(false);
+                                }}
+                            />
+                        </Pressable>
+                    )}
+                    keyExtractor={item => item._id}
+                    ListEmptyComponent={() => (
+                        <View style={styles.emptyListComponent}>
+                            <View style={{ backgroundColor: "#E4D3FF", paddingVertical: 15, paddingHorizontal: 15, borderRadius: 50 }}>
+                                <Ionicons name="play-outline" size={28} color="#AE7AFF" />
+                            </View>
+                            <Text style={{ fontSize: 20, color: "white", fontWeight: 600 }}>No videos uploaded</Text>
+                            <Text style={{ fontSize: 16, color: "white", textAlign: 'center' }}>This page has yet to upload a video. Search another page in order to find more videos.</Text>
+                            <TouchableOpacity onPress={() => showModal()} style={styles.emptyVideoButton}>
+                                <Feather name="plus" size={24} color="black" />
+                                <Text style={{ fontSize: 16 }}>New Video</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                />
+                {userId === user._id && (
+                    <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addVideoButton}>
                         <FontAwesome6 name="add" size={28} color="#AE7AFF" />
                     </TouchableOpacity>
-                }
-
+                )}
                 <VideoUpload isVisible={isModalVisible} setVisible={setModalVisible} getAllVideos={handleGetAllVideos} />
                 <EditVideo isVisible={editVideoModalVisible} videoId={videoId} onClose={onClose} getAllVideos={handleGetAllVideos} />
             </View>
@@ -282,6 +243,99 @@ const VideoTabComponent = ({ route }) => {
     )
 }
 
-export default VideoTabComponent
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    absoluteFill: {
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        backgroundColor: "#00000084",
+        zIndex: 99,
+    },
+    popupMessageContainer: {
+        flex: 1,
+        backgroundColor: "#121212",
+    },
+    videoItemContainer: {
+        backgroundColor: "#121212",
+        flex: 1,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+    },
+    thumbnail: {
+        width: 170,
+        height: 110,
+        borderRadius: 6,
+    },
+    durationText: {
+        color: "white",
+        fontSize: 16,
+        fontWeight: "bold",
+        position: 'absolute',
+        bottom: 10,
+        left: 110,
+        backgroundColor: "#000000c3",
+        paddingHorizontal: 7,
+        paddingVertical: 1,
+        borderRadius: 5,
+    },
+    videoTitle: {
+        color: "white",
+        fontSize: 15,
+        fontWeight: "bold",
+    },
+    videoDate: {
+        color: "#dbdbdb",
+        fontSize: 13,
+    },
+    dotsButton: {
+        paddingHorizontal: 7,
+        paddingVertical: 7,
+        position: "absolute",
+        right: 5,
+    },
+    confirmationDialogContainer: {
+        width: "100%",
+    },
+    confirmationButton: {
+        width: "100%",
+        borderBottomWidth: 0.5,
+        borderColor: "gray",
+        paddingVertical: 15,
+        flexDirection: 'row',
+        gap: 20,
+        paddingHorizontal: 20,
+        alignItems: 'center',
+    },
+    addVideoButton: {
+        backgroundColor: "#E4D3FF",
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        position: 'absolute',
+        bottom: 20,
+        right: 20,
+        zIndex: 99,
+        borderRadius: 50,
+    },
+    emptyListComponent: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        marginTop: 30,
+        gap: 15,
+        paddingHorizontal: 20,
+    },
+    emptyVideoButton: {
+        backgroundColor: "#AE7AFF",
+        paddingVertical: 10,
+        flexDirection: 'row',
+        gap: 4,
+        paddingLeft: 10,
+        paddingRight: 13,
+    },
+});
 
-const styles = StyleSheet.create({})
+export default VideoTabComponent

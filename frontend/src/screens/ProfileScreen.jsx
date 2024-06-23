@@ -1,5 +1,5 @@
 import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -18,13 +18,16 @@ import { useTheme } from 'expo-theme-switcher';
 import { UserType } from '../context/UserContext.js';
 
 const Tab = createMaterialTopTabNavigator();
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = ({ navigation, route }) => {
     const { currentTheme } = useTheme()
     const scrollRef = useRef(null)
     const [user, setUser] = useContext(UserType);
     const [selectedSection, setSelectedSection] = useState("Videos")
     const [userchannelProfile, setUserChannelProfile] = useState({})
     const [isModalVisible, setModalVisible] = useState(false);
+
+    let isOwner = route.params?.isOwner || (user.username === route?.params?.channel?.username) || false
+    console.log("isOwner :::::: ", isOwner);
 
     const sections = [
         {
@@ -80,58 +83,54 @@ const ProfileScreen = ({ navigation }) => {
         setModalVisible(false)
     }
 
-    return (
-        <SafeAreaView style={{ backgroundColor: "#000", flex: 1, position: 'relative' }}>
-            <ScrollView ref={scrollRef} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} >
+    // Determine if the logged-in user is viewing their own profile
+    // const isOwner = user.username === userchannelProfile.username;
 
+
+    return (
+        <SafeAreaView style={[styles.safeArea, { backgroundColor: "#000" }]}>
+            <ScrollView ref={scrollRef} contentContainerStyle={styles.scrollView} showsVerticalScrollIndicator={false}>
                 {/* Header */}
                 <HeaderComponent />
 
-                <View style={{}}>
-
-                    {/* coverImage */}
-                    <View>
-                        <Image source={{ uri: userchannelProfile.coverImage }} style={{ width: "100%", height: 85, resizeMode: "cover" }} />
+                <View style={styles.profileContainer}>
+                    {/* Cover Image */}
+                    <View style={styles.coverImageContainer}>
+                        <Image source={{ uri: userchannelProfile.coverImage }} style={styles.coverImage} />
                     </View>
 
-                    <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, gap: 5, paddingBottom: 12 }} >
-                        <Image source={{ uri: userchannelProfile?.avatar }} style={{ width: 100, height: 100, resizeMode: "cover", borderRadius: 55, borderWidth: 2, borderColor: "white", position: 'absolute', top: -30, left: 10 }} />
-                        <View style={{ paddingLeft: 110, paddingVertical: 10 }}>
-                            <Text style={{ color: "white", fontSize: 17 }} >{userchannelProfile.fullName}</Text>
-                            <Text style={{ color: "#999", fontSize: 13 }} >@{userchannelProfile.username}</Text>
+                    {/* Profile Info */}
+                    <View style={styles.profileInfoContainer}>
+                        <Image source={{ uri: userchannelProfile.avatar }} style={styles.avatar} />
+                        <View style={styles.profileTextContainer}>
+                            <Text style={styles.fullName}>{userchannelProfile.fullName}</Text>
+                            <Text style={styles.username}>@{userchannelProfile.username}</Text>
                         </View>
 
-                        {/* Edit btn  */}
-                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: "#AE7AFF", paddingHorizontal: 15, paddingVertical: 10, }}>
-                            <Feather name="edit-2" size={17} color="black" style={{ fontWeight: "bold" }} />
-                            <Text style={{ fontSize: 15, fontWeight: "bold" }} >Edit</Text>
+                        {/* Edit Button */}
+                        <TouchableOpacity style={styles.editButton}>
+                            <Feather name="edit-2" size={17} color="black" style={styles.editIcon} />
+                            <Text style={styles.editText}>Edit</Text>
                         </TouchableOpacity>
-                        <Text style={{ color: "#999", fontSize: 13, position: 'absolute', bottom: -2, right: 70 }} >{userchannelProfile.subscribersCount} subscribers . {userchannelProfile.channelSubscribedToCount} Subscribed</Text>
-                    </View>
 
+                        {/* Subscriber Info */}
+                        <Text style={styles.subscriberInfo}>{userchannelProfile.subscribersCount} subscribers • {userchannelProfile.channelSubscribedToCount} Subscribed</Text>
+                    </View>
                 </View>
-                <View style={{ flex: 1, position: 'relative' }}>
+
+                {/* Tab Navigator */}
+                <View style={styles.tabNavigatorContainer}>
                     <Tab.Navigator
                         tabBarOptions={{
-                            labelStyle: {
-                                // fontSize: 10.5,
-                                fontWeight: 'bold',
-                                color: "white"
-                            },
-                            style: {
-                                backgroundColor: ({ focused }) => focused ? "yellow" : "black",
-                                // position: "absolute"
-                            },
-                            indicatorStyle: {
-                                backgroundColor: '#AE7AFF', // Set the indicator color
-                                height: 1.5,
-                            },
+                            labelStyle: styles.tabLabel,
+                            style: styles.tabBar,
+                            indicatorStyle: styles.tabIndicator,
                         }}
                     >
                         {sections.map((section) => (
                             <Tab.Screen key={section.id} name={section.name} component={section.component} options={{
-                                tabBarLabel: ({ focused, }) => (
-                                    <Text style={{ fontSize: 12, fontWeight: "bold", color: focused ? "#AE7AFF" : currentTheme?.primaryTextColor, marginBottom: 4 }}>
+                                tabBarLabel: ({ focused }) => (
+                                    <Text style={[styles.tabLabelText, { color: focused ? "#AE7AFF" : currentTheme.primaryTextColor }]}>
                                         {section.name}
                                     </Text>
                                 )
@@ -139,13 +138,110 @@ const ProfileScreen = ({ navigation }) => {
                         ))}
                     </Tab.Navigator>
                 </View>
-
-
             </ScrollView>
-            <VideoUpload isVisible={isModalVisible} onClose={closeModal} />
 
+            {/* Video Upload Modal */}
+            <VideoUpload isVisible={isModalVisible} onClose={closeModal} />
         </SafeAreaView>
     )
 }
+
+const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        position: 'relative',
+    },
+    scrollView: {
+        flexGrow: 1,
+    },
+    profileContainer: {
+        paddingTop: 10,
+    },
+    coverImageContainer: {
+        marginBottom: 12,
+    },
+    coverImage: {
+        width: "100%",
+        height: 85,
+        resizeMode: "cover",
+    },
+    profileInfoContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        paddingHorizontal: 20,
+        paddingBottom: 12,
+        gap: 5,
+    },
+    avatar: {
+        width: 100,
+        height: 100,
+        resizeMode: "cover",
+        borderRadius: 55,
+        borderWidth: 2,
+        borderColor: "white",
+        position: 'absolute',
+        top: -50,
+        left: 10,
+    },
+    profileTextContainer: {
+        paddingLeft: 110,
+        paddingVertical: 10,
+    },
+    fullName: {
+        color: "white",
+        fontSize: 17,
+        fontWeight: 'bold',
+    },
+    username: {
+        color: "#999",
+        fontSize: 13,
+    },
+    editButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        backgroundColor: "#AE7AFF",
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        borderRadius: 20,
+    },
+    editIcon: {
+        fontWeight: "bold",
+    },
+    editText: {
+        fontSize: 15,
+        fontWeight: "bold",
+    },
+    subscriberInfo: {
+        color: "#999",
+        fontSize: 13,
+        position: 'absolute',
+        bottom: -2,
+        right: 70,
+    },
+    tabNavigatorContainer: {
+        flex: 1,
+        position: 'relative',
+    },
+    tabLabel: {
+        fontWeight: 'bold',
+        color: "white",
+        fontSize: 12,
+    },
+    tabBar: {
+        backgroundColor: "black",
+    },
+    tabIndicator: {
+        backgroundColor: '#AE7AFF',
+        height: 1.5,
+    },
+    tabLabelText: {
+        fontSize: 12,
+        fontWeight: "bold",
+        marginBottom: 4,
+    },
+});
+
 
 export default ProfileScreen

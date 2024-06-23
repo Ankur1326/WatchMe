@@ -6,7 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 import { PanGestureHandler } from "react-native-gesture-handler";
 import { useState } from "react";
-import CustomConfirmationDialog from "../Modal/CustomConfirmationDialog";
+import CustomConfirmationDialog from "../Modal/CustomDeleteDialog";
 import { useSelector } from "react-redux";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)

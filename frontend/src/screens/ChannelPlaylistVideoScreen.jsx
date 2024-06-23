@@ -1,4 +1,4 @@
-import { View, Image, Pressable, Text } from "react-native";
+import { View, Image, Pressable, Text, StyleSheet } from "react-native";
 import { useRef, useState } from "react";
 import { useTheme } from 'expo-theme-switcher';
 import HeaderComponent from "../components/HeaderComponent.jsx";
@@ -18,53 +18,136 @@ const ChannelPlaylistVideoScreen = ({ route }) => {
         const playlistId = data._id
         try {
             await axiosInstance.delete(`playlist/${playlistId}` / `${videoId}`)
-        } catch (error) {  
+        } catch (error) {
             console.log("Error while deleting playlist: ", error);
         } finally {
         }
     };
 
     return (
-        <View style={{ flex: 1, backgroundColor: currentTheme.secondaryBackgroundColor, }} >
+        <View style={[styles.container, { backgroundColor: currentTheme.secondaryBackgroundColor }]}>
             <HeaderComponent />
-            <ScrollView style={{ paddingHorizontal: 5, backgroundColor: currentTheme.primaryBackgroundColor }} ref={scrollViewRef}>
-
-                <Pressable onPress={() => { }} style={{ width: "100%", alignItems: 'center', marginTop: 10 }}>
-                    <View style={{ width: "82%", height: 10, marginBottom: 5, backgroundColor: "#a992ad", borderTopLeftRadius: 25, borderTopRightRadius: 25, }} ></View>
-
-                    <View style={{ position: 'relative', alignItems: 'center', height: 200, width: "90%", overflow: 'hidden', borderRadius: 20, }} >
-                        <Image source={{ uri: data?.videos[0].thumbnail }} style={{ height: "100%", width: "100%" }} />
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingHorizontal: 12, paddingVertical: 15, width: "100%", height: 60, position: 'absolute', backgroundColor: "#aeaeaeca", bottom: 0, borderTopWidth: 1, borderTopColor: "white" }}>
+            <ScrollView style={[styles.scrollView, { backgroundColor: currentTheme.primaryBackgroundColor }]} ref={scrollViewRef}>
+                <Pressable onPress={() => { }} style={styles.mainPressable}>
+                    <View style={styles.topBar}></View>
+                    <View style={styles.imageContainer}>
+                        <Image source={{ uri: data?.videos[0].thumbnail }} style={styles.image} />
+                        <View style={styles.overlay}>
                             <View>
-                                {/* playlist name */}
-                                <Text style={{ color: "white", fontSize: 16, fontWeight: "700" }} >{data?.name}</Text>
-                                <Text style={{ color: "white", fontSize: 12, }} >100K View . 2 hours age</Text>
+                                <Text style={styles.playlistName}>{data?.name}</Text>
+                                <Text style={styles.playlistDetails}>100K View . 2 hours ago</Text>
                             </View>
-                            <Text style={{ color: "white", fontSize: 14, fontWeight: "600" }} >{data?.videosLength} Videos</Text>
+                            <Text style={styles.videoCount}>{data?.videosLength} Videos</Text>
                         </View>
                     </View>
                 </Pressable>
 
-                {/* channel  */}
-                <Pressable onPress={() => navigation.navigate("Channel")} style={{ flexDirection: 'row', gap: 12, alignItems: 'center', paddingVertical: 10, marginBottom: 15, marginLeft: 25 }} >
+                <Pressable onPress={() => navigation.navigate("Channel")} style={styles.channelPressable}>
                     <View>
-                        <Image source={{ uri: data?.channel[0]?.avatar }} style={{ width: 50, height: 50, borderRadius: 25 }} />
+                        <Image source={{ uri: data?.channel[0]?.avatar }} style={styles.channelAvatar} />
                     </View>
                     <View>
-                        <Text style={{ color: "white", fontSize: 18 }}>{data?.channel[0]?.username}</Text>
-                        <Text style={{ color: "#9e9e9e", }}>{data?.channel[0]?.subscribersCount} Subscribers</Text>
+                        <Text style={styles.channelUsername}>{data?.channel[0]?.username}</Text>
+                        <Text style={styles.channelSubscribers}>{data?.channel[0]?.subscribersCount} Subscribers</Text>
                     </View>
                 </Pressable>
 
-                <View style={{ flexDirection: 'column', gap: 25, position: 'relative' }}>
+                <View style={styles.videoList}>
                     {data.videos.map((item) => (
-                        <VideoComponent item={item} scrollViewRef={scrollViewRef} conformDeleteVideo={conformDeleteVideo} />
+                        <VideoComponent key={item.id} item={item} scrollViewRef={scrollViewRef} conformDeleteVideo={conformDeleteVideo} />
                     ))}
                 </View>
-
             </ScrollView>
         </View>
     )
 }
+
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    scrollView: {
+        paddingHorizontal: 5,
+    },
+    mainPressable: {
+        width: "100%",
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    topBar: {
+        width: "82%",
+        height: 10,
+        marginBottom: 5,
+        backgroundColor: "#a992ad",
+        borderTopLeftRadius: 25,
+        borderTopRightRadius: 25,
+    },
+    imageContainer: {
+        position: 'relative',
+        alignItems: 'center',
+        height: 200,
+        width: "90%",
+        overflow: 'hidden',
+        borderRadius: 20,
+    },
+    image: {
+        height: "100%",
+        width: "100%",
+    },
+    overlay: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        paddingHorizontal: 12,
+        paddingVertical: 15,
+        width: "100%",
+        height: 60,
+        position: 'absolute',
+        backgroundColor: "#aeaeaeca",
+        bottom: 0,
+        borderTopWidth: 1,
+        borderTopColor: "white",
+    },
+    playlistName: {
+        color: "white",
+        fontSize: 16,
+        fontWeight: "700",
+    },
+    playlistDetails: {
+        color: "white",
+        fontSize: 12,
+    },
+    videoCount: {
+        color: "white",
+        fontSize: 14,
+        fontWeight: "600",
+    },
+    channelPressable: {
+        flexDirection: 'row',
+        gap: 12,
+        alignItems: 'center',
+        paddingVertical: 10,
+        marginBottom: 15,
+        marginLeft: 25,
+    },
+    channelAvatar: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+    },
+    channelUsername: {
+        color: "white",
+        fontSize: 18,
+    },
+    channelSubscribers: {
+        color: "#9e9e9e",
+    },
+    videoList: {
+        flexDirection: 'column',
+        gap: 25,
+        position: 'relative',
+    },
+});
 
 export default ChannelPlaylistVideoScreen

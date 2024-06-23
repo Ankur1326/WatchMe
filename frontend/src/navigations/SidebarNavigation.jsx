@@ -1,4 +1,4 @@
-import { Image, Pressable, Text, TouchableOpacity, View } from 'react-native'
+import { Image, Pressable, Text, TouchableOpacity, View, StyleSheet } from 'react-native'
 import React from 'react'
 import { MaterialIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
@@ -15,7 +15,7 @@ const SidebarNavigation = ({ navigation }) => {
   const { currentTheme } = useTheme()
   // const navigation = useNavigation()
 
-  const logoutHandleer = async () => {
+  const logoutHandler = async () => {
     try {
       // Retrieve the token from AsyncStorage
       const accessToken = await AsyncStorage.getItem("accessToken")
@@ -38,51 +38,124 @@ const SidebarNavigation = ({ navigation }) => {
   }
 
   return (
-    <View style={{ backgroundColor: currentTheme.primaryBackgroundColor, flex: 1 }} >
-      {/* header  */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 9, borderBottomWidth: 1.5, borderBottomColor: currentTheme.primaryBorderColor }} >
-        {/* Logo  */}
-        <Image style={{ width: 40, height: 40 }} source={require("../../assets/logo.jpg")} />
-        <Pressable>
-          <MaterialIcons onPress={() => navigation.closeDrawer()} name="highlight-remove" size={30} color={currentTheme?.primaryTextColor} />
+    <View style={[styles.container, { backgroundColor: currentTheme.primaryBackgroundColor }]}>
+      {/* Header */}
+      <View style={[styles.header, { borderBottomColor: currentTheme.primaryBorderColor }]}>
+        {/* Logo */}
+        <Image style={styles.logo} source={require("../../assets/logo.jpg")} />
+        <Pressable onPress={() => navigation.closeDrawer()}>
+          <MaterialIcons name="highlight-remove" size={30} color={currentTheme.primaryTextColor} />
         </Pressable>
       </View>
 
-      <View style={{ flexDirection: "column", gap: 10, marginTop: 16 }}>
-        <Pressable onPress={() => navigation.navigate("AdminDashboardScreen")} style={{ borderWidth: 0.4, borderColor: currentTheme?.primaryBorderColor, marginHorizontal: 16, paddingVertical: 8, paddingHorizontal: 10, flexDirection: "row", alignItems: 'center', gap: 13 }} >
-          <AntDesign name="dashboard" size={22} color={currentTheme.primaryTextColor} />
-          <Text style={{ color: currentTheme.primaryTextColor, fontSize: 15 }} >Dashboard</Text>
-        </Pressable>
-        <Pressable style={{ borderWidth: 0.4, borderColor: currentTheme?.primaryBorderColor, marginHorizontal: 16, paddingVertical: 8, paddingHorizontal: 10, flexDirection: "row", alignItems: 'center', gap: 13 }} >
-          <AntDesign name="like2" size={22} color={currentTheme.primaryTextColor} />
-          <Text style={{ color: currentTheme.primaryTextColor, fontSize: 15 }} >Liked Video</Text>
-        </Pressable>
-        <Pressable style={{ borderWidth: 0.4, borderColor: currentTheme?.primaryBorderColor, marginHorizontal: 16, paddingVertical: 8, paddingHorizontal: 10, flexDirection: "row", alignItems: 'center', gap: 13 }} >
-          <Feather name="video" size={22} color={currentTheme.primaryTextColor} />
-          <Text style={{ color: currentTheme.primaryTextColor, fontSize: 15 }} >My Content</Text>
-        </Pressable>
-        <Pressable style={{ borderWidth: 0.4, borderColor: currentTheme?.primaryBorderColor, marginHorizontal: 16, paddingVertical: 8, paddingHorizontal: 10, flexDirection: "row", alignItems: 'center', gap: 13 }} >
-          <AntDesign name="questioncircleo" size={22} color={currentTheme.primaryTextColor} />
-          <Text style={{ color: currentTheme.primaryTextColor, fontSize: 15 }} >Support</Text>
-        </Pressable>
-        <Pressable style={{ borderWidth: 0.4, borderColor: currentTheme?.primaryBorderColor, marginHorizontal: 16, paddingVertical: 8, paddingHorizontal: 10, flexDirection: "row", alignItems: 'center', gap: 13 }} >
-          <Ionicons name="settings-outline" size={22} color={currentTheme.primaryTextColor} />
-          <Text style={{ color: currentTheme.primaryTextColor, fontSize: 15 }} >Setting</Text>
-        </Pressable>
-
-        {/* <ToggleDarkModeTheme /> */}
-        {/* <View style={{ paddingHorizontal: 20, borderWidth: 1, borderColor: "yellow" }}> */}
-          <ThemeSwitcherBtn  />
-        {/* </View> */}
+      <View style={styles.menu}>
+        <MenuItem
+          onPress={() => navigation.navigate("AdminDashboardScreen")}
+          icon={<AntDesign name="dashboard" size={22} color={currentTheme.primaryTextColor} />}
+          text="Dashboard"
+          textColor={currentTheme.primaryTextColor}
+        />
+        <MenuItem
+          icon={<AntDesign name="like2" size={22} color={currentTheme.primaryTextColor} />}
+          text="Liked Video"
+          textColor={currentTheme.primaryTextColor}
+        />
+        <MenuItem
+          icon={<Feather name="video" size={22} color={currentTheme.primaryTextColor} />}
+          text="My Content"
+          textColor={currentTheme.primaryTextColor}
+        />
+        <MenuItem
+          icon={<AntDesign name="questioncircleo" size={22} color={currentTheme.primaryTextColor} />}
+          text="Support"
+          textColor={currentTheme.primaryTextColor}
+        />
+        <MenuItem
+          icon={<Ionicons name="settings-outline" size={22} color={currentTheme.primaryTextColor} />}
+          text="Setting"
+          textColor={currentTheme.primaryTextColor}
+        />
+        
+        {/* Theme Switcher */}
+        <ThemeSwitcherBtn />
       </View>
 
-      <TouchableOpacity onPress={() => logoutHandleer()} style={{ backgroundColor: currentTheme.secondaryBackgroundColor, marginHorizontal: 16, paddingVertical: 8, paddingHorizontal: 10, flexDirection: "row", alignItems: 'center', gap: 13, position: 'absolute', bottom: 20, width: "90%" }} >
+      <TouchableOpacity 
+        onPress={logoutHandler} 
+        style={[
+          styles.logoutButton, 
+          { backgroundColor: currentTheme.secondaryBackgroundColor }
+        ]}
+      >
         <SimpleLineIcons name="logout" size={22} color="white" />
-        <Text style={{ color: "white", fontSize: 15 }} >LogOut</Text>
+        <Text style={styles.logoutText}>LogOut</Text>
       </TouchableOpacity>
-
     </View>
   )
 }
+
+const MenuItem = ({ onPress, icon, text, textColor }) => (
+  <Pressable onPress={onPress} style={[styles.menuItem, { borderColor: textColor }]}>
+    {icon}
+    <Text style={[styles.menuItemText, { color: textColor }]}>{text}</Text>
+  </Pressable>
+);
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 10,
+    paddingTop: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderBottomWidth: 1.5,
+  },
+  logo: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  menu: {
+    marginTop: 20,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    marginHorizontal: 10,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+  menuItemText: {
+    fontSize: 16,
+    marginLeft: 10,
+    fontWeight: '500',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    marginHorizontal: 10,
+    borderRadius: 10,
+    position: 'absolute',
+    bottom: 20,
+    width: '90%',
+    alignSelf: 'center',
+  },
+  logoutText: {
+    fontSize: 16,
+    marginLeft: 10,
+    fontWeight: '500',
+  },
+});
+
 
 export default SidebarNavigation

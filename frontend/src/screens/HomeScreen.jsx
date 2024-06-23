@@ -1,4 +1,4 @@
-import { View, Image, ScrollView, StatusBar, Pressable, Text, Button, FlatList, ActivityIndicator, TextInput, RefreshControl, Alert } from "react-native";
+import { View, Image, ScrollView, StyleSheet, StatusBar, Pressable, Text, Button, FlatList, ActivityIndicator, TextInput, RefreshControl, Alert } from "react-native";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -6,7 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import axios from "axios";
 import { base_url } from "../helper/helper.js";
 import { formatDistanceToNow } from 'date-fns';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import SkeletonLoader from "../components/SkeletonLoader.jsx";
 import HeaderComponentt from "../components/HeaderComponent.jsx";
@@ -33,6 +33,7 @@ const HomeScreen = () => {
   const [optionsVisible, setOptionsVisible] = useState(null);
   const [isVideoModalVisible, setIsVideoModalVisible] = useState(false)
   const [isPopupMessageShow, setPopupMessageShow] = useState(false)
+  const [error, setError] = useState("")
 
   const isSuccess = useSelector((state) => state.playlists.isSuccess)
   const message = useSelector((state) => state.playlists.message)
@@ -76,7 +77,11 @@ const HomeScreen = () => {
         setUser(response.data.data)
       }
     } catch (error) {
-      console.log("error :: ", error);
+      console.log("error :: ", error.message);
+      if (error.message === "Network Error") {
+        // setError("Oh no❗", error.message)
+        Alert.alert("Oh no❗", error.message)
+      }
     }
   }, [])
 
@@ -86,6 +91,7 @@ const HomeScreen = () => {
 
   const handleGetAllPublishVideos = async (page = 1) => {
     setLoading(true);
+    // setRefreshing(true)
     console.log("currentPage ", currentPage);
     try {
       const response = await axiosInstance.get(`videos/getAll-publish-video/?page=${currentPage}&limit=10`)
@@ -96,6 +102,10 @@ const HomeScreen = () => {
         setVideos((prevVideos) => [...prevVideos, ...data]);
       }
     } catch (error) {
+      if (error.message === "Network Error") {
+        // setError("Oh no❗", error.message)
+        Alert.alert("Oh no❗", error.message)
+      }
     } finally {
       setRefreshing(false);
       setLoading(false)
@@ -126,69 +136,72 @@ const HomeScreen = () => {
   }
 
   const renderEmptyState = () => (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 30, gap: 15, paddingHorizontal: 20, marginTop: "50%" }} >
-      <View style={{ backgroundColor: currentTheme?.primaryBackgroundColor, paddingVertical: 15, paddingHorizontal: 15, borderRadius: 50, }} >
+    // error ?
+    // (
+    // <View style={styles.errorContainer}>
+    //   <View style={[styles.iconContainer, { backgroundColor: currentTheme?.primaryBackgroundColor }]}>
+    //     <MaterialIcons name="error" size={200} color="white" />
+    //   </View>
+    //   <Text style={[styles.errorTitle, { color: currentTheme?.primaryTextColor }]}>Ooops!</Text>
+    //   <Text style={[styles.errorMessage, { color: currentTheme?.primaryTextColor }]}>
+    //     It seems there is something wrong with your internet connection. start again
+    //   </Text>
+    // </View>
+    // ) : (
+    <View style={styles.emptyContainer}>
+      <View style={[styles.iconContainer, { backgroundColor: currentTheme?.primaryBackgroundColor }]}>
         <Ionicons name="play-outline" size={28} color="#AE7AFF" />
       </View>
-
-      <Text style={{ fontSize: 20, color: currentTheme?.primaryTextColor, fontWeight: 600 }} >No videos available</Text>
-      <Text style={{ fontSize: 16, color: currentTheme?.primaryTextColor, textAlign: 'center' }} >There are no videos here available. Please try to search some thing else.</Text>
+      <Text style={[styles.title, { color: currentTheme?.primaryTextColor }]}>No videos available</Text>
+      <Text style={[styles.message, { color: currentTheme?.primaryTextColor }]}>
+        There are no videos here available. Please try to search something else.
+      </Text>
     </View>
+    // )
   );
-
   const renderListItem = ({ item }) => (
-    <Pressable onPress={() => navigation.navigate("VideoDetail", { data: item })} style={{ borderBottomWidth: 1, borderBottomColor: currentTheme?.primaryBorderColor, paddingBottom: 26, }} >
-      <View style={{ flexDirection: 'column', gap: 10, position: 'relative', alignItems: 'flex-start' }}>
-        {/* thumbnail */}
-        <Image source={{ uri: item?.thumbnail }} style={{ width: "100%", height: 210 }} />
+    <Pressable onPress={() => navigation.navigate("VideoDetail", { data: item })} style={[styles.videoItem, { borderBottomColor: currentTheme.primaryBorderColor }]}>
+      <View style={styles.videoContainer}>
+        {/* Thumbnail */}
+        <Image source={{ uri: item.thumbnail }} style={styles.thumbnail} />
 
-        {/* video duration */}
-        <Text style={{ color: "white", fontSize: 16, fontWeight: 600, position: 'absolute', bottom: 60, right: 10, backgroundColor: "#000000c3", fontWeight: 700, paddingHorizontal: 7, paddingVertical: 1, borderRadius: 5 }} >{(item?.duration / 60).toString().substring(0, 4)}</Text>
+        {/* Video Duration */}
+        <Text style={styles.videoDuration}>{(item.duration / 60).toString().substring(0, 4)}</Text>
 
-        {/* title and date */}
-        <View>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginLeft: 5 }}>
-            {/* channel avatar image */}
-            <Image source={{ uri: item.userDetails[0]?.avatar }} style={{ width: 42, height: 42, borderRadius: 25 }} />
+        {/* Title and Date */}
+        <View style={styles.titleContainer}>
+          <View style={styles.titleRow}>
+            {/* Channel Avatar Image */}
+            <Image source={{ uri: item.userDetails[0]?.avatar }} style={styles.avatar} />
             <View>
-              {/* titile */}
-              <Text style={{ color: currentTheme?.primaryTextColor, fontSize: 18, fontWeight: 600 }} >
-                {item?.title}
-              </Text>
-              {/* views and time ago */}
-              <View style={{ flexDirection: "row", alignItems: "center", }}>
-                <Text style={{ color: currentTheme?.secondaryTextColor, fontSize: 13, }}>{item.userDetails[0]?.username} • </Text>
-                <Text style={{ color: currentTheme?.secondaryTextColor, fontSize: 13, }}>{item.views} Views • </Text>
-                <Text style={{ color: currentTheme?.secondaryTextColor, fontSize: 13, }} >
+              {/* Title */}
+              <Text style={[styles.title, { color: currentTheme.primaryTextColor }]}>{item.title}</Text>
+              {/* Views and Time Ago */}
+              <View style={styles.subtitleRow}>
+                <Text style={[styles.subtitle, { color: currentTheme.secondaryTextColor }]}>{item.userDetails[0]?.username} • </Text>
+                <Text style={[styles.subtitle, { color: currentTheme.secondaryTextColor }]}>{item.views} Views • </Text>
+                <Text style={[styles.subtitle, { color: currentTheme.secondaryTextColor }]}>
                   {
                     formatDistanceToNow(new Date(item.createdAt), {
                       addSuffix: true,
-                    }).toString()
+                    })
                   }
                 </Text>
               </View>
-
             </View>
-
-            {/* dots */}
-            <Pressable onPress={() => videoModalVisible(item._id)} style={[
-              { borderColor: "white", paddingHorizontal: 7, paddingVertical: 7, borderRadius: 0, borderBottomWidth: 0, right: -30 },
-              item._id == optionsVisible && { backgroundColor: "#333", }
-            ]}>
-              <MaterialCommunityIcons name="dots-vertical" size={24} color="white" />
-            </Pressable>
-
           </View>
 
+          {/* Dots */}
+          <Pressable onPress={() => videoModalVisible(item._id)} style={[styles.dotsButton, item._id == optionsVisible && styles.dotsButtonActive]}>
+            <MaterialCommunityIcons name="dots-vertical" size={24} color="white" />
+          </Pressable>
         </View>
-
       </View>
-
     </Pressable>
   )
 
   return (
-    <SafeAreaView style={{ backgroundColor: currentTheme?.primaryBackgroundColor, flex: 1 }}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.primaryBackgroundColor }]}>
       <StatusBar barStyle="light-content" />
       <HeaderComponentt />
       <PopupMessage isSuccess={isSuccess} title={message} isVisible={isPopupMessageShow} setVisible={setPopupMessageShow} />
@@ -197,7 +210,7 @@ const HomeScreen = () => {
         data={videos}
         keyExtractor={(item) => item._id.toString()}
         renderItem={renderListItem}
-        ListEmptyComponent={refreshing ? <VideoSkeletonLoader /> : renderEmptyState()}
+        ListEmptyComponent={refreshing ? <View><VideoSkeletonLoader /><VideoSkeletonLoader /><VideoSkeletonLoader /></View> : renderEmptyState()}
         ListFooterComponent={() => loading && <ActivityIndicator size="large" color="#AE7AFF" />}
         onEndReached={loadingMoreVideos}
         onEndReachedThreshold={0.5}
@@ -207,5 +220,113 @@ const HomeScreen = () => {
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingHorizontal: 20,
+    marginTop: 100,
+  },
+  iconContainer: {
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    borderRadius: 50,
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+  },
+  errorMessage: {
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 30,
+    gap: 15,
+    paddingHorizontal: 20,
+    marginTop: '50%',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+  },
+  message: {
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  safeArea: {
+    flex: 1,
+  },
+  videoItem: {
+    borderBottomWidth: 1,
+    paddingBottom: 26,
+    // marginHorizontal: 4,
+    marginVertical: 8,
+  },
+  videoContainer: {
+    flexDirection: 'column',
+    position: 'relative',
+    alignItems: 'flex-start',
+  },
+  thumbnail: {
+    width: '100%',
+    height: 210,
+    borderRadius: 8,
+  },
+  videoDuration: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '700',
+    position: 'absolute',
+    bottom: 60,
+    right: 10,
+    backgroundColor: '#000000c3',
+    paddingHorizontal: 7,
+    paddingVertical: 1,
+    borderRadius: 5,
+  },
+  titleContainer: {
+    marginTop: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    marginRight: 10,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  subtitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  subtitle: {
+    fontSize: 13,
+  },
+  dotsButton: {
+    // paddingHorizontal: 7,
+    paddingVertical: 7,
+    borderRadius: 5,
+    marginLeft: 'auto',
+  },
+  dotsButtonActive: {
+    backgroundColor: '#333',
+  },
+});
 
 export default HomeScreen;

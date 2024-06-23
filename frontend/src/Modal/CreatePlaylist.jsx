@@ -1,8 +1,9 @@
-import { Modal, ScrollView, Text, TextInput, TouchableOpacity, View, Pressable } from 'react-native'
+import { Modal, ScrollView, Text, TextInput, TouchableOpacity, View, Pressable, StyleSheet } from 'react-native'
 import React, { memo, useState } from 'react'
 import { EvilIcons, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { createPlaylist } from '../store/slices/playlistSlice';
+import MiddleSliderModal from './MiddleSliderModal';
 
 const CreatePlaylist = ({ isVisible, setVisible }) => {
     const dispatch = useDispatch()
@@ -31,83 +32,184 @@ const CreatePlaylist = ({ isVisible, setVisible }) => {
     }
 
     return (
-        <View style={{}} >
-            {/* video upload modal  */}
-            <Modal
-                animationType='slide'
-                transparent={true}
-                visible={isVisible}
-                onRequestClose={() => setVisible(false)}
-                style={{}}
-            >
-                <View style={{ height: "80%", marginTop: 45 }} >
-                    <ScrollView showsVerticalScrollIndicator={true} style={{ backgroundColor: "#121212", width: "93%", alignSelf: "center", borderWidth: 1, borderColor: "white", height: "100%", }}>
+        <MiddleSliderModal isVisible={isVisible} setVisible={setVisible} >
+            <View style={styles.modalContent}>
+                <ScrollView contentContainerStyle={styles.scrollView}>
+                    <View style={styles.header}>
+                        <Text style={styles.headerText}>Create New Playlist</Text>
+                        <TouchableOpacity onPress={createNewPlaylistHandler} style={styles.createButton}>
+                            <Text style={styles.createButtonText}>Create</Text>
+                        </TouchableOpacity>
+                    </View>
 
-                        {/* header  */}
-                        <View style={{ borderBottomWidth: 1, borderBottomColor: "white", flexDirection: 'row', alignItems: "center", justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 11 }} >
-                            <Text style={{ fontSize: 15, color: "white" }}>Create New Playlist</Text>
-                            {/* onPress={saveHandler} */}
-                            <TouchableOpacity onPress={() => createNewPlaylistHandler()} style={{ backgroundColor: "#AE7AFF", paddingHorizontal: 7, paddingVertical: 4 }}>
-                                <Text style={{ fontWeight: 600, paddingHorizontal: 7, paddingVertical: 3 }} >Create</Text>
-                            </TouchableOpacity>
-                        </View>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Name*</Text>
+                        <TextInput
+                            onChangeText={text => setName(text)}
+                            style={styles.input}
+                        />
+                    </View>
 
-                        {/* name  */}
-                        <View style={{ marginTop: 15, alignSelf: 'center', width: "90%" }} >
-                            <Text style={{ color: "white", }} >Name*</Text>
-                            <TextInput onChangeText={text => setName(text)} style={{ borderWidth: 1, borderColor: "white", marginTop: 4, paddingVertical: 4, paddingHorizontal: 8, color: "white" }} />
-                        </View>
+                    <View style={[styles.inputContainer, styles.textAreaContainer]}>
+                        <Text style={styles.label}>Description*</Text>
+                        <TextInput
+                            multiline
+                            onChangeText={text => setDescription(text)}
+                            style={[styles.input, styles.textArea]}
+                        />
+                    </View>
 
-                        {/* description  */}
-                        <View style={{ marginTop: 15, alignSelf: 'center', width: "90%", marginBottom: 20 }} >
-                            <Text style={{ color: "white", }} > Description*</Text>
-                            <TextInput multiline onChangeText={text => setDescription(text)} style={{ borderWidth: 1, borderColor: "white", marginTop: 4, paddingVertical: 8, paddingHorizontal: 8, color: "white", height: 200, textAlignVertical: 'top' }} />
-                        </View>
+                    <View style={styles.privacyContainer}>
+                        <Text style={styles.privacyText}>Privacy</Text>
+                        <TouchableOpacity onPress={() => setPrivacyStatus("")} style={styles.privacyOption}>
+                            <View style={styles.privacyOptionContent}>
+                                {privacyStatus === "Public" ? (
+                                    <Ionicons name="earth" size={22} color="#AE7AFF" />
+                                ) : (
+                                    <EvilIcons name="lock" size={28} color="#AE7AFF" />
+                                )}
+                                <Text style={styles.privacyOptionLabel}>{privacyStatus || "Select"}</Text>
+                            </View>
+                            <MaterialIcons name="keyboard-arrow-down" size={24} color="#AE7AFF" />
+                        </TouchableOpacity>
 
-                        <View style={{ position: 'relative', zIndex: 98, width: "90%", alignSelf: "center", paddingBottom: 100 }}>
-                            <Text style={{ color: "white", fontSize: 16 }}>Privacy</Text>
-                            <TouchableOpacity onPress={() => setPrivacyStatus("")} style={{ borderBottomWidth: 1, borderColor: "gray", marginTop: 4, paddingVertical: 4, paddingHorizontal: 8, color: "white", flexDirection: 'row', justifyContent: 'space-between' }}>
-                                <View style={{ flexDirection: 'row' }} >
-                                    {privacyStatus == "Public" ? <Ionicons name="earth" size={22} color="#ffffffd2" /> : <EvilIcons name="lock" size={28} color="#ffffffd2" />}
-                                    <Text style={{ color: "white", fontSize: 17 }}>{privacyStatus}</Text>
-                                </View>
+                        {privacyStatus === "" && (
+                            <View style={styles.privacyOptionsContainer}>
+                                <TouchableOpacity onPress={() => setPrivacyStatus("Public")} style={[styles.privacyOptionItem, { borderTopLeftRadius: 8, borderTopRightRadius: 8 }]}>
+                                    <Ionicons name="earth" size={22} color="#AE7AFF" />
+                                    <View style={styles.privacyOptionTextContainer}>
+                                        <Text style={styles.privacyOptionLabel}>Public</Text>
+                                        <Text style={styles.privacyOptionDescription}>Anyone can search for and view</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setPrivacyStatus("Private")} style={[styles.privacyOptionItem, { borderBottomLeftRadius: 8, borderBottomRightRadius: 8 }]}>
+                                    <EvilIcons name="lock" size={28} color="#AE7AFF" />
+                                    <View style={styles.privacyOptionTextContainer}>
+                                        <Text style={styles.privacyOptionLabel}>Private</Text>
+                                        <Text style={styles.privacyOptionDescription}>Only you can view</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    </View>
+                </ScrollView>
+            </View>
+        </MiddleSliderModal>
+        // <Modal
+        //     animationType='slide'
+        //     transparent={true}
+        //     visible={isVisible}
+        //     onRequestClose={() => setVisible(false)}
+        //     style={styles.modal}
+        // >
 
-                                {/* Bottom arrow */}
-                                <MaterialIcons name="keyboard-arrow-down" size={24} color="#ffffffd2" />
-
-                            </TouchableOpacity>
-
-                            {/* Privacy options  */}
-                            {
-                                privacyStatus == "" ? (
-                                    // () => privacyOptionSelector()
-                                    <Pressable onPress={{}} style={{ backgroundColor: "#222", borderWidth: 1, position: 'absolute', zIndex: 99, top: 30, left: 10, width: "94%", borderRadius: 5 }}>
-                                        <Pressable onPress={() => { setPrivacyStatus("Public") }} style={{ flexDirection: 'row', gap: 10, alignItems: "start", paddingVertical: 12, paddingHorizontal: 10, backgroundColor: privacyStatus === "Public" ? "#333" : "#222" }}>
-                                            <Ionicons name="earth" size={22} color="#ffffffd2" />
-                                            <View>
-                                                <Text style={{ color: "white", fontSize: 18 }}> Public</Text>
-                                                <Text style={{ color: "gray" }}> Anyone can search for and view</Text>
-                                            </View>
-                                        </Pressable>
-                                        <Pressable onPress={() => { setPrivacyStatus("Private") }} style={{ flexDirection: 'row', gap: 10, alignItems: "start", paddingVertical: 12, paddingHorizontal: 10, backgroundColor: privacyStatus === "Private" ? "#333" : "#222" }}>
-                                            <EvilIcons name="lock" size={28} color="#ffffffd2" />
-                                            <View>
-                                                <Text style={{ color: "white", fontSize: 18 }}>Private</Text>
-                                                <Text style={{ color: "gray" }}>Only you can view</Text>
-                                            </View>
-                                        </Pressable>
-                                    </Pressable>
-                                ) : ("")
-                            }
-
-                        </View>
-                    </ScrollView>
-
-                </View>
-            </Modal>
-
-        </View>
+        // </Modal>
     )
 }
+
+const styles = StyleSheet.create({
+    modalContent: {
+        flex: 1,
+        backgroundColor: "#121212",
+        paddingTop: 25,
+        paddingHorizontal: 16,
+        width: "100%",
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    headerText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: "#FFFFFF",
+    },
+    createButton: {
+        backgroundColor: "#AE7AFF",
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+    },
+    createButtonText: {
+        color: "#FFFFFF",
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    inputContainer: {
+        marginBottom: 16,
+    },
+    label: {
+        color: "#FFFFFF",
+        marginBottom: 8,
+        fontSize: 16,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: "gray",
+        borderRadius: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        color: "#FFFFFF",
+        fontSize: 16,
+    },
+    textAreaContainer: {
+        marginBottom: 24,
+    },
+    textArea: {
+        height: 120,
+        textAlignVertical: 'top',
+    },
+    privacyContainer: {
+        marginTop: 16,
+    },
+    privacyText: {
+        color: "white",
+        fontSize: 18,
+        marginBottom: 16,
+    },
+    privacyOption: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderWidth: 1,
+        borderColor: "gray",
+        borderRadius: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        marginBottom: 16,
+    },
+    privacyOptionContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    privacyOptionLabel: {
+        color: "#AE7AFF",
+        fontSize: 16,
+        marginLeft: 8,
+    },
+    privacyOptionsContainer: {
+        backgroundColor: "#121212",
+        borderWidth: 1,
+        borderColor: "gray",
+        borderRadius: 8,
+        padding: 8,
+    },
+    privacyOptionItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+    },
+    privacyOptionTextContainer: {
+        marginLeft: 8,
+    },
+    privacyOptionDescription: {
+        color: "#FFFFFF",
+    },
+});
+
+
 
 export default memo(CreatePlaylist)

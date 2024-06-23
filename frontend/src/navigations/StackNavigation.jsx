@@ -21,7 +21,7 @@ const StackNavigation = () => {
         <Stack.Screen name="VideoDetail" component={VideoDetailScreen} options={{ headerShown: false }} />
         <Stack.Screen name="ChannelPlaylistVideosPage" component={PlaylistVideosScreen} options={{ headerShown: false }} />
         <Stack.Screen name="AdminDashboardScreen" component={AdminDashboardScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Channel" component={ChannelScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Channel" component={ProfileScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

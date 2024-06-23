@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Switch, Image, ActivityIndica
 import React, { useState } from 'react'
 import { useTheme } from 'expo-theme-switcher'
 import { Feather, AntDesign } from '@expo/vector-icons';
-import CustomConfirmationDialog from '../Modal/CustomConfirmationDialog';
+import CustomDeleteDialog from '../Modal/CustomDeleteDialog';
 
 const DashboardTableComponent = ({ item, selectedItem, handleSwitchStatus, conformDeleteVideo, handleEditVideo }) => {
     const { currentTheme } = useTheme()
@@ -64,7 +64,7 @@ const DashboardTableComponent = ({ item, selectedItem, handleSwitchStatus, confo
 
 
             {/* Conformation Dialog */}
-            <CustomConfirmationDialog
+            <CustomDeleteDialog
                 showConfirmation={showConfirmation}
                 title="Delete Video"
                 message="Are you sure you want to delete this Video"

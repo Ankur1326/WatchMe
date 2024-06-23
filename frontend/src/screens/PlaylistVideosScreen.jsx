@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Image } from 'react-native'
+import { View, Text, Pressable, Image, StyleSheet } from 'react-native'
 import React, { useEffect, useRef } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'expo-theme-switcher';
@@ -16,38 +16,29 @@ const PlaylistVideosScreen = ({ route }) => {
     const dispatch = useDispatch()
     const videos = useSelector(state => state.playlistVideos.videos)
 
-
-    // console.log("data ::: ", data);
-    // console.log("videos ::: ", videos);
     useEffect(() => {
         dispatch(fetchPlaylistVideos({ playlistId: data._id }))
     }, [])
 
-
     return (
-        <View style={{ flex: 1, backgroundColor: currentTheme.secondaryBackgroundColor, }} >
+        <View style={[styles.container, { backgroundColor: currentTheme.secondaryBackgroundColor }]}>
             <HeaderComponent />
-            <ScrollView style={{ paddingHorizontal: 5, backgroundColor: currentTheme.primaryBackgroundColor }} ref={scrollViewRef} >
+            <ScrollView style={[styles.scrollView, { backgroundColor: currentTheme.primaryBackgroundColor }]} ref={scrollViewRef}>
 
-                <Pressable onPress={() => { }} style={{ width: "100%", alignItems: 'center', marginTop: 10 }}>
-                    <View style={{ width: "82%", height: 10, marginBottom: 5, backgroundColor: "#a992ad", borderTopLeftRadius: 25, borderTopRightRadius: 25, }} ></View>
-
-                    <View style={{ position: 'relative', alignItems: 'center', height: 200, width: "90%", overflow: 'hidden', borderRadius: 20, }} >
-                        <Image source={{ uri: data?.playlistThumbnail }} style={{ height: "100%", width: "100%" }} />
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingHorizontal: 12, paddingVertical: 15, width: "100%", height: 60, position: 'absolute', backgroundColor: "#aeaeaeca", bottom: 0, borderTopWidth: 1, borderTopColor: "white" }}>
-                            <View>
-                                {/* playlist name */}
-                                <Text style={{ color: "white", fontSize: 16, fontWeight: "700" }} >{data?.name}</Text>
-                                <Text style={{ color: "white", fontSize: 12, }} >100K View . 2 hours age</Text>
-                            </View>
-                            <Text style={{ color: "white", fontSize: 14, fontWeight: "600" }} >{data?.videosCount} Videos</Text>
+            <Pressable onPress={() => { }} style={styles.playlistContainer}>
+                    <Image source={{ uri: data?.playlistThumbnail }} style={styles.playlistImage} />
+                    <View style={styles.overlay}>
+                        <View style={styles.overlayContent}>
+                            <Text style={styles.playlistName}>{data?.name}</Text>
+                            <Text style={styles.playlistDetails}>{data?.videosCount} Videos</Text>
                         </View>
+                        <Text style={styles.viewAllButton}>View All</Text>
                     </View>
                 </Pressable>
 
-                <View style={{ flexDirection: 'column', gap: 25, position: 'relative', marginTop: 20 }}>
+                <View style={styles.videoList}>
                     {videos.map((item) => (
-                        <VideoComponent item={item} scrollViewRef={scrollViewRef}/>
+                        <VideoComponent key={item.id} item={item} scrollViewRef={scrollViewRef} />
                     ))}
                 </View>
 
@@ -55,5 +46,84 @@ const PlaylistVideosScreen = ({ route }) => {
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    scrollView: {
+        paddingHorizontal: 10,
+    },
+    playlistContainer: {
+        marginBottom: 20,
+        borderRadius: 10,
+        overflow: 'hidden',
+    },
+    playlistImage: {
+        height: 200,
+        width: "100%",
+        resizeMode: 'cover',
+    },
+    overlay: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 15,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: "rgba(0, 0, 0, 0.6)",
+    },
+    overlayContent: {
+        flex: 1,
+    },
+    playlistName: {
+        color: "white",
+        fontSize: 22,
+        fontWeight: "bold",
+        marginBottom: 5,
+    },
+    playlistDetails: {
+        color: "white",
+        fontSize: 16,
+    },
+    viewAllButton: {
+        color: "#FFD700",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+    videoList: {
+        marginTop: 20,
+    },
+    videoItem: {
+        flexDirection: 'row',
+        marginBottom: 15,
+        borderRadius: 10,
+        overflow: 'hidden',
+        backgroundColor: "#333",
+    },
+    videoThumbnail: {
+        height: 120,
+        width: 160,
+        resizeMode: 'cover',
+    },
+    videoInfo: {
+        flex: 1,
+        padding: 10,
+    },
+    videoTitle: {
+        color: "white",
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 5,
+    },
+    videoDuration: {
+        color: "#ccc",
+        fontSize: 14,
+    },
+});
+
 
 export default PlaylistVideosScreen

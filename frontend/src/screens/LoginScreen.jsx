@@ -17,7 +17,7 @@ const LoginScreen = () => {
     const [password, setPassword] = useState("");
     const [showLoader, setShowLoader] = useState(false);
     const navigation = useNavigation();
-    
+
     useEffect(() => {
         // check Login status 
         const checkLoginStatus = async () => {
@@ -80,24 +80,43 @@ const LoginScreen = () => {
     }, [username, email, password])
 
     return (
-        <SafeAreaView style={{ flex: 1, alignItems: "center", backgroundColor: "#121212", gap: 30, }}>
+        <SafeAreaView style={styles.container}>
             {showLoader && (
-                <ActivityIndicator style={{ position: "absolute", width: "100%", height: "100%", backgroundColor: "#00000084", zIndex: 99, }} size={65} color="#FFFFFF" />
+                <ActivityIndicator style={styles.loader} size={65} color="#FFFFFF" />
             )}
-            <View style={{}}>
-                <Image source={require("../../assets/logo.jpg")} style={{ width: 170, height: 170 }} />
+            <View style={styles.logoContainer}>
+                <Image source={require("../../assets/logo.jpg")} style={styles.logo} />
             </View>
-            <View style={{ flexDirection: "column", gap: 15, alignItems: "center", width: "100%", }}>
-                <TextInput onChangeText={(text) => setUsername(text)} value={username} placeholder="Enter your username" style={customStyles.inputText} placeholderTextColor="white" />
-                <TextInput onChangeText={(text) => setEmail(text)} value={email} placeholder="Enter your Email" style={customStyles.inputText} placeholderTextColor="white" />
-                <TextInput onChangeText={(text) => setPassword(text)} value={password} placeholder="Enter your Pasword" style={customStyles.inputText} placeholderTextColor="white" secureTextEntry />
+            <View style={styles.inputContainer}>
+                <TextInput
+                    onChangeText={(text) => setUsername(text)}
+                    value={username}
+                    placeholder="Enter your username"
+                    style={customStyles.inputText}
+                    placeholderTextColor="white"
+                />
+                <TextInput
+                    onChangeText={(text) => setEmail(text)}
+                    value={email}
+                    placeholder="Enter your Email"
+                    style={customStyles.inputText}
+                    placeholderTextColor="white"
+                />
+                <TextInput
+                    onChangeText={(text) => setPassword(text)}
+                    value={password}
+                    placeholder="Enter your Password"
+                    style={customStyles.inputText}
+                    placeholderTextColor="white"
+                    secureTextEntry
+                />
                 <TouchableOpacity onPress={loginHandler} style={customStyles.colorFullButton}>
-                    <Text style={{ textAlign: "center", fontSize: 15, fontWeight: "bold" }}>Login</Text>
+                    <Text style={styles.loginText}>Login</Text>
                 </TouchableOpacity>
                 <Pressable onPress={() => navigation.navigate("Register")}>
-                    <Text style={{ color: "white", fontSize: 16 }}>
+                    <Text style={styles.signUpText}>
                         If You have no account{" "}
-                        <Text style={{ color: "#AE7AFF", fontSize: 16 }}>Sign Up</Text>
+                        <Text style={styles.signUpLink}>Sign Up</Text>
                     </Text>
                 </Pressable>
             </View>
@@ -105,6 +124,44 @@ const LoginScreen = () => {
     );
 };
 
-export default LoginScreen;
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems: "center",
+        backgroundColor: "#121212",
+        gap: 30,
+    },
+    loader: {
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        backgroundColor: "#00000084",
+        zIndex: 99,
+    },
+    logoContainer: {},
+    logo: {
+        width: 170,
+        height: 170,
+    },
+    inputContainer: {
+        flexDirection: "column",
+        gap: 15,
+        alignItems: "center",
+        width: "100%",
+    },
+    loginText: {
+        textAlign: "center",
+        fontSize: 15,
+        fontWeight: "bold",
+    },
+    signUpText: {
+        color: "white",
+        fontSize: 16,
+    },
+    signUpLink: {
+        color: "#AE7AFF",
+        fontSize: 16,
+    },
+});
 
-const styles = StyleSheet.create({});
+export default LoginScreen;

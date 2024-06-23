@@ -52,7 +52,7 @@ const ChannelScreen = ({ route }) => {
       component: SubscribedTabcomponent
     },
   ]
-  
+
   const handleGetUserProfile = async () => {
     const response = await axiosInstance.get(`users/get-user-channel/${userId}`)
     // console.log("response :: ", response.isSubscribed);
@@ -63,71 +63,125 @@ const ChannelScreen = ({ route }) => {
     handleGetUserProfile()
   }, [])
 
-  // close upoad video modal 
-
   return (
-    <SafeAreaView style={{ backgroundColor: "#000", flex: 1, position: 'relative' }}>
-      <ScrollView ref={scrollRef} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} >
-
-        {/* Header */}
+    <SafeAreaView style={styles.safeAreaView}>
+      <ScrollView ref={scrollRef} contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
         <HeaderComponent />
-
-        <View style={{}}>
-
-          {/* coverImage */}
+        <View>
           <View>
-            <Image source={{ uri: userchannelProfile?.coverImage }} style={{ width: "100%", height: 85, resizeMode: "cover" }} />
+            <Image source={{ uri: userchannelProfile?.coverImage }} style={styles.coverImage} />
           </View>
-
-          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, gap: 5, paddingBottom: 12 }} >
-            <Image source={{ uri: userchannelProfile?.avatar }} style={{ width: 100, height: 100, resizeMode: "cover", borderRadius: 55, borderWidth: 2, borderColor: "white", position: 'absolute', top: -30, left: 10 }} />
-            <View style={{ paddingLeft: 110, paddingVertical: 10 }}>
-              <Text style={{ color: "white", fontSize: 17 }} >{userchannelProfile?.fullName}</Text>
-              <Text style={{ color: "#999", fontSize: 13 }} >@{userchannelProfile?.username}</Text>
+          <View style={styles.profileContainer}>
+            <Image source={{ uri: userchannelProfile?.avatar }} style={styles.avatar} />
+            <View style={styles.profileTextContainer}>
+              <Text style={styles.fullName}>{userchannelProfile?.fullName}</Text>
+              <Text style={styles.username}>@{userchannelProfile?.username}</Text>
             </View>
-
-            <Text style={{ color: "#999", fontSize: 13, position: 'absolute', bottom: -2, right: 150 }} >{userchannelProfile?.subscribersCount} subscribers</Text>
+            <Text style={styles.subscribersCount}>{userchannelProfile?.subscribersCount} subscribers</Text>
           </View>
-
         </View>
-        <View style={{ flex: 1, position: 'relative' }}>
+        <View style={styles.tabContainer}>
           <Tab.Navigator
             tabBarOptions={{
-              labelStyle: {
-                // fontSize: 10.5,
-                fontWeight: 'bold',
-                color: "white"
-              },
-              style: {
-                backgroundColor: ({ focused }) => focused ? "yellow" : "black",
-                // position: "absolute"
-              },
-              indicatorStyle: {
-                backgroundColor: '#AE7AFF', // Set the indicator color
-                height: 1.5,
-              },
+              labelStyle: styles.tabLabel,
+              style: styles.tabBar,
+              indicatorStyle: styles.tabIndicator,
             }}
           >
             {sections.map((section) => (
-              <Tab.Screen key={section.id} name={section.name} component={section.component} options={{
-                tabBarLabel: ({ focused, }) => (
-                  <Text style={{ fontSize: 12, fontWeight: "bold", color: focused ? "#AE7AFF" : currentTheme?.primaryTextColor, marginBottom: 4 }}>
-                    {section.name}
-                  </Text>
-                ),
-              }} initialParams={{ userId: userId }} />
+              <Tab.Screen
+                key={section.id}
+                name={section.name}
+                component={section.component}
+                options={{
+                  tabBarLabel: ({ focused }) => (
+                    <Text style={[styles.tabBarLabelText, { color: focused ? "#AE7AFF" : currentTheme?.primaryTextColor }]}>
+                      {section.name}
+                    </Text>
+                  ),
+                }}
+                initialParams={{ userId: userId }}
+              />
             ))}
           </Tab.Navigator>
         </View>
-
-        {/* <VideoUpload isVisible={isModalVisible} onClose={closeModal} /> */}
-
       </ScrollView>
-
     </SafeAreaView>
   )
 }
 
-export default ChannelScreen
+const styles = StyleSheet.create({
+  safeAreaView: {
+    backgroundColor: "#000",
+    flex: 1,
+    position: 'relative',
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+  },
+  coverImage: {
+    width: "100%",
+    height: 85,
+    resizeMode: "cover",
+  },
+  profileContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    gap: 5,
+    paddingBottom: 12,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    resizeMode: "cover",
+    borderRadius: 55,
+    borderWidth: 2,
+    borderColor: "white",
+    position: 'absolute',
+    top: -30,
+    left: 10,
+  },
+  profileTextContainer: {
+    paddingLeft: 110,
+    paddingVertical: 10,
+  },
+  fullName: {
+    color: "white",
+    fontSize: 17,
+  },
+  username: {
+    color: "#999",
+    fontSize: 13,
+  },
+  subscribersCount: {
+    color: "#999",
+    fontSize: 13,
+    position: 'absolute',
+    bottom: -2,
+    right: 150,
+  },
+  tabContainer: {
+    flex: 1,
+    position: 'relative',
+  },
+  tabLabel: {
+    fontWeight: 'bold',
+    color: "white",
+  },
+  tabBar: {
+    backgroundColor: "black",
+  },
+  tabIndicator: {
+    backgroundColor: '#AE7AFF',
+    height: 1.5,
+  },
+  tabBarLabelText: {
+    fontSize: 12,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+});
 
-const styles = StyleSheet.create({})
+export default ChannelScreen
