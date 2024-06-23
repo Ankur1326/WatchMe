@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { FlatList, ScrollView } from "react-native-gesture-handler";
-
 import VideoTabComponent from '../components/tabSectionComponents/VideoTabComponent.jsx';
 import PlaylistTabComponent from '../components/tabSectionComponents/PlaylistTabComponent.jsx';
 import TweetsTabComponent from '../components/tabSectionComponents/TweetsTabComponent.jsx';

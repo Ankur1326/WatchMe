@@ -1,5 +1,5 @@
 import { View, Text, Modal, ActivityIndicator, TouchableOpacity, Pressable, ProgressBarAndroid, Platform, ProgressViewIOS, StyleSheet, Button } from 'react-native'
-import React from 'react'
+import React, { memo } from 'react'
 import { Entypo } from '@expo/vector-icons';
 
 
@@ -93,4 +93,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default UploadingVideo
+export default memo(UploadingVideo)

@@ -95,15 +95,6 @@ const CreatePlaylist = ({ isVisible, setVisible }) => {
                 </ScrollView>
             </View>
         </MiddleSliderModal>
-        // <Modal
-        //     animationType='slide'
-        //     transparent={true}
-        //     visible={isVisible}
-        //     onRequestClose={() => setVisible(false)}
-        //     style={styles.modal}
-        // >
-
-        // </Modal>
     )
 }
 

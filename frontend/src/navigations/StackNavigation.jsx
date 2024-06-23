@@ -7,7 +7,6 @@ import DrawerNavigation from "./DrawerNavigation";
 import VideoDetailScreen from "../screens/VideoDetailScreen";
 import AdminDashboardScreen from "../screens/AdminDashboardScreen";
 import ProfileScreen from "../screens/ProfileScreen";
-import ChannelScreen from "../screens/ChannelScreen";
 import PlaylistVideosScreen from "../screens/PlaylistVideosScreen";
 
 const Stack = createNativeStackNavigator();

@@ -3,7 +3,6 @@ import React, { useContext } from "react";
 import HomeScreen from "../screens/HomeScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
-import ChannelScreen from "../screens/ChannelScreen";
 import { FontAwesome5, FontAwesome6, Feather, AntDesign } from "@expo/vector-icons";
 import ProfileScreen from "../screens/ProfileScreen";
 import { useTheme } from 'expo-theme-switcher';
