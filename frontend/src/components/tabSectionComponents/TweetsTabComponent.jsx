@@ -3,26 +3,24 @@ import React, { useEffect, useState, useRef, useContext } from 'react'
 import { formatDistanceToNow } from 'date-fns';
 import { MaterialCommunityIcons, FontAwesome5, Entypo, AntDesign, Feather, Ionicons, EvilIcons, FontAwesome } from '@expo/vector-icons';
 import { useTheme } from 'expo-theme-switcher';
-import { createTweetHandler, deleteTweetHandler, editTweetHandler, getTweetsHandler, toggleTweetLikeHandler } from '../../actions/tweet.actions.js';
 import CustomDeleteDialog from '../../Modal/CustomDeleteDialog.jsx';
-import { UserType } from '../../context/UserContext.js';
 import BottomSlideModal from '../../Modal/BottomSlideModal.jsx';
+import axiosInstance from '../../helper/axiosInstance.js';
 
 const TweetsTabComponent = ({ route }) => {
   const { currentTheme } = useTheme()
   const [tweet, setTweet] = useState("")
   const [tweets, setTweets] = useState([])
-  const [user] = useContext(UserType);
+  // const [user] = useContext(UserType);
   const [isModalVisible, setModalVisible] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [tweetId, setTweetId] = useState("")
-
-  const userId = route?.params?.userId || user._id;
-  // console.log(user._id);
+  const { isOwner, userId } = route?.params
 
   const handleCreateTweet = async () => {
     try {
-      await createTweetHandler(tweet)
+      await axiosInstance.post(`tweets`,{ content: tweet })
+      // await createTweetHandler(tweet)
       setTweet("")
       await handleGetTweets()
     } catch (error) {
@@ -34,36 +32,24 @@ const TweetsTabComponent = ({ route }) => {
   }
 
   const handleToggleTweetLike = async (tweetId, action) => {
-    await toggleTweetLikeHandler(tweetId, action)
+    await axiosInstance.post(`likes/toggle/t/${tweetId}`, { action })
     await handleGetTweets()
   }
 
   const handleTweetUpdate = async (tweetId, tweet) => {
-    setTimeout(() => {
-      // setTweet("")
-    }, 1000);
     try {
-      // await editTweetHandler(tweetId, tweet)
-
-      // setTweet("")
+      await axiosInstance.patch(`tweets/${tweetId}`, { content: tweet })
+      // await editTweetHandler(tweetId, tweet);
+      setTweet("");
     } catch (error) {
-
-    } finally {
-
+      console.log("Error while editing tweet", error);
     }
   }
 
   const handleGetTweets = async () => {
     try {
-      let data;
-      if (userId === user._id) {
-        data = await getTweetsHandler(user._id)
-      }
-      else {
-        data = await getTweetsHandler(userId)
-      }
-      // console.log("data :;" , data.data);
-      setTweets(data.data)
+      const response = await axiosInstance.get(`tweets/user/${userId}`)
+      setTweets(await response.data.data)
     } catch (error) {
       console.log("Erorr while getting user tweets", error);
     }
@@ -75,7 +61,7 @@ const TweetsTabComponent = ({ route }) => {
 
   const handleDeleteTweet = async () => {
     try {
-      await deleteTweetHandler(tweetId)
+      await axiosInstance.delete(`tweets/${tweetId}`)
       await handleGetTweets()
     } catch (error) {
       console.log("error while deleting tweet");
@@ -83,11 +69,11 @@ const TweetsTabComponent = ({ route }) => {
       setTweetId("")
     }
   }
-  
+
   return (
-    <View style={[styles.container, {backgroundColor: currentTheme.primaryBackgroundColor}]}>
+    <View style={[styles.container, { backgroundColor: currentTheme.primaryBackgroundColor }]}>
       <ScrollView>
-        {userId === user._id && (
+        {isOwner && (
           <View style={styles.tweetInputContainer}>
             <TextInput
               value={tweet}
@@ -100,7 +86,7 @@ const TweetsTabComponent = ({ route }) => {
               style={styles.tweetInput}
             />
             <TouchableOpacity onPress={handleCreateTweet} style={styles.sendButton}>
-              <Text style={{ fontSize: 15, fontWeight: "bold" }}>Send</Text>
+              <Text style={styles.sendButtonText}>Send</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -110,80 +96,44 @@ const TweetsTabComponent = ({ route }) => {
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
             <View style={styles.tweetItemContainer}>
-              <View style={{ flexDirection: 'row', gap: 15 }}>
-                <Pressable style={{ flexDirection: 'row', gap: 15 }}>
+              <View style={styles.tweetHeader}>
+                <Pressable style={styles.userAvatarContainer}>
                   <Image source={{ uri: item.userDetails[0].avatar }} style={styles.tweetUserAvatar} />
                 </Pressable>
                 <View style={styles.tweetContentContainer}>
-                  <View style={{ flexDirection: 'row', gap: 5 }}>
-                    <Text style={{ color: "white" }}>{item.content} •</Text>
-                    <Text style={{ color: "gray" }}>
-                      {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true }).toString()}
+                  <View style={styles.tweetHeaderInfo}>
+                    <Text>{item.tweetContent} •</Text>
+                    <Text style={styles.tweetTime}>
+                      {formatDistanceToNow(new Date(item?.createdAt), { addSuffix: true }).toString()}
                     </Text>
                   </View>
-                  <View style={{ width: "90%" }}>
-                    <Text style={styles.tweetContent}>{item.tweetText}</Text>
-                  </View>
+                  <Text style={styles.tweetContent}>{item?.content}</Text>
                   <View style={styles.likeDislikeContainer}>
-                    <TouchableOpacity onPress={() => handleToggleTweetLike(item._id, "like")} style={{ flexDirection: 'row', gap: 5 }}>
+                    <TouchableOpacity onPress={() => handleToggleTweetLike(item._id, "like")} style={styles.actionButton}>
                       <AntDesign name={item.isLiked ? "like1" : "like2"} size={17} color="white" />
-                      <Text style={{ color: "white", fontSize: 13 }}>{item.likesCount}</Text>
+                      <Text style={styles.actionText}>{item.likesCount}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleToggleTweetLike(item._id, "dislike")} style={{ flexDirection: 'row', gap: 5 }}>
+                    <TouchableOpacity onPress={() => handleToggleTweetLike(item._id, "dislike")} style={styles.actionButton}>
                       <AntDesign name={item.isDisliked ? "dislike1" : "dislike2"} size={17} color="white" />
-                      <Text style={{ color: "white", fontSize: 13 }}>{item.dislikesCount}</Text>
+                      <Text style={styles.actionText}>{item.dislikesCount}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
                 <TouchableOpacity onPress={() => {
                   setTweetId(item._id);
+                  setTweet(item?.content);
                   setModalVisible(!isModalVisible);
                 }} style={styles.dotsButton}>
                   <MaterialCommunityIcons name="dots-vertical" size={24} color="white" />
                 </TouchableOpacity>
               </View>
-
-              <BottomSlideModal isVisible={isModalVisible} setVisible={setModalVisible}>
-                {userId === user._id ? (
-                  <View style={{ width: "100%" }}>
-                    <TouchableOpacity onPress={() => {
-                      console.log("TouchableOpacity pressed");
-                      setTweet(item?.content);
-                      setModalVisible(false);
-                    }} style={styles.confirmationButton}>
-                      <Feather name="edit" size={24} color="white" />
-                      <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }}>Edit</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => {
-                      setModalVisible(false);
-                      setShowConfirmation(true);
-                    }} style={styles.confirmationButton}>
-                      <AntDesign name="delete" size={24} color="white" />
-                      <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }}>Delete</Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : (
-                  <View style={{ width: "100%" }}>
-                    <TouchableOpacity onPress={() => {
-                      console.log("TouchableOpacity pressed");
-                      setTweet(item?.content);
-                      setModalVisible(false);
-                    }} style={styles.confirmationButton}>
-                      <Text style={{ fontSize: 18, fontWeight: 'bold', color: "white" }}>Add buttons over here... </Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </BottomSlideModal>
             </View>
           )}
           ListEmptyComponent={
             <View style={styles.emptyListComponent}>
-              <View style={{ backgroundColor: currentTheme?.primaryBackgroundColor, paddingVertical: 15, paddingHorizontal: 15, borderRadius: 50 }}>
-                <FontAwesome5 name="users" size={28} color="#AE7AFF" />
-              </View>
-              <Text style={{ fontSize: 20, color: currentTheme?.primaryTextColor, fontWeight: '600' }}>No Tweets</Text>
-              <Text style={{ fontSize: 16, color: currentTheme?.primaryTextColor, textAlign: 'center' }}>
+              <FontAwesome5 name="users" size={28} color="#AE7AFF" />
+              <Text style={styles.emptyListText}>No Tweets</Text>
+              <Text style={styles.emptyListDescription}>
                 This channel has yet to make a Tweet.
               </Text>
             </View>
@@ -204,6 +154,40 @@ const TweetsTabComponent = ({ route }) => {
           }}
         />
       </ScrollView>
+
+      <BottomSlideModal isVisible={isModalVisible} setVisible={setModalVisible}>
+        {isOwner ? (
+          <View style={styles.modalContent}>
+            <TouchableOpacity onPress={() => {
+              console.log("TouchableOpacity pressed");
+              // setTweet(item?.content);
+              setModalVisible(false);
+            }} style={styles.modalButton}>
+              <Feather name="edit" size={24} color="white" />
+              <Text style={styles.modalButtonText}>Edit</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => {
+              setModalVisible(false);
+              setShowConfirmation(true);
+            }} style={styles.modalButton}>
+              <AntDesign name="delete" size={24} color="white" />
+              <Text style={styles.modalButtonText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.modalContent}>
+            <TouchableOpacity onPress={() => {
+              console.log("TouchableOpacity pressed");
+              setTweet(item?.content);
+              setModalVisible(false);
+            }} style={styles.modalButton}>
+              <Text style={styles.modalButtonText}>Add buttons over here... </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </BottomSlideModal>
+
     </View>
   )
 }
@@ -212,50 +196,68 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#111",
-    paddingVertical: 10,
-    paddingHorizontal: 4,
+    padding: 10,
+    // paddingHorizontal: 4,
   },
   tweetInputContainer: {
-    borderWidth: 1,
-    borderColor: "gray",
-    position: 'relative',
-    height: 100,
+    flexDirection: 'row',
+    backgroundColor: '#333',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 15,
   },
   tweetInput: {
-    paddingVertical: 4,
-    paddingHorizontal: 15,
-    fontSize: 14,
-    color: "white",
-    height: 50,
+    flex: 1,
+    fontSize: 16,
+    color: 'white',
   },
   sendButton: {
+    backgroundColor: '#AE7AFF',
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: "#AE7AFF",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
+  },
+  sendButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   tweetItemContainer: {
-    paddingHorizontal: 0,
-    flexDirection: 'column',
-    gap: 10,
-    paddingVertical: 15,
-    borderTopWidth: 1,
-    borderTopColor: "gray",
+    backgroundColor: '#222',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
+  },
+  tweetHeader: {
+    flexDirection: 'row',
+    // alignItems: 'center',
+    // gap: 10
+  },
+  userAvatarContainer: {
+    marginRight: 10,
   },
   tweetUserAvatar: {
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
     borderRadius: 25,
   },
+  tweetHeaderInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
   tweetContentContainer: {
-    flexDirection: "column",
-    gap: 0,
+    flex: 1
+  },
+  tweetTime: {
+    color: '#aaa',
   },
   tweetContent: {
-    color: "white",
+    color: 'white',
+    marginBottom: 10,
+    marginLeft: 8,
+    fontSize: 15
   },
   likeDislikeContainer: {
     flexDirection: 'row',
@@ -273,12 +275,44 @@ const styles = StyleSheet.create({
     right: 5,
   },
   emptyListComponent: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 30,
-    gap: 15,
-    paddingHorizontal: 20,
+    padding: 20,
+  },
+  emptyListText: {
+    fontSize: 20,
+    color: '#AE7AFF',
+    fontWeight: '600',
+    marginVertical: 10,
+  },
+  emptyListDescription: {
+    fontSize: 16,
+    color: '#aaa',
+    textAlign: 'center',
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionText: {
+    color: 'white',
+    marginLeft: 5,
+  },
+  modalContent: {
+    paddingHorizontal: 10,
+    width: "100%"
+  },
+  modalButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    // marginBottom: 10,
+    paddingVertical: 5,
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 10,
   },
 });
 

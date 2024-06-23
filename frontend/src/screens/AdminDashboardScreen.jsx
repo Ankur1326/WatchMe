@@ -44,7 +44,7 @@ const AdminDashboardScreen = () => {
         try {
             await axiosInstance.patch(`videos/toggle/publish/${videoId}`, {})
 
-            const response = await axiosInstance.get(`dashboard/stats`)
+            const response = await axiosInstance.get(`dashboard/videos`)
             setChannelVideoInfo(response.data.data);
             setSuccess(true)
         } catch (error) {
@@ -82,78 +82,86 @@ const AdminDashboardScreen = () => {
         setEditVideoModalVisible(false)
     }
 
+    const InfoBox = ({ icon, label, value }) => (
+        <View style={styles.infoBox}>
+            {icon}
+            <Text style={[styles.infoText, { color: "black" }]}>{label}</Text>
+            <Text style={[styles.infoNumber, { color: "black" }]}>{value}</Text>
+        </View>
+    );
+
     return (
         <View style={[styles.container, { backgroundColor: currentTheme.primaryBackgroundColor }]}>
-        <HeaderComponent />
-        {/* success or faliure popup message  */}
-        <PopupMessage isSuccess={isSuccess} title={isSuccess ? "Status successfully changed" : "Status has not changed"} isVisible={isPopupMessageShow} setVisible={setPopupMessageShow} />
+            <HeaderComponent />
+            {/* success or faliure popup message  */}
+            <PopupMessage isSuccess={isSuccess} title={isSuccess ? "Status successfully changed" : "Status has not changed"} isVisible={isPopupMessageShow} setVisible={setPopupMessageShow} />
 
-        <ScrollView>
-            <View style={styles.welcomeContainer}>
-                <Text style={[styles.welcomeText, { color: currentTheme.primaryTextColor }]}>Welcome Back, {channelStats?.fullName}</Text>
-                <Text style={[styles.welcomeSubText, { color: currentTheme.secondaryTextColor }]}>Welcome Back, React Patterns</Text>
-                {/* upload btn  */}
 
-                <TouchableOpacity onPress={() => showModal()} style={styles.uploadButton} >
-                    <Feather name="plus" size={24} color="black" />
-                    <Text style={styles.uploadButtonText} >upload Video</Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* total info  */}
-            <View style={styles.infoContainer}>
-                {/* views  */}
-                <View style={styles.infoBox}>
-                    <AntDesign name="eyeo" size={24} color="#AE7AFF" style={styles.icon} />
-                    <Text style={[styles.infoText, { color: currentTheme.secondaryTextColor }]}>Total views</Text>
-                    <Text style={[styles.infoNumber, { color: currentTheme.secondaryTextColor }]}>{channelStats?.totalViews}</Text>
+            <ScrollView >
+                <View style={styles.header}>
+                    <Text style={[styles.welcomeText, { color: currentTheme.primaryTextColor }]}>
+                        Welcome Back, {channelStats?.fullName}
+                    </Text>
+                    <Text style={[styles.welcomeSubText, { color: currentTheme.secondaryTextColor }]}>
+                        Welcome Back, React Patterns
+                    </Text>
+                    {/* Upload Button */}
+                    <TouchableOpacity onPress={() => showModal()} style={styles.uploadButton}>
+                        <Feather name="plus" size={24} color="black" />
+                        <Text style={styles.uploadButtonText}>Upload Video</Text>
+                    </TouchableOpacity>
                 </View>
-                {/* Total subscribers */}
-                <View style={styles.infoBox}>
-                    <FontAwesome6 name="user" size={22} color="#AE7AFF" style={styles.icon} />
-                    <Text style={[styles.infoText, { color: currentTheme.secondaryTextColor }]}>Total subscribers</Text>
-                    <Text style={[styles.infoNumber, { color: currentTheme.secondaryTextColor }]}>{channelStats?.totalSubscribers}</Text>
-                </View>
-
-                <View style={styles.infoBox}>
-                    <AntDesign name="hearto" size={22} color="#AE7AFF" style={styles.icon} />
-                    <Text style={[styles.infoText, { color: currentTheme.secondaryTextColor }]}>Total likes</Text>
-                    <Text style={[styles.infoNumber, { color: currentTheme.secondaryTextColor }]}>{channelStats?.totalVideosLikes}</Text>
-                </View>
-            </View>
-
-            {/* table for videos */}
-            <ScrollView horizontal style={styles.tableContainer}>
-                <View style={styles.tableWrapper}>
-                    {/* table header  */}
-                    <View style={styles.tableHeader}>
-                        <Text style={[styles.tableText, { color: currentTheme.primaryTextColor, width: "10%" }]} >Status</Text>
-                        <Text style={[styles.tableText, { color: currentTheme.primaryTextColor, width: "15%" }]} >Status</Text>
-                        <Text style={[styles.tableText, { color: currentTheme.primaryTextColor, width: "28%" }]} >Uploaded</Text>
-                        <Text style={[styles.tableText, { color: currentTheme.primaryTextColor, width: "20%" }]} >Rating</Text>
-                        <Text style={[styles.tableText, { color: currentTheme.primaryTextColor, width: "16%" }]} >Date uploaded</Text>
-                        <Text style={[styles.tableText, { color: currentTheme.primaryTextColor, width: "20%" }]} ></Text>
-                    </View>
-
-                    {/* table data   */}
-                    <FlatList
-                        data={channelVideoInfo}
-                        keyExtractor={item => item._id}
-                        renderItem={({ item }) => (
-                            <View>
-                                <DashboardTableComponent item={item} selectedItem={selectedItem} handleSwitchStatus={handleSwitchStatus} conformDeleteVideo={conformDeleteVideo} handleEditVideo={handleEditVideo} />
-                            </View>
-                        )}
+                {/* total info  */}
+                <View style={styles.infoContainer}>
+                    <InfoBox
+                        icon={<AntDesign name="eyeo" size={24} color="#AE7AFF" />}
+                        label="Total views"
+                        value={channelStats?.totalViews}
                     />
-                    {/* model for edit video  */}
-                    <EditVideo isVisible={editVideoModalVisible} videoId={selectedVideoId} onClose={onClose} getAllVideos={fetchChannelData} />
-
+                    <InfoBox
+                        icon={<FontAwesome6 name="user" size={22} color="#AE7AFF" />}
+                        label="Total subscribers"
+                        value={channelStats?.totalSubscribers}
+                    />
+                    <InfoBox
+                        icon={<AntDesign name="hearto" size={22} color="#AE7AFF" />}
+                        label="Total likes"
+                        value={channelStats?.totalVideosLikes}
+                    />
                 </View>
+
+                {/* table for videos */}
+                <ScrollView horizontal style={styles.tableContainer}>
+                    <View style={styles.tableWrapper}>
+                        {/* table header  */}
+                        <View style={styles.tableHeader}>
+                            <Text style={[styles.headerText, { color: currentTheme.primaryTextColor, width: "10%" }]} >Status</Text>
+                            <Text style={[styles.headerText, { color: currentTheme.primaryTextColor, width: "15%" }]} >Status</Text>
+                            <Text style={[styles.headerText, { color: currentTheme.primaryTextColor, width: "28%" }]} >Uploaded</Text>
+                            <Text style={[styles.headerText, { color: currentTheme.primaryTextColor, width: "20%" }]} >Rating</Text>
+                            <Text style={[styles.headerText, { color: currentTheme.primaryTextColor, width: "16%" }]} >Date uploaded</Text>
+                            <Text style={[styles.headerText, { color: currentTheme.primaryTextColor, width: "20%" }]} ></Text>
+                        </View>
+
+                        {/* table data   */}
+                        <FlatList
+                            data={channelVideoInfo}
+                            keyExtractor={item => item?._id}
+                            renderItem={({ item }) => (
+                                <View>
+                                    <DashboardTableComponent item={item} selectedItem={selectedItem} handleSwitchStatus={handleSwitchStatus} conformDeleteVideo={conformDeleteVideo} handleEditVideo={handleEditVideo} />
+                                </View>
+                            )}
+                        />
+                        {/* model for edit video  */}
+                        <EditVideo isVisible={editVideoModalVisible} videoId={selectedVideoId} onClose={onClose} getAllVideos={fetchChannelData} />
+
+                    </View>
+                </ScrollView>
+
             </ScrollView>
 
-        </ScrollView>
-
-    </View>
+        </View>
     )
 }
 
@@ -173,6 +181,13 @@ const styles = StyleSheet.create({
     welcomeSubText: {
         fontSize: 14,
     },
+    header: {
+        paddingHorizontal: 20,
+        paddingTop: 20,
+    },
+    scrollView: {
+        paddingHorizontal: 20,
+    },
     uploadButton: {
         backgroundColor: "#AE7AFF",
         paddingVertical: 10,
@@ -186,20 +201,27 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     infoContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        // marginBottom: 20,
         paddingHorizontal: 10,
-        marginTop: 25,
-        gap: 10,
+        marginTop: 20
     },
     infoBox: {
-        width: "100%",
-        height: 130,
-        paddingHorizontal: 15,
-        paddingVertical: 15,
-        borderWidth: 1,
-        borderColor: "gray",
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        gap: 3,
+        width: "48%",
+        height: 120,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        padding: 10,
+        marginBottom: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     icon: {
         paddingHorizontal: 4,
@@ -209,32 +231,43 @@ const styles = StyleSheet.create({
         borderRadius: 50,
     },
     infoText: {
-        fontSize: 15,
+        fontSize: 14,
+        marginTop: 5,
     },
     infoNumber: {
-        fontSize: 22,
+        fontSize: 18,
         fontWeight: 'bold',
+        marginTop: 5,
     },
     tableContainer: {
-        paddingHorizontal: 10,
-        marginVertical: 20,
+        marginTop: 10,
+        // backgroundColor: '#F5F5F5',
+        borderRadius: 10,
+        padding: 10,
     },
     tableWrapper: {
         flexDirection: 'column',
         width: 900,
     },
     tableHeader: {
+        borderWidth: 0.5,
+        borderColor: "gray",
         flexDirection: 'row',
-        borderWidth: 1,
-        borderColor: "white",
-        borderBottomColor: "gray",
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        // backgroundColor: '#EAEAEA',
+        borderRadius: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 5,
+        marginBottom: 5,
+        elevation: 2,
     },
-    tableText: {
-        textAlign: "center",
-        paddingHorizontal: 2,
-        paddingVertical: 14,
-        fontWeight: 'bold',
-        fontSize: 17,
+    headerText: {
+        fontSize: 16,
+        textAlign: 'center',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        fontWeight: '600',
     },
 })
 

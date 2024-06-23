@@ -71,7 +71,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     padding: 10,
-    backgroundColor: '#333',
+    // backgroundColor: '#333',
+    backgroundColor: '#1e1e1e',
     borderRadius: 10,
   },
   channelInfo: {

@@ -20,8 +20,6 @@ import axiosInstance from '../../helper/axiosInstance';
 
 const VideoTabComponent = ({ route }) => {
     const navigation = useNavigation()
-
-    const [user, setUser] = useContext(UserType);
     const [videos, setVideos] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);
     const [isVideoModalVisible, setIsVideoModalVisible] = useState(false);
@@ -32,21 +30,19 @@ const VideoTabComponent = ({ route }) => {
     const [isSuccess, setSuccess] = useState(false)
     const [isPopupMessageShow, setPopupMessageShow] = useState(false)
     const [videoId, setVideoId] = useState("")
-
-    const userId = route?.params?.userId || user._id;
-    // console.log(videos);
+    const { isOwner, userId } = route?.params
 
     const handleGetAllVideos = async () => {
         try {
             let allVideos;
-            if (userId === user._id) {
+            if (isOwner) {
                 const params = {
                     page: 1,
                     limit: 10,
                     // query: 'someQuery',
                     sortBy: 'createdAt',
                     sortType: 'desc',
-                    userId: user._id
+                    userId
                 }
                 const response = await axiosInstance.get(`videos/`, { params })
                 allVideos = response.data.videos
@@ -162,7 +158,7 @@ const VideoTabComponent = ({ route }) => {
                             </View>
 
                             <BottomSlideModal isVisible={isVideoModalVisible} setVisible={setIsVideoModalVisible}>
-                                {userId === user._id ? (
+                                {isOwner ? (
                                     <View style={styles.confirmationDialogContainer}>
                                         <TouchableOpacity onPress={() => togglePublishStatus()} style={styles.confirmationButton}>
                                             {item.isPublished ? (
@@ -231,7 +227,7 @@ const VideoTabComponent = ({ route }) => {
                         </View>
                     )}
                 />
-                {userId === user._id && (
+                {isOwner && (
                     <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addVideoButton}>
                         <FontAwesome6 name="add" size={28} color="#AE7AFF" />
                     </TouchableOpacity>

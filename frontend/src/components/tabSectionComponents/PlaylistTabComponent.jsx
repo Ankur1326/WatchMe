@@ -23,16 +23,10 @@ const PlaylistTabComponent = ({ route }) => {
   // console.log("playlists :::" , playlists);
   const [isCreatePlaylistModalVisible, setCreatePlaylistModalVisible] = useState(false)
 
-  const userId = route?.params?.userId || user._id;
-  // console.log(userId);
+  const { isOwner, userId } = route?.params
 
   const handleFetchPlaylists = () => {
-    if (userId !== user?._id) {
       dispatch(fetchPlaylists(userId))
-    }
-    else {
-      dispatch(fetchPlaylists(user?._id))
-    }
   }
   useFocusEffect(
     useCallback(() => {
@@ -126,13 +120,13 @@ const PlaylistTabComponent = ({ route }) => {
 
       {/* add btn  */}
       {
-        userId === user._id &&
+        isOwner &&
         <TouchableOpacity onPress={() => setCreatePlaylistModalVisible(!isCreatePlaylistModalVisible)} style={styles.addBtn}>
           <MaterialCommunityIcons name="playlist-plus" size={27} color="#AE7AFF" />
         </TouchableOpacity>
       }
       {
-        userId === user._id &&
+        isOwner &&
         <CreatePlaylist isVisible={isCreatePlaylistModalVisible} setVisible={setCreatePlaylistModalVisible} />
       }
     </View>

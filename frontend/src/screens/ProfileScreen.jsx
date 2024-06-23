@@ -1,5 +1,5 @@
 import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -16,6 +16,7 @@ import HeaderComponent from '../components/HeaderComponent.jsx';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from 'expo-theme-switcher';
 import { UserType } from '../context/UserContext.js';
+import SubscribersComponent from '../components/tabSectionComponents/SubscribersComponent.jsx';
 
 const Tab = createMaterialTopTabNavigator();
 const ProfileScreen = ({ navigation, route }) => {
@@ -26,8 +27,9 @@ const ProfileScreen = ({ navigation, route }) => {
     const [userchannelProfile, setUserChannelProfile] = useState({})
     const [isModalVisible, setModalVisible] = useState(false);
 
-    let isOwner = route.params?.isOwner || (user.username === route?.params?.channel?.username) || false
-    console.log("isOwner :::::: ", isOwner);
+    const isOwner = route.params?.isOwner || (user.username === route?.params?.channel?.username) || false
+    const userId = route?.params?.channel?._id || user?._id;
+    const username = route?.params?.channel?.username || user?.username
 
     const sections = [
         {
@@ -47,18 +49,17 @@ const ProfileScreen = ({ navigation, route }) => {
         },
         {
             id: 4,
-            name: "Subscribed",
-            component: SubscribedTabcomponent
+            name: isOwner ? "Subscribed" : "Subscribers",
+            component: isOwner ? SubscribedTabcomponent : SubscribersComponent
         },
     ]
 
     const handleSections = (sectionName) => {
         setSelectedSection(sectionName)
-        // console.log("selectedSection : ", selectedSection);
     }
 
     const handleGetUserProfile = async () => {
-        const username = user.username
+        // const username = user.username
 
         const accessToken = await AsyncStorage.getItem("accessToken")
         const response = await axios.get(`${base_url}/users/c/${username}`,
@@ -73,8 +74,6 @@ const ProfileScreen = ({ navigation, route }) => {
     }
 
     useEffect(() => {
-        // Scroll to the top of the ScrollView
-        // scrollRef.current?.scrollTo({ y: 0, animated: true });
         handleGetUserProfile()
     }, [])
 
@@ -82,10 +81,6 @@ const ProfileScreen = ({ navigation, route }) => {
     const closeModal = () => {
         setModalVisible(false)
     }
-
-    // Determine if the logged-in user is viewing their own profile
-    // const isOwner = user.username === userchannelProfile.username;
-
 
     return (
         <SafeAreaView style={[styles.safeArea, { backgroundColor: "#000" }]}>
@@ -108,16 +103,21 @@ const ProfileScreen = ({ navigation, route }) => {
                         </View>
 
                         {/* Edit Button */}
-                        <TouchableOpacity style={styles.editButton}>
-                            <Feather name="edit-2" size={17} color="black" style={styles.editIcon} />
-                            <Text style={styles.editText}>Edit</Text>
-                        </TouchableOpacity>
+                        {
+                            isOwner &&
+                            <TouchableOpacity style={styles.editButton}>
+                                <Feather name="edit-2" size={17} color="black" style={styles.editIcon} />
+                                <Text style={styles.editText}>Edit</Text>
+                            </TouchableOpacity>
+                        }
 
                         {/* Subscriber Info */}
-                        <Text style={styles.subscriberInfo}>{userchannelProfile.subscribersCount} subscribers • {userchannelProfile.channelSubscribedToCount} Subscribed</Text>
+                        <Text style={styles.subscriberInfo}>{userchannelProfile.subscribersCount} subscribers</Text>
+                        {
+                            isOwner && <Text style={styles.subscribedInfo}>{userchannelProfile.channelSubscribedToCount} Subscribed</Text>
+                        }
                     </View>
                 </View>
-
                 {/* Tab Navigator */}
                 <View style={styles.tabNavigatorContainer}>
                     <Tab.Navigator
@@ -128,13 +128,18 @@ const ProfileScreen = ({ navigation, route }) => {
                         }}
                     >
                         {sections.map((section) => (
-                            <Tab.Screen key={section.id} name={section.name} component={section.component} options={{
-                                tabBarLabel: ({ focused }) => (
-                                    <Text style={[styles.tabLabelText, { color: focused ? "#AE7AFF" : currentTheme.primaryTextColor }]}>
-                                        {section.name}
-                                    </Text>
-                                )
-                            }} />
+                            <Tab.Screen
+                                initialParams={{ isOwner, userId }}
+                                key={section.id}
+                                name={section.name}
+                                component={section.component}
+                                options={{
+                                    tabBarLabel: ({ focused }) => (
+                                        <Text style={[styles.tabLabelText, { color: focused ? "#AE7AFF" : currentTheme.primaryTextColor }]}>
+                                            {section.name}
+                                        </Text>
+                                    )
+                                }} />
                         ))}
                     </Tab.Navigator>
                 </View>
@@ -214,6 +219,13 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     subscriberInfo: {
+        color: "#999",
+        fontSize: 13,
+        position: 'absolute',
+        bottom: -2,
+        right: 170,
+    },
+    subscribedInfo: {
         color: "#999",
         fontSize: 13,
         position: 'absolute',

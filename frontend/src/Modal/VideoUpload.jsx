@@ -1,5 +1,5 @@
 import { Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { memo, useState } from 'react'
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from 'expo-document-picker';
@@ -189,4 +189,4 @@ const VideoUpload = ({ isVisible, setVisible, getAllVideos }) => {
   )
 }
 
-export default VideoUpload
+export default memo(VideoUpload)

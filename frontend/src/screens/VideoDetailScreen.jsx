@@ -16,7 +16,7 @@ import { increaseViewsHandler } from '../actions/video.actions';
 import { UserType } from '../context/UserContext';
 import axiosInstance from '../helper/axiosInstance';
 
-const AnimatiedLikeBtn = Animated.createAnimatedComponent(TouchableOpacity)
+const AnimatedLikeButton = Animated.createAnimatedComponent(TouchableOpacity);
 const VideoDetailScreen = ({ route }) => {
     const [channel, setChannel] = useState([])
     const navigation = useNavigation()
@@ -29,15 +29,14 @@ const VideoDetailScreen = ({ route }) => {
     const videoRef = React.useRef(null);
     const videoId = data?._id
     const [videoInfo, setVideoInfo] = useState([])
-    const likeScale = useSharedValue(1)
+    const likeScale = useSharedValue(1);
 
     const animatedLikeStyle = useAnimatedStyle(() => {
         return {
-            transform: [
-                { scale: likeScale.value },
-            ]
-        }
-    })
+            transform: [{ scale: likeScale.value }],
+        };
+    });
+
     const getChannel = async () => {
         let username = "";
         if (Object.keys(data).includes("userDetails")) { // if user comes from HomeScreen
@@ -99,7 +98,7 @@ const VideoDetailScreen = ({ route }) => {
             // console.log(response.data);
             getVideoInfo()
         } catch (error) {
-
+            console.error("Error while toggling like: ", error);
         } finally {
         }
     }
@@ -139,80 +138,61 @@ const VideoDetailScreen = ({ route }) => {
                 />
 
                 <View style={styles.videoInfoContainer}>
-                    <View style={styles.videoInfo}>
-                        <Text style={styles.videoTitle}>{videoInfo?.title}</Text>
-                        <View style={styles.videoStats}>
-                            <Text style={styles.videoViews}>{videoInfo.views} Views</Text>
-                            <Text style={styles.videoUploadedTime}>
-                                {/* {
-                    formatDistanceToNow(new Date(videoInfo.createdAt), {
-                      addSuffix: true,
-                    }).toString()
-                  } */}
-                            </Text>
-                        </View>
+                    <Text style={styles.videoTitle}>{videoInfo?.title}</Text>
+                    <View style={styles.videoStats}>
+                        <Text style={styles.videoViews}>{videoInfo.views} Views</Text>
+                        {/* <Text style={styles.videoUploadedTime}>
+                                {
+                                    formatDistanceToNow(new Date(videoInfo?.createdAt), {
+                                        addSuffix: true,
+                                    })?.toString()
+                                }
+                            </Text> */}
+                    </View>
 
-                        <View style={styles.likeDislikeSaveContainer}>
-                            <View style={styles.likeDislikeContainer}>
-                                <TouchableOpacity
-                                    onPress={() => toggleVideoLikeHandler(data._id, "like")}
-                                    style={styles.likeButton}
-                                >
-                                    {videoInfo.isLiked ? (
-                                        <AntDesign name="like1" size={21} color="white" />
-                                    ) : (
-                                        <AntDesign name="like2" size={21} color="white" />
-                                    )}
-                                    <Text style={styles.likeText}>{videoInfo.likesCount}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => toggleVideoLikeHandler(data._id, "dislike")}
-                                    style={styles.dislikeButton}
-                                >
-                                    {videoInfo.isDisliked ? (
-                                        <AntDesign name="dislike1" size={21} color="white" />
-                                    ) : (
-                                        <AntDesign name="dislike2" size={21} color="white" />
-                                    )}
-                                    <Text style={styles.likeText}>{videoInfo.dislikesCount}</Text>
-                                </TouchableOpacity>
-                            </View>
-
-                            <TouchableOpacity onPress={getChannel} style={styles.saveButton}>
-                                <Feather name="folder-plus" size={23} color="gray" />
-                                <Text style={styles.saveButtonText}>Save</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={styles.channelContainer}>
-                            <TouchableOpacity
-                                onPress={() => navigation.navigate("Channel", { channel })}
-                                style={styles.channelInfo}
+                    <View style={styles.likeDislikeSaveContainer}>
+                        <View style={styles.likeDislikeContainer}>
+                            <AnimatedLikeButton
+                                onPress={() => toggleVideoLikeHandler(data._id, "like")}
+                                style={[styles.likeButton, animatedLikeStyle]}
                             >
-                                <Image source={{ uri: channel?.avatar }} style={styles.channelAvatar} />
-                                <View>
-                                    <Text style={styles.channelName}>{channel?.username}</Text>
-                                    <Text style={styles.channelSubscribers}>{channel?.subscribersCount} Subscribers</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={subscribeToggle} style={styles.subscribeButton}>
-                                {channel?.isSubscribed ? (
-                                    <View style={styles.subscribedContainer}>
-                                        <SimpleLineIcons name="user-following" size={18} color="black" />
-                                        <Text style={styles.subscribedText}>Subscribed</Text>
-                                    </View>
-                                ) : (
-                                    <View style={styles.subscribeContainer}>
-                                        <SimpleLineIcons name="user-follow" size={18} color="black" />
-                                        <Text style={styles.subscribeText}>Subscribe</Text>
-                                    </View>
-                                )}
+                                <AntDesign name={videoInfo.isLiked ? "like1" : "like2"} size={21} color="white" />
+                                <Text style={styles.likeText}>{videoInfo.likesCount}</Text>
+                            </AnimatedLikeButton>
+                            <TouchableOpacity
+                                onPress={() => toggleVideoLikeHandler(data._id, "dislike")}
+                                style={styles.dislikeButton}
+                            >
+                                <AntDesign name={videoInfo.isDisliked ? "dislike1" : "dislike2"} size={21} color="white" />
+                                <Text style={styles.likeText}>{videoInfo.dislikesCount}</Text>
                             </TouchableOpacity>
                         </View>
 
-                        <View style={styles.descriptionContainer}>
-                            <Text style={styles.descriptionText}>🚀{data?.description}</Text>
-                        </View>
+                        <TouchableOpacity onPress={getChannel} style={styles.saveButton}>
+                            <Feather name="folder-plus" size={18} color="gray" />
+                            <Text style={styles.saveButtonText}>Save</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.channelContainer}>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate("Channel", { channel })}
+                            style={styles.channelInfo}
+                        >
+                            <Image source={{ uri: channel?.avatar }} style={styles.channelAvatar} />
+                            <View>
+                                <Text style={styles.channelName}>{channel?.username}</Text>
+                                <Text style={styles.channelSubscribers}>{channel?.subscribersCount} Subscribers</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={subscribeToggle} style={styles.subscribeButton}>
+                            <SimpleLineIcons name={channel?.isSubscribed ? "user-following" : "user-follow"} size={18} color="black" />
+                            <Text style={styles.subscribeText}>{channel?.isSubscribed ? "Subscribed" : "Subscribe"}</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.descriptionContainer}>
+                        <Text style={styles.descriptionText}>🚀{data?.description}</Text>
                     </View>
                 </View>
 
@@ -225,69 +205,65 @@ const VideoDetailScreen = ({ route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#111",
+        backgroundColor: "#0d0d0d",
     },
     scrollView: {
         paddingHorizontal: 10,
     },
     video: {
-        height: 200,
-        borderWidth: 0.5,
-        borderColor: "gray",
+        height: 220,
         borderRadius: 10,
+        // marginBottom: 15,
     },
     videoInfoContainer: {
-        marginTop: 15,
-    },
-    videoInfo: {
-        borderWidth: 0.6,
-        borderColor: "white",
         padding: 15,
+        backgroundColor: "#181818",
         borderRadius: 10,
-        backgroundColor: "#222",
+        marginBottom: 20,
     },
     videoTitle: {
-        color: "white",
-        fontSize: 22,
-        fontWeight: "700",
+        color: "#ffffff",
+        fontSize: 20,
+        fontWeight: "bold",
     },
     videoStats: {
         flexDirection: 'row',
-        marginTop: 7,
+        justifyContent: 'space-between',
+        marginBottom: 15,
     },
     videoViews: {
         color: "white",
-        fontSize: 14,
+        fontSize: 13,
     },
     videoUploadedTime: {
-        color: "#dbdbdb",
-        fontSize: 13,
-        marginLeft: 5,
+        color: "gray",
+        fontSize: 14,
     },
     likeDislikeSaveContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 10,
+        alignItems: 'center',
+        // marginBottom: 20,
     },
     likeDislikeContainer: {
         flexDirection: 'row',
-        alignItems: 'center',
         backgroundColor: "#333",
         borderRadius: 7,
+        overflow: 'hidden',
     },
     likeButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 7,
+        paddingVertical: 10,
         paddingHorizontal: 15,
     },
     dislikeButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 7,
+        paddingVertical: 10,
         paddingHorizontal: 15,
-        borderLeftWidth: 0.6,
-        borderLeftColor: "gray",
+        borderLeftWidth: 1,
+        borderLeftColor: "#333333",
     },
     likeText: {
         color: "white",
@@ -297,15 +273,15 @@ const styles = StyleSheet.create({
     saveButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: "#444",
-        paddingHorizontal: 10,
-        paddingVertical: 5,
+        backgroundColor: "#333333",
+        paddingHorizontal: 14,
+        paddingVertical: 8,
         borderRadius: 7,
     },
     saveButtonText: {
-        color: "white",
-        fontSize: 19,
-        fontWeight: "300",
+        color: "#ffffff",
+        fontSize: 16,
+        marginLeft: 5,
     },
     channelContainer: {
         flexDirection: 'row',
@@ -316,54 +292,44 @@ const styles = StyleSheet.create({
     channelInfo: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10
     },
     channelAvatar: {
         width: 50,
         height: 50,
         borderRadius: 25,
+        marginRight: 10,
     },
     channelName: {
         color: "white",
-        fontSize: 18,
-        fontWeight: "600",
+        fontSize: 16,
+        fontWeight: "bold",
     },
     channelSubscribers: {
-        color: "#9e9e9e",
+        color: "gray",
+        fontSize: 13,
     },
     subscribeButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: "#AE7AFF",
-        paddingHorizontal: 15,
-        paddingVertical: 8,
         borderRadius: 7,
-    },
-    subscribedContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    subscribedText: {
-        color: "black",
-        fontSize: 18,
-        fontWeight: "600",
-    },
-    subscribeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 15,
     },
     subscribeText: {
-        color: "black",
-        fontSize: 18,
-        fontWeight: "600",
+        color: "#000000",
+        fontSize: 16,
+        marginLeft: 5,
     },
     descriptionContainer: {
-        marginTop: 15,
-        borderTopWidth: 0.6,
-        borderTopColor: "gray",
-        paddingVertical: 10,
+        borderTopWidth: 0.5,
+        borderTopColor: "#333333",
+        paddingTop: 10,
+        marginTop: 8
     },
     descriptionText: {
-        color: "white",
-        fontSize: 18,
+        color: "#ffffff",
+        fontSize: 16,
         textAlign: 'center',
     },
 });

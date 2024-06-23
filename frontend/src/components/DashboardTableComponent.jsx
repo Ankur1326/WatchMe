@@ -9,80 +9,208 @@ const DashboardTableComponent = ({ item, selectedItem, handleSwitchStatus, confo
     const [showConfirmation, setShowConfirmation] = useState(false)
 
     return (
-        <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: "gray", borderTopWidth: 0 }}>
-            <View style={[{ width: "10%", alignItems: 'center', justifyContent: 'center', }]}>
+        <View style={styles.rowContainer}>
+            <View style={styles.switchContainer}>
                 <Switch
-                    trackColor={{ false: "#FFFFFF", true: "#AE7AFF" }}
-                    thumbColor={item.isPublished ? "#FFFFFF" : "#FFFFFF"}
+                    trackColor={{ false: "#E0E0E0", true: "#AE7AFF" }}
+                    thumbColor={item?.isPublished ? "#FFFFFF" : "#FFFFFF"}
                     ios_backgroundColor="#3e3e3e"
-                    onValueChange={() => handleSwitchStatus(item._id)}
-                    value={item.isPublished}
-                    style={{ height: 25 }}
+                    onValueChange={() => handleSwitchStatus(item?._id)}
+                    value={item?.isPublished}
+                    style={styles.switch}
                 />
             </View>
             {
-                selectedItem === item._id ? <ActivityIndicator size={"small"} style={{ width: "15%" }} /> :
+                selectedItem === item?._id ? <ActivityIndicator size={"small"} style={styles.activityIndicator} /> :
                     (
                         item?.isPublished ?
-                            <View style={{ width: "15%", alignItems: "center", paddingHorizontal: 2, paddingVertical: 8, }} >
-                                <Text style={{ color: "#4fff5a", fontSize: 13, borderWidth: 1, borderColor: "#4fff5a", paddingHorizontal: 5, paddingVertical: 3, borderRadius: 8 }} >published</Text>
+                            <View style={styles.publishedContainer}>
+                                <Text style={styles.publishedText}>Published</Text>
                             </View>
                             :
-                            <View style={{ width: "15%", alignItems: "center", paddingHorizontal: 2, paddingVertical: 8, }} >
-                                <Text style={{ fontSize: 13, color: "#ff4f4f", borderWidth: 1, borderColor: "#ff4f4f", paddingHorizontal: 5, paddingVertical: 3, borderRadius: 8 }} >Unpublished</Text>
+                            <View style={styles.unpublishedContainer}>
+                                <Text style={styles.unpublishedText}>Unpublished</Text>
                             </View>
                     )
             }
 
-            <View style={{ width: "28%", flexDirection: 'row', paddingHorizontal: 14, gap: 5, alignItems: 'center' }} >
-                <Image source={{ uri: item.thumbnail }} style={{ width: 60, height: 35, alignItems: 'center' }} />
-                <Text style={[{ color: currentTheme.primaryTextColor, fontSize: 15, fontWeight: 'medium' }]} >
+            <View style={styles.thumbnailContainer}>
+                <Image source={{ uri: item?.thumbnail }} style={styles.thumbnail} />
+                <Text style={[styles.titleText, { color: currentTheme.primaryTextColor }]}>
                     {
-                        item.title.length > 20 ? `${item?.title.slice(0, 20)}...` : item.title
+                        item.title?.length > 20 ? `${item?.title?.slice(0, 20)}...` : item.title
                     }
                 </Text>
             </View>
 
-            {/* likes and dislikes             */}
-            <View style={{ width: "20%", flexDirection: 'row', gap: 5, alignItems: 'center', justifyContent: 'center', }} >
-                <Text style={[styles.tableText, { color: "#007c2b", fontSize: 14, fontWeight: '500', backgroundColor: "#BBF7D0", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 15 }]} >{item.videoLikes} likes</Text>
-
-                <Text style={[styles.tableText, { color: "#a00000", fontSize: 14, fontWeight: '500', backgroundColor: "#FECACA", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 15 }]} >{item.videoDislikes} dislikes</Text>
+            <View style={styles.ratingContainer}>
+                <View style={styles.ratingBadge}>
+                    <Text style={styles.likesText}>{item.videoLikes}</Text>
+                    <AntDesign name="like1" size={14} color="#007c2b" />
+                </View>
+                <View style={styles.ratingBadge}>
+                    <Text style={styles.dislikesText}>{item.videoDislikes}</Text>
+                    <AntDesign name="dislike1" size={14} color="#a00000" />
+                </View>
             </View>
-            <Text style={[{ color: currentTheme.primaryTextColor, width: "16%" }, styles.dataText]} >{item.createdAt.substring(0, 10)}</Text>
+            <Text style={[styles.dateText, { color: currentTheme.primaryTextColor }]}>{item?.createdAt?.substring(0, 10)}</Text>
 
-            <View style={{ width: "20%", paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 15 }}>
-                {/* delete */}
-                <TouchableOpacity onPress={() => setShowConfirmation(!showConfirmation)} style={{ alignItems: 'center' }}>
-                    <AntDesign name="delete" size={20} color={currentTheme.primaryTextColor} />
+            <View style={styles.actionContainer}>
+                <TouchableOpacity onPress={() => setShowConfirmation(!showConfirmation)} style={styles.iconButton}>
+                    <AntDesign name="delete" size={20} color="#FF5252" />
                 </TouchableOpacity>
-                {/* Edit */}
-                <TouchableOpacity onPress={() => handleEditVideo(item._id)} style={{ alignItems: 'center' }}>
-                    <Feather name="edit-2" size={20} color={currentTheme.primaryTextColor} />
+                <TouchableOpacity onPress={() => handleEditVideo(item._id)} style={styles.iconButton}>
+                    <Feather name="edit-2" size={20} color="#6200EE" />
                 </TouchableOpacity>
             </View>
 
-
-            {/* Conformation Dialog */}
             <CustomDeleteDialog
                 showConfirmation={showConfirmation}
                 title="Delete Video"
                 message="Are you sure you want to delete this Video"
                 onCancel={() => {
                     setShowConfirmation(false)
-                }} // Close the confirmation dialog if Cancel is pressed
+                }}
                 onConfirm={() => {
-                    conformDeleteVideo(item._id), // videoId
-                        setShowConfirmation(false)
+                    conformDeleteVideo(item._id)
+                    setShowConfirmation(false)
                 }}
             />
         </View>
     )
 }
 
-export default DashboardTableComponent
-
 const styles = StyleSheet.create({
+    rowContainer: {
+        flexDirection: 'row',
+        borderWidth: 0.5,
+        borderColor: "gray",
+        borderRadius: 10,
+        marginVertical: 5,
+        padding: 10,
+        // backgroundColor: '#FFFFFF',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    switchContainer: {
+        width: "10%",
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    switch: {
+        height: 25,
+    },
+    activityIndicator: {
+        width: "15%",
+    },
+    publishedContainer: {
+        width: "15%",
+        alignItems: "center",
+        paddingHorizontal: 2,
+        paddingVertical: 8,
+    },
+    publishedText: {
+        color: "#4CAF50",
+        fontSize: 13,
+        borderWidth: 1,
+        borderColor: "#4CAF50",
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 15,
+        fontWeight: '600',
+    },
+    unpublishedContainer: {
+        width: "15%",
+        alignItems: "center",
+        paddingHorizontal: 2,
+        paddingVertical: 8,
+    },
+    unpublishedText: {
+        fontSize: 13,
+        color: "#F44336",
+        borderWidth: 1,
+        borderColor: "#F44336",
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 15,
+        fontWeight: '600',
+    },
+    thumbnailContainer: {
+        width: "28%",
+        flexDirection: 'row',
+        paddingHorizontal: 14,
+        gap: 10,
+        alignItems: 'center',
+        // backgroundColor: '#FFF',
+        borderRadius: 8,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        padding: 10,
+    },
+    thumbnail: {
+        width: 60,
+        height: 35,
+        borderRadius: 4,
+    },
+    titleText: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        flex: 1,
+        flexWrap: 'wrap'
+    },
+    ratingContainer: {
+        width: "20%",
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    ratingBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: "#F5F5F5",
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 15,
+        marginRight: 5,
+    },
+    likesText: {
+        color: "#007c2b",
+        fontSize: 14,
+        fontWeight: '500',
+        marginRight: 5,
+    },
+    dislikesText: {
+        color: "#a00000",
+        fontSize: 14,
+        fontWeight: '500',
+        marginRight: 5,
+    },
+    dateText: {
+        width: "16%",
+        textAlign: "center",
+        paddingHorizontal: 2,
+        paddingVertical: 14,
+        fontSize: 14,
+    },
+    actionContainer: {
+        width: "8%",
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    iconButton: {
+        alignItems: 'center',
+        padding: 5,
+    },
     tableText: {
         textAlign: "center",
         paddingHorizontal: 2,
@@ -97,3 +225,5 @@ const styles = StyleSheet.create({
         fontSize: 14,
     }
 })
+
+export default DashboardTableComponent
