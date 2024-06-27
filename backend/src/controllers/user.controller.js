@@ -95,7 +95,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Something went wrong while registering the user");
   }
 
-  console.log("createdUser : ", createdUser);
+  // console.log("createdUser : ", createdUser);
 
   return res
     .status(201)
@@ -123,11 +123,11 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   const user = await User.findOne({
-    $or: [{ username }, { email }],
+    $and: [{ username }, { email }],
   });
 
   if (!user) {
-    throw new ApiError(404, "user does not exist");
+    throw new ApiError(404, "This user does not exist");
   }
 
   const isPasswordValid = await user.isPasswordCorrect(password.trim());
