@@ -1,42 +1,28 @@
-import { View, Image, ScrollView, StyleSheet, StatusBar, Pressable, Text, Button, FlatList, ActivityIndicator, TextInput, RefreshControl, Alert } from "react-native";
-import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { View, Image, StyleSheet, StatusBar, Pressable, Text, FlatList, ActivityIndicator, RefreshControl, Alert } from "react-native";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage"
-import axios from "axios";
-import { base_url } from "../helper/helper.js";
 import { formatDistanceToNow } from 'date-fns';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
-import SkeletonLoader from "../components/SkeletonLoader.jsx";
 import HeaderComponentt from "../components/HeaderComponent.jsx";
 import { useTheme } from 'expo-theme-switcher';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import BottomSlideModalToHomePage from "../Modal/BottomSlideModalToHomePage.jsx";
-import PopupMessage from "../components/PopupMessage.jsx";
-import { getAllPublishVideosHandler } from "../actions/video.actions.js";
-import { fetchCurrentUserHandler } from "../actions/channel.actions.js";
-import { UserType } from "../context/UserContext.js";
 import VideoSkeletonLoader from "../components/SkeletonLoader/VideoSkeletonLoader.jsx";
-import { useSelector } from "react-redux";
 import axiosInstance from "../helper/axiosInstance.js";
+import { showMessage } from "react-native-flash-message";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const HomeScreen = () => {
   const { currentTheme } = useTheme()
-
   const navigation = useNavigation()
   const [videos, setVideos] = useState([])
   const [currentPage, setCurrentPage] = useState(1);
-  const [user, setUser] = useContext(UserType);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false)
   const [optionsVisible, setOptionsVisible] = useState(null);
   const [isVideoModalVisible, setIsVideoModalVisible] = useState(false)
-  const [isPopupMessageShow, setPopupMessageShow] = useState(false)
-  const [error, setError] = useState("")
-
-  const isSuccess = useSelector((state) => state.playlists.isSuccess)
-  const message = useSelector((state) => state.playlists.message)
+  const [searchQuery, setSearchQuery] = useState('');
 
   const category = [
     {
@@ -69,32 +55,10 @@ const HomeScreen = () => {
     },
   ];
 
-  // fetch current user 
-  const handleFetchCurrentUser = useCallback(async () => {
-    try {
-      const response = await axiosInstance.get(`users/current-user`)
-      if (response.status === 200) {
-        setUser(response.data.data)
-      }
-    } catch (error) {
-      console.log("error :: ", error.message);
-      if (error.message === "Network Error") {
-        // setError("Oh no❗", error.message)
-        Alert.alert("Oh no❗", error.message)
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    handleFetchCurrentUser();
-  }, [])
-
-  const handleGetAllPublishVideos = async (page = 1) => {
+  const handleGetAllPublishVideos = async (page = 1, query = '') => {
     setLoading(true);
-    // setRefreshing(true)
-    console.log("currentPage ", currentPage);
     try {
-      const response = await axiosInstance.get(`videos/getAll-publish-video/?page=${currentPage}&limit=10`)
+      const response = await axiosInstance.get(`videos/getAll-publish-video/?page=${page}&limit=10&query=${query}`)
       const data = response.data.data
       if (page === 1) {
         setVideos(data);
@@ -103,8 +67,12 @@ const HomeScreen = () => {
       }
     } catch (error) {
       if (error.message === "Network Error") {
-        // setError("Oh no❗", error.message)
-        Alert.alert("Oh no❗", error.message)
+        showMessage({
+          message: "!Ooops",
+          description: "Network Error",
+          type: "danger"
+        })
+        // Alert.alert("Oh no❗", error.message)
       }
     } finally {
       setRefreshing(false);
@@ -113,8 +81,8 @@ const HomeScreen = () => {
   }
 
   useEffect(() => {
-    handleGetAllPublishVideos(currentPage)
-  }, [currentPage])
+    handleGetAllPublishVideos(currentPage, searchQuery)
+  }, [currentPage, searchQuery])
 
   const loadingMoreVideos = async () => {
     if (!loading && !refreshing && videos.length > 0) {
@@ -126,7 +94,7 @@ const HomeScreen = () => {
     setRefreshing(true)
     setCurrentPage(1)
     setVideos([]) // remove all videos from videos array 
-    handleGetAllPublishVideos(1)
+    handleGetAllPublishVideos(1, searchQuery)
   }
 
   const [videoId, setVideoId] = useState("")
@@ -134,6 +102,13 @@ const HomeScreen = () => {
     setIsVideoModalVisible(!isVideoModalVisible)
     setVideoId(videoId)
   }
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+    setVideos([]);
+    handleGetAllPublishVideos(1, query);
+  };
 
   const renderEmptyState = () => (
     // error ?
@@ -203,20 +178,23 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.primaryBackgroundColor }]}>
       <StatusBar barStyle="light-content" />
-      <HeaderComponentt />
-      <PopupMessage isSuccess={isSuccess} title={message} isVisible={isPopupMessageShow} setVisible={setPopupMessageShow} />
+      <HeaderComponentt onSearch={handleSearch} />
       <FlatList
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         data={videos}
         keyExtractor={(item) => item._id.toString()}
         renderItem={renderListItem}
         ListEmptyComponent={refreshing ? <View><VideoSkeletonLoader /><VideoSkeletonLoader /><VideoSkeletonLoader /></View> : renderEmptyState()}
-        ListFooterComponent={() => loading && <ActivityIndicator size="large" color="#AE7AFF" />}
+        ListFooterComponent={() => (
+          <View>
+            {loading && searchQuery === "" && <ActivityIndicator size="large" color="#AE7AFF" />}
+          </View>
+        )}
         onEndReached={loadingMoreVideos}
         onEndReachedThreshold={0.5}
         windowSize={5}
       />
-      <BottomSlideModalToHomePage isVideoModalVisible={isVideoModalVisible} setIsVideoModalVisible={setIsVideoModalVisible} videoId={videoId} setPopupMessageShow={setPopupMessageShow} />
+      <BottomSlideModalToHomePage showMessage={showMessage} isVideoModalVisible={isVideoModalVisible} setIsVideoModalVisible={setIsVideoModalVisible} videoId={videoId} />
     </SafeAreaView>
   );
 };
@@ -265,14 +243,11 @@ const styles = StyleSheet.create({
   },
   videoItem: {
     borderBottomWidth: 1,
-    paddingBottom: 26,
-    // marginHorizontal: 4,
     marginVertical: 8,
+    paddingBottom: 20,
   },
   videoContainer: {
-    flexDirection: 'column',
     position: 'relative',
-    alignItems: 'flex-start',
   },
   thumbnail: {
     width: '100%',
@@ -293,9 +268,10 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     marginTop: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
   },
   titleRow: {
     flexDirection: 'row',
@@ -316,13 +292,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   subtitle: {
-    fontSize: 13,
+    fontSize: 12,
   },
   dotsButton: {
-    // paddingHorizontal: 7,
-    paddingVertical: 7,
+    padding: 7,
     borderRadius: 5,
-    marginLeft: 'auto',
   },
   dotsButtonActive: {
     backgroundColor: '#333',

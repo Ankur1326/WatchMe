@@ -1,20 +1,22 @@
-import { View, Text, Image, Pressable, TextInput, StyleSheet } from 'react-native'
+import { View, Image, Pressable, TextInput, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
 import { useNavigation } from "@react-navigation/native"
 import { Feather } from "@expo/vector-icons";
 import { useTheme } from 'expo-theme-switcher';
+import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const HeaderComponent = ({ onSearch }) => {
   const { currentTheme } = useTheme()
   const navigation = useNavigation()
   const [searchQuery, setSearchQuery] = useState('');
+  const [isCloseShow, setCloseShow] = useState(false);
 
   const handleSearchChange = (query) => {
     setSearchQuery(query);
     onSearch(query);
+    setCloseShow(true)
   };
-
   return (
     <View style={[styles.headerContainer, { backgroundColor: currentTheme.primaryBackgroundColor }]}>
       {/* Logo */}
@@ -24,15 +26,28 @@ const HeaderComponent = ({ onSearch }) => {
         <TextInput
           placeholder="Search videos..."
           value={searchQuery}
-          onChangeText={handleSearchChange}
+          onChangeText={(text) => setSearchQuery(text)}
           style={[styles.searchInput, { backgroundColor: currentTheme.secondaryBackgroundColor, color: currentTheme.primaryTextColor }]}
           placeholderTextColor={currentTheme.secondaryTextColor}
         />
         {/* Search Icon */}
-        <TouchableOpacity>
-
-          <Feather name="search" size={20} color={currentTheme.primaryTextColor} style={styles.searchIcon} />
+        {/* {
+          searchQuery ? */}
+        {/* <TouchableOpacity onPress={() => {
+              setSearchQuery("")
+              handleSearchChange()
+            }}>
+              <Ionicons name="close" size={28} color={currentTheme.primaryTextColor} />
+            </TouchableOpacity> */}
+        {/* : */}
+        <TouchableOpacity onPress={() => handleSearchChange(searchQuery)}>
+          <Feather name="search" size={22} color={currentTheme.primaryTextColor} style={styles.searchIcon} />
         </TouchableOpacity>
+        {/* 
+        } */}
+
+
+
       </View>
       {/* Menu Icon */}
       <Pressable onPress={() => navigation.openDrawer()} style={styles.menuIcon}>
@@ -46,12 +61,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderBottomWidth: 1.5,
-    borderBottomColor: 'lightgray', // Replace with currentTheme.primaryBorderColor
-    elevation: 5, // Adds shadow for Android
-    shadowColor: '#000', // Adds shadow for iOS
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: 'lightgray',
+    elevation: 5,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -67,18 +82,16 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     marginRight: 10,
-    backgroundColor: '#444', // Replace with currentTheme.secondaryBackgroundColor
+    backgroundColor: '#444',
     borderRadius: 25,
-    // paddingHorizontal: 10,
     paddingRight: 10,
     borderWidth: 1,
-    borderColor: "gray"
-
+    borderColor: 'gray',
   },
   searchInput: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 15,
     borderRadius: 25,
     fontSize: 16,
   },
