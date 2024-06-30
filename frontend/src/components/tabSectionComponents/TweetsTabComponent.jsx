@@ -7,7 +7,7 @@ import CustomDeleteDialog from '../../Modal/CustomDeleteDialog.jsx';
 import BottomSlideModal from '../../Modal/BottomSlideModal.jsx';
 import axiosInstance from '../../helper/axiosInstance.js';
 
-const TweetsTabComponent = ({ route }) => {
+const TweetsTabComponent = ({ route, initialParams }) => {
   const { currentTheme } = useTheme()
   const [tweet, setTweet] = useState("")
   const [tweets, setTweets] = useState([])
@@ -15,12 +15,15 @@ const TweetsTabComponent = ({ route }) => {
   const [isModalVisible, setModalVisible] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [tweetId, setTweetId] = useState("")
-  const { isOwner, userId } = route?.params
+
+  // const { isOwner, userId } = route?.params
+  const { isOwner, userId } = initialParams
 
   const handleCreateTweet = async () => {
     try {
-      await axiosInstance.post(`tweets`,{ content: tweet })
+      await axiosInstance.post(`tweets`, { content: tweet })
       // await createTweetHandler(tweet)
+
       setTweet("")
       await handleGetTweets()
     } catch (error) {

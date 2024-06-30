@@ -3,13 +3,13 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useTheme } from 'expo-theme-switcher'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchChannelsSubscribed, toggleSubscription } from '../../store/slices/subscriptionSlice'
-import { Ionicons, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
+import { fetchChannelsSubscribed } from '../../store/slices/subscriptionSlice'
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { UserType } from '../../context/UserContext'
 
 const SubscribedTabcomponent = () => {
   const { currentTheme } = useTheme()
-  const [user, setUser] = useContext(UserType);
+  const [user] = useContext(UserType);
   const dispatch = useDispatch()
   const channels = useSelector((state) => state.subscription.subscribedChannels)
 

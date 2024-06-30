@@ -15,18 +15,12 @@ const getAllVideos = asyncHandler(async (req, res) => {
     // limit: defaule value 10  
 
     // query : If Provided, it can be used to filter videos based on some criteria, like title, description, or tags
-
     // sortBy: Determines the field by which the videos should be ordered, for example, sorting by title, date, or popularity.
-
     // sortType: determine the order in which the videos should be sorted (ascending or descinding)
-
     // userId: If provieded, it may be used to fetch videos associated with a particular user 
-
-
     // get all video based on query
 
     // console.log("userId : ", req.query);
-
     const queryObject = {}
 
     if (query) {
@@ -458,6 +452,7 @@ const getChannelVideos = asyncHandler(async (req, res) => {
     }
 
 })
+
 const increaseVideoView = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     try {
@@ -482,8 +477,6 @@ const increaseVideoView = asyncHandler(async (req, res) => {
     }
 
 })
-
-
 
 export {
     getAllVideos,

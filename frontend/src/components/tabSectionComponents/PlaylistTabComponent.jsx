@@ -1,36 +1,24 @@
-import { FlatList, Image, Pressable, ScrollView, Text, TouchableOpacity, View, StyleSheet } from 'react-native'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
-import axios from 'axios';
+import { FlatList, Image, Pressable, Text, View, StyleSheet } from 'react-native'
+import React, { memo, useCallback } from 'react'
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
-import PopupMessage from '../PopupMessage';
 import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
-import CreatePlaylist from '../../Modal/CreatePlaylist';
-import { UserType } from '../../context/UserContext';
-import { base_url } from '../../helper/helper';
 import { fetchPlaylists } from '../../store/slices/playlistSlice';
+import axiosInstance from '../../helper/axiosInstance';
 
-const PlaylistTabComponent = ({ route }) => {
+const PlaylistTabComponent = ({ initialParams }) => {
   const dispatch = useDispatch()
   const playlists = useSelector((state) => state.playlists.playlists)
-  const loading = useSelector((state) => state.playlists.loading)
-  const isSuccess = useSelector((state) => state.playlists.isSuccess)
-  const message = useSelector((state) => state.playlists.message)
-  const [user] = useContext(UserType);
   const navigation = useNavigation();
-  const [isPopupMessageShow, setPopupMessageShow] = useState(false)
-  // console.log("playlists :::" , playlists);
-  const [isCreatePlaylistModalVisible, setCreatePlaylistModalVisible] = useState(false)
-
-  const { isOwner, userId } = route?.params
+  const { isOwner, userId } = initialParams
 
   const handleFetchPlaylists = () => {
-      dispatch(fetchPlaylists(userId))
+    dispatch(fetchPlaylists(userId))
   }
+
   useFocusEffect(
     useCallback(() => {
-      handleFetchPlaylists()
+      handleFetchPlaylists();
     }, [])
   );
 
@@ -40,24 +28,12 @@ const PlaylistTabComponent = ({ route }) => {
       navigation.goBack()
     } catch (error) {
       console.log("Error while deleting playlist: ", error);
-    } finally {
-      isPopupMessageShow(true)
-      setTimeout(() => {
-        isPopupMessageShow(false)
-      }, 1000);
     }
   };
 
   const conformDeletePlaylist = async (playlistId) => {
     try {
-      const accessToken = await AsyncStorage.getItem("accessToken")
-      await axios.delete(`${base_url}/playlist/${playlistId}`,
-        {
-          headers: {
-            Authorization: `${accessToken}`,
-          }
-        }
-      )
+      await axiosInstance.delete(`playlist/${playlistId}`)
       getUserPlaylists()
     } catch (error) {
       console.log("Error while deleting playlist: ", error);
@@ -66,70 +42,56 @@ const PlaylistTabComponent = ({ route }) => {
   }
 
   return (
-    <View style={styles.container}>
-      <PopupMessage isSuccess={isSuccess} title={message} isVisible={isPopupMessageShow} setVisible={setPopupMessageShow} />
-      <FlatList
-        data={playlists}
-        renderItem={({ item }) => (
-          <Pressable onLongPress={() => console.log("hiii")} key={item?._id} onPress={() => navigation.navigate("ChannelPlaylistVideosPage", { data: item })} style={styles.playlistItemContainer}>
-            <View style={styles.divider}></View>
+    <FlatList
+      data={playlists}
+      style={styles.container}
+      renderItem={({ item }) => (
+        <Pressable onLongPress={() => console.log("LongPressed")} key={item?._id} onPress={() => navigation.navigate("ChannelPlaylistVideosPage", { data: item })} style={styles.playlistItemContainer}>
+          <View style={styles.divider}></View>
 
-            <View style={{ flexDirection: 'row', gap: 15, position: 'relative', alignItems: 'flex-start' }} >
-              {/* thumbnail */}
-              <View style={styles.thumbnailContainer}>
-                {
-                  item?.videosCount === 0 ?
-                    <View style={styles.thumbnailImage}>
-                      <Image source={{ uri: "https://i.postimg.cc/28dBxzgR/empty-playlsit.png" }} style={styles.thumbnailImage} />
-                    </View>
-                    :
-                    <Image source={{ uri: item?.playlistThumbnail }} style={styles.thumbnailImage} />
-                }
-                {/* videos count  */}
-                <View style={styles.videoCountContainer}>
-                  <MaterialCommunityIcons name="playlist-play" size={15} color="white" />
-                  <Text style={{ color: "white", fontSize: 13, fontWeight: "600", paddingVertical: 5 }}>{item?.videosCount}</Text>
-                </View>
+          <View style={{ flexDirection: 'row', gap: 15, position: 'relative', alignItems: 'flex-start' }} >
+            {/* thumbnail */}
+            <View style={styles.thumbnailContainer}>
+              {
+                item?.videosCount === 0 ?
+                  <View style={styles.thumbnailImage}>
+                    <Image source={{ uri: "https://i.postimg.cc/28dBxzgR/empty-playlsit.png" }} style={styles.thumbnailImage} />
+                  </View>
+                  :
+                  <Image source={{ uri: item?.playlistThumbnail }} style={styles.thumbnailImage} />
+              }
+              {/* videos count  */}
+              <View style={styles.videoCountContainer}>
+                <MaterialCommunityIcons name="playlist-play" size={15} color="white" />
+                <Text style={{ color: "white", fontSize: 13, fontWeight: "600", paddingVertical: 5 }}>{item?.videosCount}</Text>
               </View>
+            </View>
 
-              <View style={{ flexDirection: 'row' }}>
-                <View style={{ width: 200 }}>
-                  {/* playlist name */}
-                  <Text style={styles.playlistName}>{item?.name}</Text>
-                  <Text style={styles.playlistDescription}>{item?.description.length > 25 ? `${item.description.substring(0, 25)}...` : item.description}</Text>
-                </View>
+            <View style={{ flexDirection: 'row' }}>
+              <View style={{ width: 200 }}>
+                {/* playlist name */}
+                <Text style={styles.playlistName}>{item?.name}</Text>
+                <Text style={styles.playlistDescription}>{item?.description.length > 25 ? `${item.description.substring(0, 25)}...` : item.description}</Text>
               </View>
+            </View>
 
-              <Pressable onPress={() => { }} style={styles.optionsButton}>
-                <MaterialCommunityIcons name="dots-vertical" size={24} color="white" />
-              </Pressable>
-            </View>
-          </Pressable>
-        )}
-        keyExtractor={item => item._id}
-        ListEmptyComponent={() => (
-          <View style={styles.emptyListComponent}>
-            <View style={styles.emptyListIcon}>
-              <AntDesign name="folderopen" size={28} color="#AE7AFF" />
-            </View>
-            <Text style={styles.emptyListText}>No playlist created</Text>
-            <Text style={styles.emptyListSubText}>There are no playlists created on this channel</Text>
+            <Pressable onPress={() => { }} style={styles.optionsButton}>
+              <MaterialCommunityIcons name="dots-vertical" size={24} color="white" />
+            </Pressable>
           </View>
-        )}
-      />
-
-      {/* add btn  */}
-      {
-        isOwner &&
-        <TouchableOpacity onPress={() => setCreatePlaylistModalVisible(!isCreatePlaylistModalVisible)} style={styles.addBtn}>
-          <MaterialCommunityIcons name="playlist-plus" size={27} color="#AE7AFF" />
-        </TouchableOpacity>
-      }
-      {
-        isOwner &&
-        <CreatePlaylist isVisible={isCreatePlaylistModalVisible} setVisible={setCreatePlaylistModalVisible} />
-      }
-    </View>
+        </Pressable>
+      )}
+      keyExtractor={item => item._id}
+      ListEmptyComponent={() => (
+        <View style={styles.emptyListComponent}>
+          <View style={styles.emptyListIcon}>
+            <AntDesign name="folderopen" size={28} color="#AE7AFF" />
+          </View>
+          <Text style={styles.emptyListText}>No playlist created</Text>
+          <Text style={styles.emptyListSubText}>There are no playlists created on this channel</Text>
+        </View>
+      )}
+    />
   )
 }
 
@@ -234,4 +196,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PlaylistTabComponent
+export default memo(PlaylistTabComponent)

@@ -7,11 +7,12 @@ import { fetchChannelsSubscribed, fetchSubscribers, toggleSubscription } from '.
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { UserType } from '../../context/UserContext'
 
-const SubscribersComponent = ({ route }) => {
+const SubscribersComponent = ({ route, initialParams }) => {
     const { currentTheme } = useTheme()
     const dispatch = useDispatch()
     const channels = useSelector((state) => state.subscription.subscribers)
-    const userId = route?.params?.userId
+    // const userId = route?.params?.userId
+    const userId = initialParams.userId
 
     useEffect(() => {
         dispatch(fetchSubscribers(userId))
